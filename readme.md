@@ -38,7 +38,7 @@ npm install --save-dev @skitscript/types-nodejs
 
 ### Install `@skitscript/types-nodejs` as a peer dependency
 
-If you are developing a package with includes types from
+If you are developing a package which includes types from
 `@skitscript/types-nodejs` in its public API, additionally install it as a peer
 dependency so that consumers of your package know to include it as well:
 
