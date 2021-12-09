@@ -8,180 +8,7 @@ import type {
   Run,
 } from "@skitscript/types-nodejs";
 
-const parseFormatted = (
-  fromColumn: number,
-  unformatted: string,
-  onSuccess: (formatted: Formatted) => void
-): void => {
-  const formatted: Run[] = [];
-
-  let previousBold = false;
-  let previousItalic = false;
-  let previousCode = false;
-
-  let nextBold = false;
-  let nextItalic = false;
-  let nextCode = false;
-
-  let plainText = ``;
-  let verbatim = ``;
-
-  let state:
-    | `noSpecialCharacter`
-    | `backslash`
-    | `asterisk`
-    | `code`
-    | `codeBackslash` = `noSpecialCharacter`;
-
-  let toColumn = fromColumn - 1;
-
-  for (const character of unformatted) {
-    toColumn++;
-
-    switch (state) {
-      case `noSpecialCharacter`:
-        switch (character) {
-          case `\\`:
-            verbatim += `\\`;
-            state = `backslash`;
-            continue;
-
-          case `\``:
-            verbatim += `\``;
-            state = `code`;
-            nextCode = true;
-            continue;
-
-          case `*`:
-            verbatim += `*`;
-            state = `asterisk`;
-            continue;
-
-          default:
-            break;
-        }
-        break;
-
-      case `backslash`:
-        switch (character) {
-          case `\\`:
-          case `\``:
-          case `*`:
-            state = `noSpecialCharacter`;
-            break;
-
-          default:
-            throw `TODO A`;
-        }
-        break;
-
-      case `asterisk`:
-        state = `noSpecialCharacter`;
-
-        if (character === `*`) {
-          nextBold = !nextBold;
-          verbatim += `*`;
-          continue;
-        } else {
-          nextItalic = !nextItalic;
-
-          switch (character) {
-            case `\\`:
-              verbatim += `\\`;
-              state = `backslash`;
-              continue;
-
-            case `\``:
-              verbatim += `\``;
-              state = `code`;
-              nextCode = true;
-              continue;
-
-            default:
-              break;
-          }
-        }
-        break;
-
-      case `code`:
-        switch (character) {
-          case `\\`:
-            verbatim += `\\`;
-            state = `codeBackslash`;
-            continue;
-
-          case `\``:
-            nextCode = false;
-            verbatim += `\``;
-            state = `noSpecialCharacter`;
-            continue;
-
-          default:
-            break;
-        }
-        break;
-
-      case `codeBackslash`:
-        switch (character) {
-          case `\\`:
-            break;
-
-          case `\``:
-            throw `TODO B`;
-        }
-        break;
-    }
-
-    if (
-      (previousBold !== nextBold ||
-        previousItalic !== nextItalic ||
-        previousCode !== nextCode) &&
-      ((previousCode && plainText != ``) ||
-        (!previousCode && plainText.trim() !== ``))
-    ) {
-      formatted.push({
-        bold: previousBold,
-        italic: previousItalic,
-        code: previousCode,
-        verbatim,
-        plainText,
-        fromColumn,
-        toColumn: toColumn - 1,
-      });
-
-      previousBold = nextBold;
-      previousItalic = nextItalic;
-      previousCode = nextCode;
-
-      plainText = ``;
-      verbatim = ``;
-
-      fromColumn = toColumn;
-    }
-
-    plainText += character;
-    verbatim += character;
-  }
-
-  if (
-    (previousCode && plainText != ``) ||
-    (!previousCode && plainText.trim() !== ``)
-  ) {
-    formatted.push({
-      bold: previousBold,
-      italic: previousItalic,
-      code: previousCode,
-      verbatim,
-      plainText,
-      fromColumn,
-      toColumn,
-    });
-  }
-
-  onSuccess(formatted);
-};
-
-const identifierFilteredCharacterRegexFragment = `:!?'"{}@*/\\&#%\`+<=>|$.-`;
+const identifierFilteredCharacterRegexFragment = `!?'"{}@*/\\\\&#%\`+<=>|$.-`;
 
 const identifierFilteredCharacterRegex = new RegExp(
   `[${identifierFilteredCharacterRegexFragment}]`,
@@ -206,7 +33,7 @@ const identifierDisallowedWords = [
   `jump`,
 ];
 
-const identifierDisallowedCharacters = [`,`, `(`, `)`, `\\s`];
+const identifierDisallowedCharacters = [`,`, `(`, `)`, `\\s`, `:`, `~`];
 
 const identifierRegexFragment = `(?=.*[^${identifierFilteredCharacterRegexFragment}\\s].*)(?:(?!(?:${identifierDisallowedWords.join(
   `|`
@@ -353,8 +180,8 @@ export const parse = (source: string): Document => {
       verbatim,
       normalized: verbatim
         .toLowerCase()
-        .trim()
         .replace(identifierFilteredCharacterRegex, ` `)
+        .trim()
         .replace(/\s+/g, `-`),
       fromColumn: fromColumn,
       toColumn: fromColumn + verbatim.length - 1,
@@ -536,6 +363,277 @@ export const parse = (source: string): Document => {
 
   const events: Event[] = [];
 
+  const parseFormatted = (
+    line: number,
+    fromColumn: number,
+    unformatted: string,
+    onSuccess: (formatted: Formatted) => void
+  ): void => {
+    const formatted: Run[] = [];
+
+    let previousBold = false;
+    let previousItalic = false;
+    let previousCode = false;
+
+    let boldFromColumn: null | number = null;
+    let italicFromColumn: null | number = null;
+    let codeFromColumn: null | number = null;
+
+    let plainText = ``;
+    let verbatim = ``;
+
+    let state:
+      | `noSpecialCharacter`
+      | `backslash`
+      | `asterisk`
+      | `code`
+      | `codeBackslash` = `noSpecialCharacter`;
+
+    let currentRunFromColumn = fromColumn;
+    let toColumn = fromColumn - 1;
+
+    for (const character of unformatted) {
+      toColumn++;
+
+      let insertBackslash = false;
+
+      switch (state) {
+        case `noSpecialCharacter`:
+          switch (character) {
+            case `\\`:
+              state = `backslash`;
+              continue;
+
+            case `\``:
+              verbatim += `\``;
+              state = `code`;
+              codeFromColumn = toColumn;
+              continue;
+
+            case `*`:
+              verbatim += `*`;
+              state = `asterisk`;
+              continue;
+
+            default:
+              break;
+          }
+          break;
+
+        case `backslash`:
+          switch (character) {
+            case `\\`:
+            case `\``:
+            case `*`:
+              insertBackslash = true;
+              state = `noSpecialCharacter`;
+              break;
+
+            default:
+              events.push({
+                type: `invalidEscapeSequence`,
+                line,
+                verbatim: `\\${character}`,
+                fromColumn: toColumn - 1,
+                toColumn,
+              });
+              return;
+          }
+          break;
+
+        case `asterisk`:
+          state = `noSpecialCharacter`;
+
+          if (character === `*`) {
+            if (boldFromColumn === null) {
+              boldFromColumn = toColumn - 1;
+            } else {
+              boldFromColumn = null;
+            }
+            verbatim += `*`;
+            continue;
+          } else {
+            if (italicFromColumn === null) {
+              italicFromColumn = toColumn - 1;
+            } else {
+              italicFromColumn = null;
+            }
+
+            switch (character) {
+              case `\\`:
+                state = `backslash`;
+                continue;
+
+              case `\``:
+                verbatim += `\``;
+                state = `code`;
+                codeFromColumn = toColumn;
+                continue;
+
+              default:
+                break;
+            }
+          }
+          break;
+
+        case `code`:
+          switch (character) {
+            case `\\`:
+              state = `codeBackslash`;
+              continue;
+
+            case `\``:
+              codeFromColumn = null;
+              verbatim += `\``;
+              state = `noSpecialCharacter`;
+              continue;
+
+            default:
+              break;
+          }
+          break;
+
+        case `codeBackslash`:
+          switch (character) {
+            case `\\`:
+            case `\``:
+              insertBackslash = true;
+              state = `code`;
+              break;
+
+            default:
+              events.push({
+                type: `invalidEscapeSequence`,
+                line,
+                verbatim: `\\${character}`,
+                fromColumn: toColumn - 1,
+                toColumn,
+              });
+              return;
+          }
+      }
+
+      if (
+        (previousBold !== (boldFromColumn !== null) ||
+          previousItalic !== (italicFromColumn !== null) ||
+          previousCode !== (codeFromColumn !== null)) &&
+        ((previousCode && plainText != ``) ||
+          (!previousCode && plainText.trim() !== ``))
+      ) {
+        formatted.push({
+          bold: previousBold,
+          italic: previousItalic,
+          code: previousCode,
+          verbatim,
+          plainText,
+          fromColumn: currentRunFromColumn,
+          toColumn: toColumn - (insertBackslash ? 2 : 1),
+        });
+
+        previousBold = boldFromColumn !== null;
+        previousItalic = italicFromColumn !== null;
+        previousCode = codeFromColumn !== null;
+
+        plainText = ``;
+        verbatim = ``;
+
+        currentRunFromColumn = toColumn - (insertBackslash ? 1 : 0);
+      }
+
+      if (insertBackslash) {
+        verbatim += `\\`;
+      }
+
+      plainText += character;
+      verbatim += character;
+    }
+
+    switch (state) {
+      case `backslash`:
+      case `codeBackslash`:
+        events.push({
+          type: `incompleteEscapeSequence`,
+          line,
+          column: toColumn,
+        });
+        return;
+
+      case `asterisk`:
+        if (italicFromColumn === null) {
+          italicFromColumn = toColumn;
+        } else {
+          italicFromColumn = null;
+        }
+        break;
+    }
+
+    if (boldFromColumn !== null) {
+      events.push({
+        type: `unterminatedBold`,
+        line,
+        verbatim: unformatted.slice(boldFromColumn - fromColumn),
+        fromColumn: boldFromColumn,
+        toColumn,
+      });
+    } else if (italicFromColumn !== null) {
+      events.push({
+        type: `unterminatedItalic`,
+        line,
+        verbatim: unformatted.slice(italicFromColumn - fromColumn),
+        fromColumn: italicFromColumn,
+        toColumn,
+      });
+    } else if (codeFromColumn !== null) {
+      events.push({
+        type: `unterminatedCode`,
+        line,
+        verbatim: unformatted.slice(codeFromColumn - fromColumn),
+        fromColumn: codeFromColumn,
+        toColumn,
+      });
+    } else {
+      if (
+        (previousCode && plainText != ``) ||
+        (!previousCode && plainText.trim() !== ``)
+      ) {
+        formatted.push({
+          bold: previousBold,
+          italic: previousItalic,
+          code: previousCode,
+          verbatim,
+          plainText,
+          fromColumn: currentRunFromColumn,
+          toColumn,
+        });
+      }
+
+      onSuccess(formatted);
+    }
+  };
+
+  let reachability:
+    | `reachable`
+    | `willBecomeUnreachableAtEndOfCurrentMenu`
+    | `firstUnreachable`
+    | `unreachable` = `reachable`;
+
+  const whenReachable = (line: number, then: () => void) => {
+    switch (reachability) {
+      case `reachable`:
+        then();
+        break;
+
+      case `willBecomeUnreachableAtEndOfCurrentMenu`:
+      case `firstUnreachable`:
+        events.push({ type: `unreachable`, line });
+        reachability = `unreachable`;
+        break;
+
+      case `unreachable`:
+        break;
+    }
+  };
+
   source.split(/\r\n|\r|\n/g).forEach((unparsed, line) => {
     line++;
 
@@ -543,13 +641,15 @@ export const parse = (source: string): Document => {
       const lineMatch = lineRegex.exec(unparsed);
 
       if (lineMatch !== null) {
-        const prefix = lineMatch[1] as string;
-        const unformatted = lineMatch[2] as string;
-        parseFormatted(1 + prefix.length, unformatted, (content) => {
-          events.push({
-            type: `line`,
-            line,
-            content,
+        whenReachable(line, () => {
+          const prefix = lineMatch[1] as string;
+          const unformatted = lineMatch[2] as string;
+          parseFormatted(line, 1 + prefix.length, unformatted, (content) => {
+            events.push({
+              type: `line`,
+              line,
+              content,
+            });
           });
         });
 
@@ -559,18 +659,20 @@ export const parse = (source: string): Document => {
       const locationMatch = locationRegex.exec(unparsed);
 
       if (locationMatch !== null) {
-        const prefix = locationMatch[1] as string;
-        const backgroundName = locationMatch[2] as string;
+        whenReachable(line, () => {
+          const prefix = locationMatch[1] as string;
+          const backgroundName = locationMatch[2] as string;
 
-        const background = normalizeIdentifier(
-          1 + prefix.length,
-          backgroundName
-        );
+          const background = normalizeIdentifier(
+            1 + prefix.length,
+            backgroundName
+          );
 
-        events.push({
-          type: `location`,
-          line,
-          background,
+          events.push({
+            type: `location`,
+            line,
+            background,
+          });
         });
 
         return;
@@ -580,49 +682,51 @@ export const parse = (source: string): Document => {
         singleCharacterEntryAnimationRegex.exec(unparsed);
 
       if (singleCharacterEntryAnimationMatch !== null) {
-        const characterName = singleCharacterEntryAnimationMatch[1] as string;
-        const enters = singleCharacterEntryAnimationMatch[2] as string;
-        const animationName = singleCharacterEntryAnimationMatch[3] as string;
+        whenReachable(line, () => {
+          const characterName = singleCharacterEntryAnimationMatch[1] as string;
+          const enters = singleCharacterEntryAnimationMatch[2] as string;
+          const animationName = singleCharacterEntryAnimationMatch[3] as string;
 
-        const character = normalizeIdentifier(1, characterName);
+          const character = normalizeIdentifier(1, characterName);
 
-        const animation = normalizeIdentifier(
-          1 + characterName.length + enters.length,
-          animationName
-        );
-
-        events.push({
-          type: `entryAnimation`,
-          line,
-          character,
-          animation,
-        });
-
-        const emotePrefix = singleCharacterEntryAnimationMatch[4] as
-          | undefined
-          | string;
-
-        if (emotePrefix !== undefined) {
-          const emoteName = singleCharacterEntryAnimationMatch[5] as string;
-
-          const emote = normalizeIdentifier(
-            1 +
-              characterName.length +
-              enters.length +
-              animationName.length +
-              emotePrefix.length,
-            emoteName
+          const animation = normalizeIdentifier(
+            1 + characterName.length + enters.length,
+            animationName
           );
 
           events.push({
-            type: `emote`,
+            type: `entryAnimation`,
             line,
             character,
-            emote,
+            animation,
           });
-        }
 
-        checkIdentifierConsistency(`character`, line, character);
+          const emotePrefix = singleCharacterEntryAnimationMatch[4] as
+            | undefined
+            | string;
+
+          if (emotePrefix !== undefined) {
+            const emoteName = singleCharacterEntryAnimationMatch[5] as string;
+
+            const emote = normalizeIdentifier(
+              1 +
+                characterName.length +
+                enters.length +
+                animationName.length +
+                emotePrefix.length,
+              emoteName
+            );
+
+            events.push({
+              type: `emote`,
+              line,
+              character,
+              emote,
+            });
+          }
+
+          checkIdentifierConsistency(`character`, line, character);
+        });
 
         return;
       }
@@ -631,71 +735,73 @@ export const parse = (source: string): Document => {
         multiCharacterEntryAnimationRegex.exec(unparsed);
 
       if (multiCharacterEntryAnimationMatch !== null) {
-        const [characters, characterEvents] = normalizeIdentifierList(
-          line,
-          1,
-          multiCharacterEntryAnimationMatch,
-          1
-        );
-
-        const entry = multiCharacterEntryAnimationMatch[6] as string;
-        const animationName = multiCharacterEntryAnimationMatch[7] as string;
-
-        const animation = normalizeIdentifier(
-          1 +
-            (multiCharacterEntryAnimationMatch[1] ?? ``).length +
-            (multiCharacterEntryAnimationMatch[2] ?? ``).length +
-            (multiCharacterEntryAnimationMatch[3] ?? ``).length +
-            (multiCharacterEntryAnimationMatch[4] ?? ``).length +
-            (multiCharacterEntryAnimationMatch[5] ?? ``).length +
-            entry.length,
-          animationName
-        );
-
-        for (const character of characters) {
-          events.push({
-            type: `entryAnimation`,
+        whenReachable(line, () => {
+          const [characters, characterEvents] = normalizeIdentifierList(
             line,
-            character,
-            animation,
-          });
-        }
+            1,
+            multiCharacterEntryAnimationMatch,
+            1
+          );
 
-        const emotePrefix = multiCharacterEntryAnimationMatch[8] as
-          | undefined
-          | string;
+          const entry = multiCharacterEntryAnimationMatch[6] as string;
+          const animationName = multiCharacterEntryAnimationMatch[7] as string;
 
-        if (emotePrefix !== undefined) {
-          const emoteName = multiCharacterEntryAnimationMatch[9] as string;
-
-          const emote = normalizeIdentifier(
+          const animation = normalizeIdentifier(
             1 +
               (multiCharacterEntryAnimationMatch[1] ?? ``).length +
               (multiCharacterEntryAnimationMatch[2] ?? ``).length +
               (multiCharacterEntryAnimationMatch[3] ?? ``).length +
               (multiCharacterEntryAnimationMatch[4] ?? ``).length +
               (multiCharacterEntryAnimationMatch[5] ?? ``).length +
-              entry.length +
-              animationName.length +
-              emotePrefix.length,
-            emoteName
+              entry.length,
+            animationName
           );
 
           for (const character of characters) {
             events.push({
-              type: `emote`,
+              type: `entryAnimation`,
               line,
               character,
-              emote,
+              animation,
             });
           }
-        }
 
-        events.push(...characterEvents);
+          const emotePrefix = multiCharacterEntryAnimationMatch[8] as
+            | undefined
+            | string;
 
-        for (const character of characters) {
-          checkIdentifierConsistency(`character`, line, character);
-        }
+          if (emotePrefix !== undefined) {
+            const emoteName = multiCharacterEntryAnimationMatch[9] as string;
+
+            const emote = normalizeIdentifier(
+              1 +
+                (multiCharacterEntryAnimationMatch[1] ?? ``).length +
+                (multiCharacterEntryAnimationMatch[2] ?? ``).length +
+                (multiCharacterEntryAnimationMatch[3] ?? ``).length +
+                (multiCharacterEntryAnimationMatch[4] ?? ``).length +
+                (multiCharacterEntryAnimationMatch[5] ?? ``).length +
+                entry.length +
+                animationName.length +
+                emotePrefix.length,
+              emoteName
+            );
+
+            for (const character of characters) {
+              events.push({
+                type: `emote`,
+                line,
+                character,
+                emote,
+              });
+            }
+          }
+
+          events.push(...characterEvents);
+
+          for (const character of characters) {
+            checkIdentifierConsistency(`character`, line, character);
+          }
+        });
 
         return;
       }
@@ -704,49 +810,51 @@ export const parse = (source: string): Document => {
         singleCharacterExitAnimationRegex.exec(unparsed);
 
       if (singleCharacterExitAnimationMatch !== null) {
-        const characterName = singleCharacterExitAnimationMatch[1] as string;
-        const enters = singleCharacterExitAnimationMatch[2] as string;
-        const animationName = singleCharacterExitAnimationMatch[3] as string;
+        whenReachable(line, () => {
+          const characterName = singleCharacterExitAnimationMatch[1] as string;
+          const enters = singleCharacterExitAnimationMatch[2] as string;
+          const animationName = singleCharacterExitAnimationMatch[3] as string;
 
-        const character = normalizeIdentifier(1, characterName);
+          const character = normalizeIdentifier(1, characterName);
 
-        const animation = normalizeIdentifier(
-          1 + characterName.length + enters.length,
-          animationName
-        );
-
-        events.push({
-          type: `exitAnimation`,
-          line,
-          character,
-          animation,
-        });
-
-        const emotePrefix = singleCharacterExitAnimationMatch[4] as
-          | undefined
-          | string;
-
-        if (emotePrefix !== undefined) {
-          const emoteName = singleCharacterExitAnimationMatch[5] as string;
-
-          const emote = normalizeIdentifier(
-            1 +
-              characterName.length +
-              enters.length +
-              animationName.length +
-              emotePrefix.length,
-            emoteName
+          const animation = normalizeIdentifier(
+            1 + characterName.length + enters.length,
+            animationName
           );
 
           events.push({
-            type: `emote`,
+            type: `exitAnimation`,
             line,
             character,
-            emote,
+            animation,
           });
-        }
 
-        checkIdentifierConsistency(`character`, line, character);
+          const emotePrefix = singleCharacterExitAnimationMatch[4] as
+            | undefined
+            | string;
+
+          if (emotePrefix !== undefined) {
+            const emoteName = singleCharacterExitAnimationMatch[5] as string;
+
+            const emote = normalizeIdentifier(
+              1 +
+                characterName.length +
+                enters.length +
+                animationName.length +
+                emotePrefix.length,
+              emoteName
+            );
+
+            events.push({
+              type: `emote`,
+              line,
+              character,
+              emote,
+            });
+          }
+
+          checkIdentifierConsistency(`character`, line, character);
+        });
 
         return;
       }
@@ -755,71 +863,73 @@ export const parse = (source: string): Document => {
         multiCharacterExitAnimationRegex.exec(unparsed);
 
       if (multiCharacterExitAnimationMatch !== null) {
-        const [characters, characterEvents] = normalizeIdentifierList(
-          line,
-          1,
-          multiCharacterExitAnimationMatch,
-          1
-        );
-
-        const exit = multiCharacterExitAnimationMatch[6] as string;
-        const animationName = multiCharacterExitAnimationMatch[7] as string;
-
-        const animation = normalizeIdentifier(
-          1 +
-            (multiCharacterExitAnimationMatch[1] ?? ``).length +
-            (multiCharacterExitAnimationMatch[2] ?? ``).length +
-            (multiCharacterExitAnimationMatch[3] ?? ``).length +
-            (multiCharacterExitAnimationMatch[4] ?? ``).length +
-            (multiCharacterExitAnimationMatch[5] ?? ``).length +
-            exit.length,
-          animationName
-        );
-
-        for (const character of characters) {
-          events.push({
-            type: `exitAnimation`,
+        whenReachable(line, () => {
+          const [characters, characterEvents] = normalizeIdentifierList(
             line,
-            character,
-            animation,
-          });
-        }
+            1,
+            multiCharacterExitAnimationMatch,
+            1
+          );
 
-        const emotePrefix = multiCharacterExitAnimationMatch[8] as
-          | undefined
-          | string;
+          const exit = multiCharacterExitAnimationMatch[6] as string;
+          const animationName = multiCharacterExitAnimationMatch[7] as string;
 
-        if (emotePrefix !== undefined) {
-          const emoteName = multiCharacterExitAnimationMatch[9] as string;
-
-          const emote = normalizeIdentifier(
+          const animation = normalizeIdentifier(
             1 +
               (multiCharacterExitAnimationMatch[1] ?? ``).length +
               (multiCharacterExitAnimationMatch[2] ?? ``).length +
               (multiCharacterExitAnimationMatch[3] ?? ``).length +
               (multiCharacterExitAnimationMatch[4] ?? ``).length +
               (multiCharacterExitAnimationMatch[5] ?? ``).length +
-              exit.length +
-              animationName.length +
-              emotePrefix.length,
-            emoteName
+              exit.length,
+            animationName
           );
 
           for (const character of characters) {
             events.push({
-              type: `emote`,
+              type: `exitAnimation`,
               line,
               character,
-              emote,
+              animation,
             });
           }
-        }
 
-        events.push(...characterEvents);
+          const emotePrefix = multiCharacterExitAnimationMatch[8] as
+            | undefined
+            | string;
 
-        for (const character of characters) {
-          checkIdentifierConsistency(`character`, line, character);
-        }
+          if (emotePrefix !== undefined) {
+            const emoteName = multiCharacterExitAnimationMatch[9] as string;
+
+            const emote = normalizeIdentifier(
+              1 +
+                (multiCharacterExitAnimationMatch[1] ?? ``).length +
+                (multiCharacterExitAnimationMatch[2] ?? ``).length +
+                (multiCharacterExitAnimationMatch[3] ?? ``).length +
+                (multiCharacterExitAnimationMatch[4] ?? ``).length +
+                (multiCharacterExitAnimationMatch[5] ?? ``).length +
+                exit.length +
+                animationName.length +
+                emotePrefix.length,
+              emoteName
+            );
+
+            for (const character of characters) {
+              events.push({
+                type: `emote`,
+                line,
+                character,
+                emote,
+              });
+            }
+          }
+
+          events.push(...characterEvents);
+
+          for (const character of characters) {
+            checkIdentifierConsistency(`character`, line, character);
+          }
+        });
 
         return;
       }
@@ -827,49 +937,51 @@ export const parse = (source: string): Document => {
       const speakerMatch = speakerRegex.exec(unparsed);
 
       if (speakerMatch !== null) {
-        const [characters, characterEvents] = normalizeIdentifierList(
-          line,
-          1,
-          speakerMatch,
-          1
-        );
-
-        events.push({
-          type: `speaker`,
-          line,
-          characters,
-        });
-
-        const emotePrefix = speakerMatch[6] as undefined | string;
-
-        if (emotePrefix !== undefined) {
-          const emoteName = speakerMatch[7] as string;
-
-          const emote = normalizeIdentifier(
-            1 +
-              (speakerMatch[1] ?? ``).length +
-              (speakerMatch[2] ?? ``).length +
-              (speakerMatch[3] ?? ``).length +
-              (speakerMatch[4] ?? ``).length +
-              (speakerMatch[5] ?? ``).length +
-              emotePrefix.length,
-            emoteName
+        whenReachable(line, () => {
+          const [characters, characterEvents] = normalizeIdentifierList(
+            line,
+            1,
+            speakerMatch,
+            1
           );
-          for (const character of characters) {
-            events.push({
-              type: `emote`,
-              line,
-              character,
-              emote,
-            });
+
+          events.push({
+            type: `speaker`,
+            line,
+            characters,
+          });
+
+          const emotePrefix = speakerMatch[6] as undefined | string;
+
+          if (emotePrefix !== undefined) {
+            const emoteName = speakerMatch[7] as string;
+
+            const emote = normalizeIdentifier(
+              1 +
+                (speakerMatch[1] ?? ``).length +
+                (speakerMatch[2] ?? ``).length +
+                (speakerMatch[3] ?? ``).length +
+                (speakerMatch[4] ?? ``).length +
+                (speakerMatch[5] ?? ``).length +
+                emotePrefix.length,
+              emoteName
+            );
+            for (const character of characters) {
+              events.push({
+                type: `emote`,
+                line,
+                character,
+                emote,
+              });
+            }
           }
-        }
 
-        events.push(...characterEvents);
+          events.push(...characterEvents);
 
-        for (const character of characters) {
-          checkIdentifierConsistency(`character`, line, character);
-        }
+          for (const character of characters) {
+            checkIdentifierConsistency(`character`, line, character);
+          }
+        });
 
         return;
       }
@@ -878,22 +990,24 @@ export const parse = (source: string): Document => {
         singleCharacterEmoteRegex.exec(unparsed);
 
       if (singleCharacterEmoteMatch !== null) {
-        const characterName = singleCharacterEmoteMatch[1] as string;
-        const is = singleCharacterEmoteMatch[2] as string;
-        const emoteName = singleCharacterEmoteMatch[3] as string;
+        whenReachable(line, () => {
+          const characterName = singleCharacterEmoteMatch[1] as string;
+          const is = singleCharacterEmoteMatch[2] as string;
+          const emoteName = singleCharacterEmoteMatch[3] as string;
 
-        const character = normalizeIdentifier(1, characterName);
+          const character = normalizeIdentifier(1, characterName);
 
-        const emote = normalizeIdentifier(
-          1 + characterName.length + is.length,
-          emoteName
-        );
+          const emote = normalizeIdentifier(
+            1 + characterName.length + is.length,
+            emoteName
+          );
 
-        events.push({
-          type: `emote`,
-          line,
-          character,
-          emote,
+          events.push({
+            type: `emote`,
+            line,
+            character,
+            emote,
+          });
         });
 
         return;
@@ -902,37 +1016,39 @@ export const parse = (source: string): Document => {
       const multiCharacterEmoteMatch = multiCharacterEmoteRegex.exec(unparsed);
 
       if (multiCharacterEmoteMatch !== null) {
-        const [characters, characterEvents] = normalizeIdentifierList(
-          line,
-          1,
-          multiCharacterEmoteMatch,
-          1
-        );
-
-        const are = multiCharacterEmoteMatch[6] as string;
-        const emoteName = multiCharacterEmoteMatch[7] as string;
-
-        const emote = normalizeIdentifier(
-          1 +
-            (multiCharacterEmoteMatch[1] ?? ``).length +
-            (multiCharacterEmoteMatch[2] ?? ``).length +
-            (multiCharacterEmoteMatch[3] ?? ``).length +
-            (multiCharacterEmoteMatch[4] ?? ``).length +
-            (multiCharacterEmoteMatch[5] ?? ``).length +
-            are.length,
-          emoteName
-        );
-
-        for (const character of characters) {
-          events.push({
-            type: `emote`,
+        whenReachable(line, () => {
+          const [characters, characterEvents] = normalizeIdentifierList(
             line,
-            character,
-            emote,
-          });
-        }
+            1,
+            multiCharacterEmoteMatch,
+            1
+          );
 
-        events.push(...characterEvents);
+          const are = multiCharacterEmoteMatch[6] as string;
+          const emoteName = multiCharacterEmoteMatch[7] as string;
+
+          const emote = normalizeIdentifier(
+            1 +
+              (multiCharacterEmoteMatch[1] ?? ``).length +
+              (multiCharacterEmoteMatch[2] ?? ``).length +
+              (multiCharacterEmoteMatch[3] ?? ``).length +
+              (multiCharacterEmoteMatch[4] ?? ``).length +
+              (multiCharacterEmoteMatch[5] ?? ``).length +
+              are.length,
+            emoteName
+          );
+
+          for (const character of characters) {
+            events.push({
+              type: `emote`,
+              line,
+              character,
+              emote,
+            });
+          }
+
+          events.push(...characterEvents);
+        });
 
         return;
       }
@@ -951,49 +1067,62 @@ export const parse = (source: string): Document => {
           name,
         });
 
+        reachability = `reachable`;
+
         return;
       }
 
       const menuOptionMatch = menuOptionRegex.exec(unparsed);
 
       if (menuOptionMatch !== null) {
-        const prefix = menuOptionMatch[1] as string;
-        const unformattedContent = menuOptionMatch[2] as string;
+        if (reachability !== `unreachable`) {
+          const prefix = menuOptionMatch[1] as string;
+          const unformattedContent = menuOptionMatch[2] as string;
 
-        parseFormatted(1 + prefix.length, unformattedContent, (content) => {
-          const betweenContentAndLabelName = menuOptionMatch[3] as string;
-          const labelName = menuOptionMatch[4] as string;
-
-          const label = normalizeIdentifier(
-            1 +
-              unformattedContent.length +
-              prefix.length +
-              betweenContentAndLabelName.length,
-            labelName
-          );
-
-          const [condition, conditionEvents] = parseCondition(
+          parseFormatted(
             line,
-            1 +
-              prefix.length +
-              unformattedContent.length +
-              betweenContentAndLabelName.length +
-              labelName.length,
-            menuOptionMatch,
-            5
-          );
+            1 + prefix.length,
+            unformattedContent,
+            (content) => {
+              const betweenContentAndLabelName = menuOptionMatch[3] as string;
+              const labelName = menuOptionMatch[4] as string;
 
-          events.push(
-            {
-              type: `menuOption`,
-              line,
-              content,
-              label,
-              condition,
-            },
-            ...conditionEvents
+              const label = normalizeIdentifier(
+                1 +
+                  unformattedContent.length +
+                  prefix.length +
+                  betweenContentAndLabelName.length,
+                labelName
+              );
+
+              const [condition, conditionEvents] = parseCondition(
+                line,
+                1 +
+                  prefix.length +
+                  unformattedContent.length +
+                  betweenContentAndLabelName.length +
+                  labelName.length,
+                menuOptionMatch,
+                5
+              );
+
+              events.push(
+                {
+                  type: `menuOption`,
+                  line,
+                  content,
+                  label,
+                  condition,
+                },
+                ...conditionEvents
+              );
+
+              if (condition === null) {
+                reachability = `willBecomeUnreachableAtEndOfCurrentMenu`;
+              }
+            }
           );
-        });
+        }
 
         return;
       }
@@ -1001,24 +1130,26 @@ export const parse = (source: string): Document => {
       const setMatch = setRegex.exec(unparsed);
 
       if (setMatch !== null) {
-        const prefix = setMatch[1] as string;
+        whenReachable(line, () => {
+          const prefix = setMatch[1] as string;
 
-        const [flags, flagEvents] = normalizeIdentifierList(
-          line,
-          1 + prefix.length,
-          setMatch,
-          2
-        );
-
-        for (const flag of flags) {
-          events.push({
-            type: `set`,
+          const [flags, flagEvents] = normalizeIdentifierList(
             line,
-            flag,
-          });
-        }
+            1 + prefix.length,
+            setMatch,
+            2
+          );
 
-        events.push(...flagEvents);
+          for (const flag of flags) {
+            events.push({
+              type: `set`,
+              line,
+              flag,
+            });
+          }
+
+          events.push(...flagEvents);
+        });
 
         return;
       }
@@ -1026,24 +1157,26 @@ export const parse = (source: string): Document => {
       const clearMatch = clearRegex.exec(unparsed);
 
       if (clearMatch !== null) {
-        const prefix = clearMatch[1] as string;
+        whenReachable(line, () => {
+          const prefix = clearMatch[1] as string;
 
-        const [flags, flagEvents] = normalizeIdentifierList(
-          line,
-          1 + prefix.length,
-          clearMatch,
-          2
-        );
-
-        for (const flag of flags) {
-          events.push({
-            type: `clear`,
+          const [flags, flagEvents] = normalizeIdentifierList(
             line,
-            flag,
-          });
-        }
+            1 + prefix.length,
+            clearMatch,
+            2
+          );
 
-        events.push(...flagEvents);
+          for (const flag of flags) {
+            events.push({
+              type: `clear`,
+              line,
+              flag,
+            });
+          }
+
+          events.push(...flagEvents);
+        });
 
         return;
       }
@@ -1051,32 +1184,38 @@ export const parse = (source: string): Document => {
       const jumpMatch = jumpRegex.exec(unparsed);
 
       if (jumpMatch !== null) {
-        const prefix = jumpMatch[1] as string;
-        const labelName = jumpMatch[2] as string;
+        whenReachable(line, () => {
+          const prefix = jumpMatch[1] as string;
+          const labelName = jumpMatch[2] as string;
 
-        const label = normalizeIdentifier(1 + prefix.length, labelName);
+          const label = normalizeIdentifier(1 + prefix.length, labelName);
 
-        const [condition, conditionEvents] = parseCondition(
-          line,
-          1 + prefix.length + labelName.length,
-          jumpMatch,
-          3
-        );
-
-        events.push(
-          {
-            type: `jump`,
+          const [condition, conditionEvents] = parseCondition(
             line,
-            label,
-            condition,
-          },
-          ...conditionEvents
-        );
+            1 + prefix.length + labelName.length,
+            jumpMatch,
+            3
+          );
+
+          events.push(
+            {
+              type: `jump`,
+              line,
+              label,
+              condition,
+            },
+            ...conditionEvents
+          );
+
+          if (condition === null) {
+            reachability = `firstUnreachable`;
+          }
+        });
 
         return;
       }
 
-      events.push({ type: `unparsableLine`, line });
+      events.push({ type: `unparsable`, line });
     }
   });
 
