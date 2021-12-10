@@ -231,6 +231,29 @@ export const parse = (source: string): Document => {
     }
   };
 
+  const checkConditionConsistency = (
+    line: number,
+    condition: null | Condition
+  ): void => {
+    if (condition !== null) {
+      switch (condition.type) {
+        case `flagClear`:
+        case `flagSet`:
+          checkIdentifierConsistency(`flag`, line, condition.flag);
+          break;
+
+        case `someFlagsClear`:
+        case `someFlagsSet`:
+        case `everyFlagClear`:
+        case `everyFlagSet`:
+          for (const flag of condition.flags) {
+            checkIdentifierConsistency(`flag`, line, flag);
+          }
+          break;
+      }
+    }
+  };
+
   function normalizeIdentifierList<TBinaryOperator extends string>(
     line: number,
     fromColumn: number,
@@ -278,7 +301,7 @@ export const parse = (source: string): Document => {
       for (let i = 0; i < identifiers.length; i++) {
         const first = identifiers[i] as Identifier;
 
-        const firstDuplicate = true;
+        let firstDuplicate = true;
 
         for (let j = i + 1; j < identifiers.length; ) {
           const second = identifiers[j] as Identifier;
@@ -293,6 +316,8 @@ export const parse = (source: string): Document => {
                 first,
                 second,
               });
+
+              firstDuplicate = false;
             }
           } else {
             j++;
@@ -592,20 +617,15 @@ export const parse = (source: string): Document => {
         toColumn,
       });
     } else {
-      if (
-        (previousCode && plainText != ``) ||
-        (!previousCode && plainText.trim() !== ``)
-      ) {
-        formatted.push({
-          bold: previousBold,
-          italic: previousItalic,
-          code: previousCode,
-          verbatim,
-          plainText,
-          fromColumn: currentRunFromColumn,
-          toColumn,
-        });
-      }
+      formatted.push({
+        bold: previousBold,
+        italic: previousItalic,
+        code: previousCode,
+        verbatim,
+        plainText,
+        fromColumn: currentRunFromColumn,
+        toColumn,
+      });
 
       onSuccess(formatted);
     }
@@ -673,6 +693,8 @@ export const parse = (source: string): Document => {
             line,
             background,
           });
+
+          checkIdentifierConsistency(`background`, line, background);
         });
 
         return;
@@ -723,9 +745,13 @@ export const parse = (source: string): Document => {
               character,
               emote,
             });
+
+            checkIdentifierConsistency(`emote`, line, emote);
           }
 
           checkIdentifierConsistency(`character`, line, character);
+
+          checkIdentifierConsistency(`entryAnimation`, line, animation);
         });
 
         return;
@@ -748,11 +774,11 @@ export const parse = (source: string): Document => {
 
           const animation = normalizeIdentifier(
             1 +
-              (multiCharacterEntryAnimationMatch[1] ?? ``).length +
-              (multiCharacterEntryAnimationMatch[2] ?? ``).length +
-              (multiCharacterEntryAnimationMatch[3] ?? ``).length +
-              (multiCharacterEntryAnimationMatch[4] ?? ``).length +
-              (multiCharacterEntryAnimationMatch[5] ?? ``).length +
+              (multiCharacterEntryAnimationMatch[1] as string).length +
+              (multiCharacterEntryAnimationMatch[2] as string).length +
+              (multiCharacterEntryAnimationMatch[3] as string).length +
+              (multiCharacterEntryAnimationMatch[4] as string).length +
+              (multiCharacterEntryAnimationMatch[5] as string).length +
               entry.length,
             animationName
           );
@@ -775,11 +801,11 @@ export const parse = (source: string): Document => {
 
             const emote = normalizeIdentifier(
               1 +
-                (multiCharacterEntryAnimationMatch[1] ?? ``).length +
-                (multiCharacterEntryAnimationMatch[2] ?? ``).length +
-                (multiCharacterEntryAnimationMatch[3] ?? ``).length +
-                (multiCharacterEntryAnimationMatch[4] ?? ``).length +
-                (multiCharacterEntryAnimationMatch[5] ?? ``).length +
+                (multiCharacterEntryAnimationMatch[1] as string).length +
+                (multiCharacterEntryAnimationMatch[2] as string).length +
+                (multiCharacterEntryAnimationMatch[3] as string).length +
+                (multiCharacterEntryAnimationMatch[4] as string).length +
+                (multiCharacterEntryAnimationMatch[5] as string).length +
                 entry.length +
                 animationName.length +
                 emotePrefix.length,
@@ -794,6 +820,8 @@ export const parse = (source: string): Document => {
                 emote,
               });
             }
+
+            checkIdentifierConsistency(`emote`, line, emote);
           }
 
           events.push(...characterEvents);
@@ -801,6 +829,8 @@ export const parse = (source: string): Document => {
           for (const character of characters) {
             checkIdentifierConsistency(`character`, line, character);
           }
+
+          checkIdentifierConsistency(`entryAnimation`, line, animation);
         });
 
         return;
@@ -851,9 +881,13 @@ export const parse = (source: string): Document => {
               character,
               emote,
             });
+
+            checkIdentifierConsistency(`emote`, line, emote);
           }
 
           checkIdentifierConsistency(`character`, line, character);
+
+          checkIdentifierConsistency(`exitAnimation`, line, animation);
         });
 
         return;
@@ -876,11 +910,11 @@ export const parse = (source: string): Document => {
 
           const animation = normalizeIdentifier(
             1 +
-              (multiCharacterExitAnimationMatch[1] ?? ``).length +
-              (multiCharacterExitAnimationMatch[2] ?? ``).length +
-              (multiCharacterExitAnimationMatch[3] ?? ``).length +
-              (multiCharacterExitAnimationMatch[4] ?? ``).length +
-              (multiCharacterExitAnimationMatch[5] ?? ``).length +
+              (multiCharacterExitAnimationMatch[1] as string).length +
+              (multiCharacterExitAnimationMatch[2] as string).length +
+              (multiCharacterExitAnimationMatch[3] as string).length +
+              (multiCharacterExitAnimationMatch[4] as string).length +
+              (multiCharacterExitAnimationMatch[5] as string).length +
               exit.length,
             animationName
           );
@@ -903,11 +937,11 @@ export const parse = (source: string): Document => {
 
             const emote = normalizeIdentifier(
               1 +
-                (multiCharacterExitAnimationMatch[1] ?? ``).length +
-                (multiCharacterExitAnimationMatch[2] ?? ``).length +
-                (multiCharacterExitAnimationMatch[3] ?? ``).length +
-                (multiCharacterExitAnimationMatch[4] ?? ``).length +
-                (multiCharacterExitAnimationMatch[5] ?? ``).length +
+                (multiCharacterExitAnimationMatch[1] as string).length +
+                (multiCharacterExitAnimationMatch[2] as string).length +
+                (multiCharacterExitAnimationMatch[3] as string).length +
+                (multiCharacterExitAnimationMatch[4] as string).length +
+                (multiCharacterExitAnimationMatch[5] as string).length +
                 exit.length +
                 animationName.length +
                 emotePrefix.length,
@@ -922,6 +956,8 @@ export const parse = (source: string): Document => {
                 emote,
               });
             }
+
+            checkIdentifierConsistency(`emote`, line, emote);
           }
 
           events.push(...characterEvents);
@@ -929,6 +965,8 @@ export const parse = (source: string): Document => {
           for (const character of characters) {
             checkIdentifierConsistency(`character`, line, character);
           }
+
+          checkIdentifierConsistency(`exitAnimation`, line, animation);
         });
 
         return;
@@ -962,10 +1000,11 @@ export const parse = (source: string): Document => {
                 (speakerMatch[2] ?? ``).length +
                 (speakerMatch[3] ?? ``).length +
                 (speakerMatch[4] ?? ``).length +
-                (speakerMatch[5] ?? ``).length +
+                (speakerMatch[5] as string).length +
                 emotePrefix.length,
               emoteName
             );
+
             for (const character of characters) {
               events.push({
                 type: `emote`,
@@ -974,6 +1013,8 @@ export const parse = (source: string): Document => {
                 emote,
               });
             }
+
+            checkIdentifierConsistency(`emote`, line, emote);
           }
 
           events.push(...characterEvents);
@@ -1008,6 +1049,9 @@ export const parse = (source: string): Document => {
             character,
             emote,
           });
+
+          checkIdentifierConsistency(`character`, line, character);
+          checkIdentifierConsistency(`emote`, line, emote);
         });
 
         return;
@@ -1029,11 +1073,11 @@ export const parse = (source: string): Document => {
 
           const emote = normalizeIdentifier(
             1 +
-              (multiCharacterEmoteMatch[1] ?? ``).length +
-              (multiCharacterEmoteMatch[2] ?? ``).length +
-              (multiCharacterEmoteMatch[3] ?? ``).length +
-              (multiCharacterEmoteMatch[4] ?? ``).length +
-              (multiCharacterEmoteMatch[5] ?? ``).length +
+              (multiCharacterEmoteMatch[1] as string).length +
+              (multiCharacterEmoteMatch[2] as string).length +
+              (multiCharacterEmoteMatch[3] as string).length +
+              (multiCharacterEmoteMatch[4] as string).length +
+              (multiCharacterEmoteMatch[5] as string).length +
               are.length,
             emoteName
           );
@@ -1048,6 +1092,12 @@ export const parse = (source: string): Document => {
           }
 
           events.push(...characterEvents);
+
+          for (const character of characters) {
+            checkIdentifierConsistency(`character`, line, character);
+          }
+
+          checkIdentifierConsistency(`emote`, line, emote);
         });
 
         return;
@@ -1061,11 +1111,34 @@ export const parse = (source: string): Document => {
 
         const name = normalizeIdentifier(1 + prefix.length, nameString);
 
+        for (const previousEvent of events) {
+          if (
+            previousEvent.type === `label` &&
+            previousEvent.name.normalized === name.normalized
+          ) {
+            events.push({
+              type: `duplicateLabel`,
+              first: {
+                line: previousEvent.line,
+                identifier: previousEvent.name,
+              },
+              second: {
+                line,
+                identifier: name,
+              },
+            });
+
+            return;
+          }
+        }
+
         events.push({
           type: `label`,
           line,
           name,
         });
+
+        checkIdentifierConsistency(`label`, line, name);
 
         reachability = `reachable`;
 
@@ -1117,6 +1190,10 @@ export const parse = (source: string): Document => {
                 ...conditionEvents
               );
 
+              checkIdentifierConsistency(`label`, line, label);
+
+              checkConditionConsistency(line, condition);
+
               if (condition === null) {
                 reachability = `willBecomeUnreachableAtEndOfCurrentMenu`;
               }
@@ -1146,6 +1223,8 @@ export const parse = (source: string): Document => {
               line,
               flag,
             });
+
+            checkIdentifierConsistency(`flag`, line, flag);
           }
 
           events.push(...flagEvents);
@@ -1173,6 +1252,8 @@ export const parse = (source: string): Document => {
               line,
               flag,
             });
+
+            checkIdentifierConsistency(`flag`, line, flag);
           }
 
           events.push(...flagEvents);
@@ -1188,6 +1269,9 @@ export const parse = (source: string): Document => {
           const prefix = jumpMatch[1] as string;
           const labelName = jumpMatch[2] as string;
 
+          const previousEvent =
+            events.length > 0 ? events[events.length - 1] : undefined;
+
           const label = normalizeIdentifier(1 + prefix.length, labelName);
 
           const [condition, conditionEvents] = parseCondition(
@@ -1196,6 +1280,18 @@ export const parse = (source: string): Document => {
             jumpMatch,
             3
           );
+
+          if (
+            previousEvent !== undefined &&
+            previousEvent.type === `label` &&
+            condition === null
+          ) {
+            events.push({
+              type: `emptyLabel`,
+              line: previousEvent.line,
+              label: previousEvent.name,
+            });
+          }
 
           events.push(
             {
@@ -1206,6 +1302,10 @@ export const parse = (source: string): Document => {
             },
             ...conditionEvents
           );
+
+          checkIdentifierConsistency(`label`, line, label);
+
+          checkConditionConsistency(line, condition);
 
           if (condition === null) {
             reachability = `firstUnreachable`;
@@ -1218,6 +1318,103 @@ export const parse = (source: string): Document => {
       events.push({ type: `unparsable`, line });
     }
   });
+
+  for (let eventIndex = 0; eventIndex < events.length; eventIndex++) {
+    const event = events[eventIndex] as Event;
+
+    switch (event.type) {
+      case `label`: {
+        const referencedByAJump = events.some(
+          (jumpEvent) =>
+            jumpEvent.type === `jump` &&
+            jumpEvent.label.normalized === event.name.normalized
+        );
+
+        const referencedByAMenuOption = events.some(
+          (menuOptionEvent) =>
+            menuOptionEvent.type === `menuOption` &&
+            menuOptionEvent.label.normalized === event.name.normalized
+        );
+
+        if (!referencedByAJump && !referencedByAMenuOption) {
+          events.push({
+            type: `unreferencedLabel`,
+            line: event.line,
+            label: event.name,
+          });
+        }
+
+        break;
+      }
+
+      case `jump`:
+      case `menuOption`:
+        if (
+          !events.some(
+            (labelEvent) =>
+              labelEvent.type === `label` &&
+              labelEvent.name.normalized === event.label.normalized
+          )
+        ) {
+          events[eventIndex] = {
+            type: `undefinedLabel`,
+            line: event.line,
+            label: event.label,
+          };
+        }
+    }
+  }
+
+  for (const normalizedFlag in identifiers.flag) {
+    if (
+      !events.some(
+        (event) =>
+          event.type === `set` && event.flag.normalized === normalizedFlag
+      )
+    ) {
+      const flag = identifiers.flag[normalizedFlag] as IdentifierInstance;
+
+      events.push({
+        type: `flagNeverSet`,
+        line: flag.first.line,
+        name: flag.first.identifier,
+      });
+    }
+
+    if (
+      !events.some(
+        (event) =>
+          (event.type === `jump` || event.type === `menuOption`) &&
+          event.condition !== null &&
+          (event.condition.type === `flagClear` ||
+          event.condition.type === `flagSet`
+            ? event.condition.flag.normalized === normalizedFlag
+            : event.condition.flags.some(
+                (flag) => flag.normalized === normalizedFlag
+              ))
+      )
+    ) {
+      const flag = identifiers.flag[normalizedFlag] as IdentifierInstance;
+
+      events.push({
+        type: `flagNeverReferenced`,
+        line: flag.first.line,
+        name: flag.first.identifier,
+      });
+    }
+  }
+
+  if (events.length > 0) {
+    const lastEvent = events[events.length - 1] as Event;
+
+    if (lastEvent.type === `label`) {
+      events.push({
+        type: `emptyLabel`,
+        line: lastEvent.line,
+        label: lastEvent.name,
+      });
+    }
+  }
 
   return { events };
 };
