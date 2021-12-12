@@ -70,8 +70,21 @@ console.log(parsed);
 
 ```json
 {
-  "events": [
+  "type": "valid",
+  "statements": [
+    ...
+  ],
+  "warnings": [
     ...
   ]
+}
+```
+
+```json
+{
+  "type": "invalid",
+  "error": {
+    ...
+  }
 }
 ```
