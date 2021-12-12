@@ -71,7 +71,7 @@ console.log(parsed);
 ```json
 {
   "type": "valid",
-  "statements": [
+  "instructions": [
     ...
   ],
   "warnings": [
