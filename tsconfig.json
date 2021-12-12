@@ -80,5 +80,8 @@
     "traceResolution": false,
     "useDefineForClassFields": true,
     "useUnknownInCatchVariables": true
-  }
+  },
+  "exclude": [
+    "submodules/**/*"
+  ]
 }
