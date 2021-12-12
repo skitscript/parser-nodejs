@@ -160,6 +160,14 @@ type Reachability =
   | `firstUnreachable`
   | `unreachable`;
 
+type Statement =
+  | Instruction
+  | {
+      readonly type: `label`;
+      readonly line: number;
+      readonly name: Identifier;
+    };
+
 /**
  * Parses a Skitscript document from source.
  * @param source The Skitscript source to parse.
@@ -399,7 +407,7 @@ export const parse = (source: string): Document => {
     }
   }
 
-  const instructions: Instruction[] = [];
+  const statements: Statement[] = [];
   const warnings: Warning[] = [];
 
   const parseFormatted = (
@@ -680,7 +688,7 @@ export const parse = (source: string): Document => {
           unformatted,
           (content) => {
             whenReachable(line, () => {
-              instructions.push({
+              statements.push({
                 type: `line`,
                 line,
                 content,
@@ -708,7 +716,7 @@ export const parse = (source: string): Document => {
             backgroundName
           );
 
-          instructions.push({
+          statements.push({
             type: `location`,
             line,
             background,
@@ -736,7 +744,7 @@ export const parse = (source: string): Document => {
             animationName
           );
 
-          instructions.push({
+          statements.push({
             type: `entryAnimation`,
             line,
             character,
@@ -759,7 +767,7 @@ export const parse = (source: string): Document => {
               emoteName
             );
 
-            instructions.push({
+            statements.push({
               type: `emote`,
               line,
               character,
@@ -805,7 +813,7 @@ export const parse = (source: string): Document => {
           );
 
           for (const character of characters) {
-            instructions.push({
+            statements.push({
               type: `entryAnimation`,
               line,
               character,
@@ -834,7 +842,7 @@ export const parse = (source: string): Document => {
             );
 
             for (const character of characters) {
-              instructions.push({
+              statements.push({
                 type: `emote`,
                 line,
                 character,
@@ -845,7 +853,7 @@ export const parse = (source: string): Document => {
             checkIdentifierConsistency(`emote`, line, emote);
           }
 
-          instructions.push(...characterInstructions);
+          statements.push(...characterInstructions);
           warnings.push(...characterWarnings);
 
           for (const character of characters) {
@@ -874,7 +882,7 @@ export const parse = (source: string): Document => {
             animationName
           );
 
-          instructions.push({
+          statements.push({
             type: `exitAnimation`,
             line,
             character,
@@ -897,7 +905,7 @@ export const parse = (source: string): Document => {
               emoteName
             );
 
-            instructions.push({
+            statements.push({
               type: `emote`,
               line,
               character,
@@ -943,7 +951,7 @@ export const parse = (source: string): Document => {
           );
 
           for (const character of characters) {
-            instructions.push({
+            statements.push({
               type: `exitAnimation`,
               line,
               character,
@@ -972,7 +980,7 @@ export const parse = (source: string): Document => {
             );
 
             for (const character of characters) {
-              instructions.push({
+              statements.push({
                 type: `emote`,
                 line,
                 character,
@@ -983,7 +991,7 @@ export const parse = (source: string): Document => {
             checkIdentifierConsistency(`emote`, line, emote);
           }
 
-          instructions.push(...characterInstructions);
+          statements.push(...characterInstructions);
           warnings.push(...characterWarnings);
 
           for (const character of characters) {
@@ -1003,7 +1011,7 @@ export const parse = (source: string): Document => {
           const [characters, characterInstructions, characterWarnings] =
             normalizeIdentifierList(line, 1, speakerMatch, 1);
 
-          instructions.push({
+          statements.push({
             type: `speaker`,
             line,
             characters,
@@ -1026,7 +1034,7 @@ export const parse = (source: string): Document => {
             );
 
             for (const character of characters) {
-              instructions.push({
+              statements.push({
                 type: `emote`,
                 line,
                 character,
@@ -1037,7 +1045,7 @@ export const parse = (source: string): Document => {
             checkIdentifierConsistency(`emote`, line, emote);
           }
 
-          instructions.push(...characterInstructions);
+          statements.push(...characterInstructions);
           warnings.push(...characterWarnings);
 
           for (const character of characters) {
@@ -1064,7 +1072,7 @@ export const parse = (source: string): Document => {
             emoteName
           );
 
-          instructions.push({
+          statements.push({
             type: `emote`,
             line,
             character,
@@ -1100,7 +1108,7 @@ export const parse = (source: string): Document => {
           );
 
           for (const character of characters) {
-            instructions.push({
+            statements.push({
               type: `emote`,
               line,
               character,
@@ -1108,7 +1116,7 @@ export const parse = (source: string): Document => {
             });
           }
 
-          instructions.push(...characterInstructions);
+          statements.push(...characterInstructions);
           warnings.push(...characterWarnings);
 
           for (const character of characters) {
@@ -1129,7 +1137,7 @@ export const parse = (source: string): Document => {
 
         const name = normalizeIdentifier(1 + prefix.length, nameString);
 
-        for (const previousInstruction of instructions) {
+        for (const previousInstruction of statements) {
           if (
             previousInstruction.type === `label` &&
             previousInstruction.name.normalized === name.normalized
@@ -1151,7 +1159,7 @@ export const parse = (source: string): Document => {
           }
         }
 
-        instructions.push({
+        statements.push({
           type: `label`,
           line,
           name,
@@ -1200,12 +1208,13 @@ export const parse = (source: string): Document => {
                   5
                 );
 
-              instructions.push(
+              statements.push(
                 {
                   type: `menuOption`,
                   line,
                   content,
                   label,
+                  statementIndex: -1,
                   condition,
                 },
                 ...conditionInstructions
@@ -1237,7 +1246,7 @@ export const parse = (source: string): Document => {
             normalizeIdentifierList(line, 1 + prefix.length, setMatch, 2);
 
           for (const flag of flags) {
-            instructions.push({
+            statements.push({
               type: `set`,
               line,
               flag,
@@ -1246,7 +1255,7 @@ export const parse = (source: string): Document => {
             checkIdentifierConsistency(`flag`, line, flag);
           }
 
-          instructions.push(...flagInstructions);
+          statements.push(...flagInstructions);
           warnings.push(...flagWarnings);
         });
 
@@ -1263,7 +1272,7 @@ export const parse = (source: string): Document => {
             normalizeIdentifierList(line, 1 + prefix.length, clearMatch, 2);
 
           for (const flag of flags) {
-            instructions.push({
+            statements.push({
               type: `clear`,
               line,
               flag,
@@ -1272,7 +1281,7 @@ export const parse = (source: string): Document => {
             checkIdentifierConsistency(`flag`, line, flag);
           }
 
-          instructions.push(...flagInstructions);
+          statements.push(...flagInstructions);
           warnings.push(...flagWarnings);
         });
 
@@ -1287,8 +1296,8 @@ export const parse = (source: string): Document => {
           const labelName = jumpMatch[2] as string;
 
           const previousInstruction =
-            instructions.length > 0
-              ? instructions[instructions.length - 1]
+            statements.length > 0
+              ? statements[statements.length - 1]
               : undefined;
 
           const label = normalizeIdentifier(1 + prefix.length, labelName);
@@ -1313,11 +1322,12 @@ export const parse = (source: string): Document => {
             });
           }
 
-          instructions.push(
+          statements.push(
             {
               type: `jump`,
               line,
               label,
+              statementIndex: -1,
               condition,
             },
             ...conditionInstructions
@@ -1349,31 +1359,30 @@ export const parse = (source: string): Document => {
 
   for (
     let instructionIndex = 0;
-    instructionIndex < instructions.length;
+    instructionIndex < statements.length;
     instructionIndex++
   ) {
-    const instruction = instructions[instructionIndex] as Instruction;
+    const statement = statements[instructionIndex] as Statement;
 
-    switch (instruction.type) {
+    switch (statement.type) {
       case `label`: {
-        const referencedByAJump = instructions.some(
+        const referencedByAJump = statements.some(
           (jumpInstruction) =>
             jumpInstruction.type === `jump` &&
-            jumpInstruction.label.normalized === instruction.name.normalized
+            jumpInstruction.label.normalized === statement.name.normalized
         );
 
-        const referencedByAMenuOption = instructions.some(
+        const referencedByAMenuOption = statements.some(
           (menuOptionInstruction) =>
             menuOptionInstruction.type === `menuOption` &&
-            menuOptionInstruction.label.normalized ===
-              instruction.name.normalized
+            menuOptionInstruction.label.normalized === statement.name.normalized
         );
 
         if (!referencedByAJump && !referencedByAMenuOption) {
           warnings.push({
             type: `unreferencedLabel`,
-            line: instruction.line,
-            label: instruction.name,
+            line: statement.line,
+            label: statement.name,
           });
         }
 
@@ -1383,18 +1392,18 @@ export const parse = (source: string): Document => {
       case `jump`:
       case `menuOption`:
         if (
-          !instructions.some(
+          !statements.some(
             (labelInstruction) =>
               labelInstruction.type === `label` &&
-              labelInstruction.name.normalized === instruction.label.normalized
+              labelInstruction.name.normalized === statement.label.normalized
           )
         ) {
           return {
             type: `invalid`,
             error: {
               type: `undefinedLabel`,
-              line: instruction.line,
-              label: instruction.label,
+              line: statement.line,
+              label: statement.label,
             },
           };
         }
@@ -1403,7 +1412,7 @@ export const parse = (source: string): Document => {
 
   for (const normalizedFlag in identifiers.flag) {
     if (
-      !instructions.some(
+      !statements.some(
         (instruction) =>
           instruction.type === `set` &&
           instruction.flag.normalized === normalizedFlag
@@ -1419,7 +1428,7 @@ export const parse = (source: string): Document => {
     }
 
     if (
-      !instructions.some(
+      !statements.some(
         (instruction) =>
           (instruction.type === `jump` || instruction.type === `menuOption`) &&
           instruction.condition !== null &&
@@ -1441,25 +1450,76 @@ export const parse = (source: string): Document => {
     }
   }
 
-  if (instructions.length > 0) {
-    const lastInstruction = instructions[
-      instructions.length - 1
-    ] as Instruction;
+  if (statements.length > 0) {
+    const lastStatement = statements[statements.length - 1] as Statement;
 
     if (
-      lastInstruction.type === `label` &&
+      lastStatement.type === `label` &&
       !warnings.some(
         (flagNeverReferencedWarning) =>
           flagNeverReferencedWarning.type === `unreferencedLabel` &&
           flagNeverReferencedWarning.label.normalized ===
-            lastInstruction.name.normalized
+            lastStatement.name.normalized
       )
     ) {
       warnings.push({
         type: `emptyLabel`,
-        line: lastInstruction.line,
-        label: lastInstruction.name,
+        line: lastStatement.line,
+        label: lastStatement.name,
       });
+    }
+  }
+
+  const labelStatementIndices: { [normalized: string]: number } = {};
+
+  let statementIndex = 0;
+
+  for (const statement of statements) {
+    if (statement.type === `label`) {
+      labelStatementIndices[statement.name.normalized] = statementIndex;
+    } else {
+      statementIndex++;
+    }
+  }
+
+  for (const normalized in labelStatementIndices) {
+    if (labelStatementIndices[normalized] === statementIndex) {
+      labelStatementIndices[normalized] = 0;
+    }
+  }
+
+  const instructions: Instruction[] = [];
+
+  for (const statement of statements) {
+    switch (statement.type) {
+      case `clear`:
+      case `emote`:
+      case `entryAnimation`:
+      case `exitAnimation`:
+      case `line`:
+      case `location`:
+      case `set`:
+      case `speaker`:
+        instructions.push(statement);
+        break;
+
+      case `jump`:
+        instructions.push({
+          ...statement,
+          statementIndex: labelStatementIndices[
+            statement.label.normalized
+          ] as number,
+        });
+        break;
+
+      case `menuOption`:
+        instructions.push({
+          ...statement,
+          statementIndex: labelStatementIndices[
+            statement.label.normalized
+          ] as number,
+        });
+        break;
     }
   }
 
