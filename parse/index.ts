@@ -1,7 +1,7 @@
 import type {
   Condition,
   Document,
-  Statement,
+  Instruction,
   Warning,
   Formatted,
   Identifier,
@@ -269,7 +269,7 @@ export const parse = (source: string): Document => {
     startingIndex: number
   ): readonly [
     ReadonlyArray<Identifier>,
-    ReadonlyArray<Statement>,
+    ReadonlyArray<Instruction>,
     ReadonlyArray<Warning>,
     null | TBinaryOperator
   ] {
@@ -305,7 +305,7 @@ export const parse = (source: string): Document => {
 
       identifiers.push(normalizeIdentifier(fromColumn, final));
 
-      const statements: Statement[] = [];
+      const instructions: Instruction[] = [];
       const warnings: Warning[] = [];
 
       for (let i = 0; i < identifiers.length; i++) {
@@ -337,7 +337,7 @@ export const parse = (source: string): Document => {
 
       return [
         identifiers,
-        statements,
+        instructions,
         warnings,
         binaryOperator.toLowerCase() as TBinaryOperator,
       ];
@@ -349,7 +349,7 @@ export const parse = (source: string): Document => {
     fromColumn: number,
     match: RegExpMatchArray,
     startingIndex: number
-  ): [null | Condition, ReadonlyArray<Statement>, ReadonlyArray<Warning>] {
+  ): [null | Condition, ReadonlyArray<Instruction>, ReadonlyArray<Warning>] {
     const prefix = match[startingIndex] as undefined | string;
 
     if (prefix === undefined) {
@@ -357,7 +357,7 @@ export const parse = (source: string): Document => {
     } else {
       const not = match[startingIndex + 1] as undefined | string;
 
-      const [flags, statements, warnings, binaryOperator] =
+      const [flags, instructions, warnings, binaryOperator] =
         normalizeIdentifierList<`and` | `or`>(
           line,
           fromColumn + prefix.length + (not === undefined ? 0 : not.length),
@@ -372,7 +372,7 @@ export const parse = (source: string): Document => {
               type: not === undefined ? `flagSet` : `flagClear`,
               flag: flags[0] as Identifier,
             },
-            statements,
+            instructions,
             warnings,
           ];
 
@@ -382,7 +382,7 @@ export const parse = (source: string): Document => {
               type: not === undefined ? `everyFlagSet` : `someFlagsClear`,
               flags,
             },
-            statements,
+            instructions,
             warnings,
           ];
 
@@ -392,14 +392,14 @@ export const parse = (source: string): Document => {
               type: not === undefined ? `someFlagsSet` : `everyFlagClear`,
               flags,
             },
-            statements,
+            instructions,
             warnings,
           ];
       }
     }
   }
 
-  const statements: Statement[] = [];
+  const instructions: Instruction[] = [];
   const warnings: Warning[] = [];
 
   const parseFormatted = (
@@ -680,7 +680,7 @@ export const parse = (source: string): Document => {
           unformatted,
           (content) => {
             whenReachable(line, () => {
-              statements.push({
+              instructions.push({
                 type: `line`,
                 line,
                 content,
@@ -708,7 +708,7 @@ export const parse = (source: string): Document => {
             backgroundName
           );
 
-          statements.push({
+          instructions.push({
             type: `location`,
             line,
             background,
@@ -736,7 +736,7 @@ export const parse = (source: string): Document => {
             animationName
           );
 
-          statements.push({
+          instructions.push({
             type: `entryAnimation`,
             line,
             character,
@@ -759,7 +759,7 @@ export const parse = (source: string): Document => {
               emoteName
             );
 
-            statements.push({
+            instructions.push({
               type: `emote`,
               line,
               character,
@@ -782,7 +782,7 @@ export const parse = (source: string): Document => {
 
       if (multiCharacterEntryAnimationMatch !== null) {
         whenReachable(line, () => {
-          const [characters, characterStatements, characterWarnings] =
+          const [characters, characterInstructions, characterWarnings] =
             normalizeIdentifierList(
               line,
               1,
@@ -805,7 +805,7 @@ export const parse = (source: string): Document => {
           );
 
           for (const character of characters) {
-            statements.push({
+            instructions.push({
               type: `entryAnimation`,
               line,
               character,
@@ -834,7 +834,7 @@ export const parse = (source: string): Document => {
             );
 
             for (const character of characters) {
-              statements.push({
+              instructions.push({
                 type: `emote`,
                 line,
                 character,
@@ -845,7 +845,7 @@ export const parse = (source: string): Document => {
             checkIdentifierConsistency(`emote`, line, emote);
           }
 
-          statements.push(...characterStatements);
+          instructions.push(...characterInstructions);
           warnings.push(...characterWarnings);
 
           for (const character of characters) {
@@ -874,7 +874,7 @@ export const parse = (source: string): Document => {
             animationName
           );
 
-          statements.push({
+          instructions.push({
             type: `exitAnimation`,
             line,
             character,
@@ -897,7 +897,7 @@ export const parse = (source: string): Document => {
               emoteName
             );
 
-            statements.push({
+            instructions.push({
               type: `emote`,
               line,
               character,
@@ -920,7 +920,7 @@ export const parse = (source: string): Document => {
 
       if (multiCharacterExitAnimationMatch !== null) {
         whenReachable(line, () => {
-          const [characters, characterStatements, characterWarnings] =
+          const [characters, characterInstructions, characterWarnings] =
             normalizeIdentifierList(
               line,
               1,
@@ -943,7 +943,7 @@ export const parse = (source: string): Document => {
           );
 
           for (const character of characters) {
-            statements.push({
+            instructions.push({
               type: `exitAnimation`,
               line,
               character,
@@ -972,7 +972,7 @@ export const parse = (source: string): Document => {
             );
 
             for (const character of characters) {
-              statements.push({
+              instructions.push({
                 type: `emote`,
                 line,
                 character,
@@ -983,7 +983,7 @@ export const parse = (source: string): Document => {
             checkIdentifierConsistency(`emote`, line, emote);
           }
 
-          statements.push(...characterStatements);
+          instructions.push(...characterInstructions);
           warnings.push(...characterWarnings);
 
           for (const character of characters) {
@@ -1000,10 +1000,10 @@ export const parse = (source: string): Document => {
 
       if (speakerMatch !== null) {
         whenReachable(line, () => {
-          const [characters, characterStatements, characterWarnings] =
+          const [characters, characterInstructions, characterWarnings] =
             normalizeIdentifierList(line, 1, speakerMatch, 1);
 
-          statements.push({
+          instructions.push({
             type: `speaker`,
             line,
             characters,
@@ -1026,7 +1026,7 @@ export const parse = (source: string): Document => {
             );
 
             for (const character of characters) {
-              statements.push({
+              instructions.push({
                 type: `emote`,
                 line,
                 character,
@@ -1037,7 +1037,7 @@ export const parse = (source: string): Document => {
             checkIdentifierConsistency(`emote`, line, emote);
           }
 
-          statements.push(...characterStatements);
+          instructions.push(...characterInstructions);
           warnings.push(...characterWarnings);
 
           for (const character of characters) {
@@ -1064,7 +1064,7 @@ export const parse = (source: string): Document => {
             emoteName
           );
 
-          statements.push({
+          instructions.push({
             type: `emote`,
             line,
             character,
@@ -1082,7 +1082,7 @@ export const parse = (source: string): Document => {
 
       if (multiCharacterEmoteMatch !== null) {
         whenReachable(line, () => {
-          const [characters, characterStatements, characterWarnings] =
+          const [characters, characterInstructions, characterWarnings] =
             normalizeIdentifierList(line, 1, multiCharacterEmoteMatch, 1);
 
           const are = multiCharacterEmoteMatch[6] as string;
@@ -1100,7 +1100,7 @@ export const parse = (source: string): Document => {
           );
 
           for (const character of characters) {
-            statements.push({
+            instructions.push({
               type: `emote`,
               line,
               character,
@@ -1108,7 +1108,7 @@ export const parse = (source: string): Document => {
             });
           }
 
-          statements.push(...characterStatements);
+          instructions.push(...characterInstructions);
           warnings.push(...characterWarnings);
 
           for (const character of characters) {
@@ -1129,18 +1129,18 @@ export const parse = (source: string): Document => {
 
         const name = normalizeIdentifier(1 + prefix.length, nameString);
 
-        for (const previousStatement of statements) {
+        for (const previousInstruction of instructions) {
           if (
-            previousStatement.type === `label` &&
-            previousStatement.name.normalized === name.normalized
+            previousInstruction.type === `label` &&
+            previousInstruction.name.normalized === name.normalized
           ) {
             return {
               type: `invalid`,
               error: {
                 type: `duplicateLabel`,
                 first: {
-                  line: previousStatement.line,
-                  identifier: previousStatement.name,
+                  line: previousInstruction.line,
+                  identifier: previousInstruction.name,
                 },
                 second: {
                   line,
@@ -1151,7 +1151,7 @@ export const parse = (source: string): Document => {
           }
         }
 
-        statements.push({
+        instructions.push({
           type: `label`,
           line,
           name,
@@ -1188,7 +1188,7 @@ export const parse = (source: string): Document => {
                 labelName
               );
 
-              const [condition, conditionStatements, conditionWarnings] =
+              const [condition, conditionInstructions, conditionWarnings] =
                 parseCondition(
                   line,
                   1 +
@@ -1200,7 +1200,7 @@ export const parse = (source: string): Document => {
                   5
                 );
 
-              statements.push(
+              instructions.push(
                 {
                   type: `menuOption`,
                   line,
@@ -1208,7 +1208,7 @@ export const parse = (source: string): Document => {
                   label,
                   condition,
                 },
-                ...conditionStatements
+                ...conditionInstructions
               );
 
               warnings.push(...conditionWarnings);
@@ -1233,15 +1233,11 @@ export const parse = (source: string): Document => {
         whenReachable(line, () => {
           const prefix = setMatch[1] as string;
 
-          const [flags, flagStatements, flagWarnings] = normalizeIdentifierList(
-            line,
-            1 + prefix.length,
-            setMatch,
-            2
-          );
+          const [flags, flagInstructions, flagWarnings] =
+            normalizeIdentifierList(line, 1 + prefix.length, setMatch, 2);
 
           for (const flag of flags) {
-            statements.push({
+            instructions.push({
               type: `set`,
               line,
               flag,
@@ -1250,7 +1246,7 @@ export const parse = (source: string): Document => {
             checkIdentifierConsistency(`flag`, line, flag);
           }
 
-          statements.push(...flagStatements);
+          instructions.push(...flagInstructions);
           warnings.push(...flagWarnings);
         });
 
@@ -1263,15 +1259,11 @@ export const parse = (source: string): Document => {
         whenReachable(line, () => {
           const prefix = clearMatch[1] as string;
 
-          const [flags, flagStatements, flagWarnings] = normalizeIdentifierList(
-            line,
-            1 + prefix.length,
-            clearMatch,
-            2
-          );
+          const [flags, flagInstructions, flagWarnings] =
+            normalizeIdentifierList(line, 1 + prefix.length, clearMatch, 2);
 
           for (const flag of flags) {
-            statements.push({
+            instructions.push({
               type: `clear`,
               line,
               flag,
@@ -1280,7 +1272,7 @@ export const parse = (source: string): Document => {
             checkIdentifierConsistency(`flag`, line, flag);
           }
 
-          statements.push(...flagStatements);
+          instructions.push(...flagInstructions);
           warnings.push(...flagWarnings);
         });
 
@@ -1294,14 +1286,14 @@ export const parse = (source: string): Document => {
           const prefix = jumpMatch[1] as string;
           const labelName = jumpMatch[2] as string;
 
-          const previousStatement =
-            statements.length > 0
-              ? statements[statements.length - 1]
+          const previousInstruction =
+            instructions.length > 0
+              ? instructions[instructions.length - 1]
               : undefined;
 
           const label = normalizeIdentifier(1 + prefix.length, labelName);
 
-          const [condition, conditionStatements, conditionWarnings] =
+          const [condition, conditionInstructions, conditionWarnings] =
             parseCondition(
               line,
               1 + prefix.length + labelName.length,
@@ -1310,25 +1302,25 @@ export const parse = (source: string): Document => {
             );
 
           if (
-            previousStatement !== undefined &&
-            previousStatement.type === `label` &&
+            previousInstruction !== undefined &&
+            previousInstruction.type === `label` &&
             condition === null
           ) {
             warnings.push({
               type: `emptyLabel`,
-              line: previousStatement.line,
-              label: previousStatement.name,
+              line: previousInstruction.line,
+              label: previousInstruction.name,
             });
           }
 
-          statements.push(
+          instructions.push(
             {
               type: `jump`,
               line,
               label,
               condition,
             },
-            ...conditionStatements
+            ...conditionInstructions
           );
 
           warnings.push(...conditionWarnings);
@@ -1356,31 +1348,32 @@ export const parse = (source: string): Document => {
   }
 
   for (
-    let statementIndex = 0;
-    statementIndex < statements.length;
-    statementIndex++
+    let instructionIndex = 0;
+    instructionIndex < instructions.length;
+    instructionIndex++
   ) {
-    const statement = statements[statementIndex] as Statement;
+    const instruction = instructions[instructionIndex] as Instruction;
 
-    switch (statement.type) {
+    switch (instruction.type) {
       case `label`: {
-        const referencedByAJump = statements.some(
-          (jumpStatement) =>
-            jumpStatement.type === `jump` &&
-            jumpStatement.label.normalized === statement.name.normalized
+        const referencedByAJump = instructions.some(
+          (jumpInstruction) =>
+            jumpInstruction.type === `jump` &&
+            jumpInstruction.label.normalized === instruction.name.normalized
         );
 
-        const referencedByAMenuOption = statements.some(
-          (menuOptionStatement) =>
-            menuOptionStatement.type === `menuOption` &&
-            menuOptionStatement.label.normalized === statement.name.normalized
+        const referencedByAMenuOption = instructions.some(
+          (menuOptionInstruction) =>
+            menuOptionInstruction.type === `menuOption` &&
+            menuOptionInstruction.label.normalized ===
+              instruction.name.normalized
         );
 
         if (!referencedByAJump && !referencedByAMenuOption) {
           warnings.push({
             type: `unreferencedLabel`,
-            line: statement.line,
-            label: statement.name,
+            line: instruction.line,
+            label: instruction.name,
           });
         }
 
@@ -1390,18 +1383,18 @@ export const parse = (source: string): Document => {
       case `jump`:
       case `menuOption`:
         if (
-          !statements.some(
-            (labelStatement) =>
-              labelStatement.type === `label` &&
-              labelStatement.name.normalized === statement.label.normalized
+          !instructions.some(
+            (labelInstruction) =>
+              labelInstruction.type === `label` &&
+              labelInstruction.name.normalized === instruction.label.normalized
           )
         ) {
           return {
             type: `invalid`,
             error: {
               type: `undefinedLabel`,
-              line: statement.line,
-              label: statement.label,
+              line: instruction.line,
+              label: instruction.label,
             },
           };
         }
@@ -1410,10 +1403,10 @@ export const parse = (source: string): Document => {
 
   for (const normalizedFlag in identifiers.flag) {
     if (
-      !statements.some(
-        (statement) =>
-          statement.type === `set` &&
-          statement.flag.normalized === normalizedFlag
+      !instructions.some(
+        (instruction) =>
+          instruction.type === `set` &&
+          instruction.flag.normalized === normalizedFlag
       )
     ) {
       const flag = identifiers.flag[normalizedFlag] as IdentifierInstance;
@@ -1426,14 +1419,14 @@ export const parse = (source: string): Document => {
     }
 
     if (
-      !statements.some(
-        (statement) =>
-          (statement.type === `jump` || statement.type === `menuOption`) &&
-          statement.condition !== null &&
-          (statement.condition.type === `flagClear` ||
-          statement.condition.type === `flagSet`
-            ? statement.condition.flag.normalized === normalizedFlag
-            : statement.condition.flags.some(
+      !instructions.some(
+        (instruction) =>
+          (instruction.type === `jump` || instruction.type === `menuOption`) &&
+          instruction.condition !== null &&
+          (instruction.condition.type === `flagClear` ||
+          instruction.condition.type === `flagSet`
+            ? instruction.condition.flag.normalized === normalizedFlag
+            : instruction.condition.flags.some(
                 (flag) => flag.normalized === normalizedFlag
               ))
       )
@@ -1448,25 +1441,27 @@ export const parse = (source: string): Document => {
     }
   }
 
-  if (statements.length > 0) {
-    const lastStatement = statements[statements.length - 1] as Statement;
+  if (instructions.length > 0) {
+    const lastInstruction = instructions[
+      instructions.length - 1
+    ] as Instruction;
 
     if (
-      lastStatement.type === `label` &&
+      lastInstruction.type === `label` &&
       !warnings.some(
         (flagNeverReferencedWarning) =>
           flagNeverReferencedWarning.type === `unreferencedLabel` &&
           flagNeverReferencedWarning.label.normalized ===
-            lastStatement.name.normalized
+            lastInstruction.name.normalized
       )
     ) {
       warnings.push({
         type: `emptyLabel`,
-        line: lastStatement.line,
-        label: lastStatement.name,
+        line: lastInstruction.line,
+        label: lastInstruction.name,
       });
     }
   }
 
-  return { type: `valid`, statements, warnings };
+  return { type: `valid`, instructions, warnings };
 };
