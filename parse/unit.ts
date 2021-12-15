@@ -4,16 +4,16 @@ import * as path from "path";
 import { parse } from "..";
 
 describe(`parse`, () => {
-  const casesPath = path.join(
+  const documentCasesPath = path.join(
     __dirname,
     `..`,
     `submodules`,
     `skitscript`,
     `parser-test-suite`,
-    `cases`
+    `document-cases`
   );
 
-  const caseNames = fs.readdirSync(casesPath);
+  const caseNames = fs.readdirSync(documentCasesPath);
 
   for (const caseName of caseNames) {
     describe(caseName, () => {
@@ -23,7 +23,7 @@ describe(`parse`, () => {
 
           beforeAll(async () => {
             const source = await fs.promises.readFile(
-              path.join(casesPath, caseName, `input.skitscript`),
+              path.join(documentCasesPath, caseName, `input.skitscript`),
               `utf8`
             );
 
@@ -32,7 +32,7 @@ describe(`parse`, () => {
 
           it(`parses to the expected document`, async () => {
             const outputText = await fs.promises.readFile(
-              path.join(casesPath, caseName, `output.json`),
+              path.join(documentCasesPath, caseName, `output.json`),
               `utf8`
             );
             const output = JSON.parse(outputText);
