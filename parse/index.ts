@@ -10,6 +10,7 @@ import type {
   Error,
   IdentifierType,
   IdentifierInstance,
+  IdentifierContext,
 } from "@skitscript/types-nodejs";
 
 const identifierFilteredCharacterRegexFragment = `!?'"{}@*/\\\\&#%\`+<=>|$.-`;
@@ -191,6 +192,7 @@ export const parse = (source: string): Document => {
   const normalizeIdentifier = (
     line: number,
     type: IdentifierType,
+    context: IdentifierContext,
     fromColumn: number,
     verbatim: string
   ): Identifier => {
@@ -209,6 +211,7 @@ export const parse = (source: string): Document => {
       ...identifier,
       type,
       line,
+      context,
     });
 
     return identifier;
@@ -298,7 +301,15 @@ export const parse = (source: string): Document => {
       const single = match[startingIndex + 4] as string;
 
       return [
-        [normalizeIdentifier(line, type, fromColumn, single)],
+        [
+          normalizeIdentifier(
+            line,
+            type,
+            `implicitDeclaration`,
+            fromColumn,
+            single
+          ),
+        ],
         [],
         [],
         null,
@@ -319,7 +330,13 @@ export const parse = (source: string): Document => {
         fromColumn += identifier.length - identifier.trimStart().length;
 
         identifiers.push(
-          normalizeIdentifier(line, type, fromColumn, identifier.trim())
+          normalizeIdentifier(
+            line,
+            type,
+            `implicitDeclaration`,
+            fromColumn,
+            identifier.trim()
+          )
         );
 
         fromColumn += identifier.trimStart().length;
@@ -329,7 +346,15 @@ export const parse = (source: string): Document => {
       fromColumn += binaryOperator.length;
       fromColumn += afterBinaryOperator.length;
 
-      identifiers.push(normalizeIdentifier(line, type, fromColumn, final));
+      identifiers.push(
+        normalizeIdentifier(
+          line,
+          type,
+          `implicitDeclaration`,
+          fromColumn,
+          final
+        )
+      );
 
       const instructions: Instruction[] = [];
       const warnings: Warning[] = [];
@@ -732,6 +757,7 @@ export const parse = (source: string): Document => {
         const background = normalizeIdentifier(
           line,
           `background`,
+          `implicitDeclaration`,
           1 + prefix.length,
           backgroundName
         );
@@ -761,6 +787,7 @@ export const parse = (source: string): Document => {
         const character = normalizeIdentifier(
           line,
           `character`,
+          `implicitDeclaration`,
           1,
           characterName
         );
@@ -768,6 +795,7 @@ export const parse = (source: string): Document => {
         const animation = normalizeIdentifier(
           line,
           `entryAnimation`,
+          `implicitDeclaration`,
           1 + characterName.length + enters.length,
           animationName
         );
@@ -791,6 +819,7 @@ export const parse = (source: string): Document => {
           const emote = normalizeIdentifier(
             line,
             `emote`,
+            `implicitDeclaration`,
             1 +
               characterName.length +
               enters.length +
@@ -840,6 +869,7 @@ export const parse = (source: string): Document => {
         const animation = normalizeIdentifier(
           line,
           `entryAnimation`,
+          `implicitDeclaration`,
           1 +
             (multiCharacterEntryAnimationMatch[1] as string).length +
             (multiCharacterEntryAnimationMatch[2] as string).length +
@@ -871,6 +901,7 @@ export const parse = (source: string): Document => {
           const emote = normalizeIdentifier(
             line,
             `emote`,
+            `implicitDeclaration`,
             1 +
               (multiCharacterEntryAnimationMatch[1] as string).length +
               (multiCharacterEntryAnimationMatch[2] as string).length +
@@ -923,6 +954,7 @@ export const parse = (source: string): Document => {
         const character = normalizeIdentifier(
           line,
           `character`,
+          `implicitDeclaration`,
           1,
           characterName
         );
@@ -930,6 +962,7 @@ export const parse = (source: string): Document => {
         const animation = normalizeIdentifier(
           line,
           `exitAnimation`,
+          `implicitDeclaration`,
           1 + characterName.length + enters.length,
           animationName
         );
@@ -953,6 +986,7 @@ export const parse = (source: string): Document => {
           const emote = normalizeIdentifier(
             line,
             `emote`,
+            `implicitDeclaration`,
             1 +
               characterName.length +
               enters.length +
@@ -1003,6 +1037,7 @@ export const parse = (source: string): Document => {
         const animation = normalizeIdentifier(
           line,
           `exitAnimation`,
+          `implicitDeclaration`,
           1 +
             (multiCharacterExitAnimationMatch[1] as string).length +
             (multiCharacterExitAnimationMatch[2] as string).length +
@@ -1034,6 +1069,7 @@ export const parse = (source: string): Document => {
           const emote = normalizeIdentifier(
             line,
             `emote`,
+            `implicitDeclaration`,
             1 +
               (multiCharacterExitAnimationMatch[1] as string).length +
               (multiCharacterExitAnimationMatch[2] as string).length +
@@ -1098,6 +1134,7 @@ export const parse = (source: string): Document => {
           const emote = normalizeIdentifier(
             line,
             `emote`,
+            `implicitDeclaration`,
             1 +
               (speakerMatch[1] ?? ``).length +
               (speakerMatch[2] ?? ``).length +
@@ -1145,6 +1182,7 @@ export const parse = (source: string): Document => {
         const character = normalizeIdentifier(
           line,
           `character`,
+          `implicitDeclaration`,
           1,
           characterName
         );
@@ -1152,6 +1190,7 @@ export const parse = (source: string): Document => {
         const emote = normalizeIdentifier(
           line,
           `emote`,
+          `implicitDeclaration`,
           1 + characterName.length + is.length,
           emoteName
         );
@@ -1189,6 +1228,7 @@ export const parse = (source: string): Document => {
         const emote = normalizeIdentifier(
           line,
           `emote`,
+          `implicitDeclaration`,
           1 +
             (multiCharacterEmoteMatch[1] as string).length +
             (multiCharacterEmoteMatch[2] as string).length +
@@ -1231,6 +1271,7 @@ export const parse = (source: string): Document => {
         const name = normalizeIdentifier(
           line,
           `label`,
+          `declaration`,
           1 + prefix.length,
           nameString
         );
@@ -1287,6 +1328,7 @@ export const parse = (source: string): Document => {
             const label = normalizeIdentifier(
               line,
               `label`,
+              `reference`,
               1 +
                 unformattedContent.length +
                 prefix.length +
@@ -1410,6 +1452,7 @@ export const parse = (source: string): Document => {
         const label = normalizeIdentifier(
           line,
           `label`,
+          `reference`,
           1 + prefix.length,
           labelName
         );
