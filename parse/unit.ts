@@ -42,5 +42,12 @@ describe(`parse`, () => {
         });
       }
     });
+
+    // if (
+    //   caseName ===
+    //   `animation-name-differs-between-single-character-entry-animations`
+    // ) {
+    //   break;
+    // }
   }
 });
