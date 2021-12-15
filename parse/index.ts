@@ -8,6 +8,8 @@ import type {
   IdentifierReference,
   Run,
   Error,
+  IdentifierType,
+  IdentifierInstance,
 } from "@skitscript/types-nodejs";
 
 const identifierFilteredCharacterRegexFragment = `!?'"{}@*/\\\\&#%\`+<=>|$.-`;
@@ -140,16 +142,7 @@ const jumpRegex = new RegExp(
   `i`
 );
 
-type IdentifierType =
-  | `character`
-  | `emote`
-  | `entryAnimation`
-  | `exitAnimation`
-  | `label`
-  | `flag`
-  | `background`;
-
-type IdentifierInstance = {
+type LocalIdentifierInstance = {
   readonly first: IdentifierReference;
   reportedInconsistent: boolean;
 };
@@ -168,6 +161,13 @@ type Statement =
       readonly name: Identifier;
     };
 
+const unwrapIdentifier = (identifier: Identifier): Identifier => ({
+  verbatim: identifier.verbatim,
+  normalized: identifier.normalized,
+  fromColumn: identifier.fromColumn,
+  toColumn: identifier.toColumn,
+});
+
 /**
  * Parses a Skitscript document from source.
  * @param source The Skitscript source to parse.
@@ -176,7 +176,7 @@ type Statement =
 export const parse = (source: string): Document => {
   const identifiers: {
     readonly [TIdentifierType in IdentifierType]: {
-      [normalized: string]: IdentifierInstance;
+      [normalized: string]: LocalIdentifierInstance;
     };
   } = {
     character: {},
@@ -189,10 +189,12 @@ export const parse = (source: string): Document => {
   };
 
   const normalizeIdentifier = (
+    line: number,
+    type: IdentifierType,
     fromColumn: number,
     verbatim: string
   ): Identifier => {
-    return {
+    const identifier = {
       verbatim,
       normalized: verbatim
         .toLowerCase()
@@ -202,6 +204,14 @@ export const parse = (source: string): Document => {
       fromColumn: fromColumn,
       toColumn: fromColumn + verbatim.length - 1,
     };
+
+    identifierInstances.push({
+      ...identifier,
+      type,
+      line,
+    });
+
+    return identifier;
   };
 
   const checkIdentifierConsistency = (
@@ -212,7 +222,7 @@ export const parse = (source: string): Document => {
     const identifiersByType = identifiers[identifierType];
 
     const identifierReference = {
-      identifier,
+      ...identifier,
       line,
     };
 
@@ -224,11 +234,11 @@ export const parse = (source: string): Document => {
     ) {
       const existing = identifiersByType[
         identifier.normalized
-      ] as IdentifierInstance;
+      ] as LocalIdentifierInstance;
 
       if (
         !existing.reportedInconsistent &&
-        existing.first.identifier.verbatim !== identifier.verbatim &&
+        existing.first.verbatim !== identifier.verbatim &&
         existing.first.line !== line
       ) {
         warnings.push({
@@ -272,6 +282,7 @@ export const parse = (source: string): Document => {
 
   function normalizeIdentifierList<TBinaryOperator extends string>(
     line: number,
+    type: IdentifierType,
     fromColumn: number,
     match: RegExpMatchArray,
     startingIndex: number
@@ -286,7 +297,12 @@ export const parse = (source: string): Document => {
     if (commaDelimited === undefined) {
       const single = match[startingIndex + 4] as string;
 
-      return [[normalizeIdentifier(fromColumn, single)], [], [], null];
+      return [
+        [normalizeIdentifier(line, type, fromColumn, single)],
+        [],
+        [],
+        null,
+      ];
     } else {
       const beforeBinaryOperator = match[startingIndex + 1] as string;
       const binaryOperator = match[startingIndex + 2] as string;
@@ -302,7 +318,9 @@ export const parse = (source: string): Document => {
 
         fromColumn += identifier.length - identifier.trimStart().length;
 
-        identifiers.push(normalizeIdentifier(fromColumn, identifier.trim()));
+        identifiers.push(
+          normalizeIdentifier(line, type, fromColumn, identifier.trim())
+        );
 
         fromColumn += identifier.trimStart().length;
       }
@@ -311,7 +329,7 @@ export const parse = (source: string): Document => {
       fromColumn += binaryOperator.length;
       fromColumn += afterBinaryOperator.length;
 
-      identifiers.push(normalizeIdentifier(fromColumn, final));
+      identifiers.push(normalizeIdentifier(line, type, fromColumn, final));
 
       const instructions: Instruction[] = [];
       const warnings: Warning[] = [];
@@ -368,6 +386,7 @@ export const parse = (source: string): Document => {
       const [flags, instructions, warnings, binaryOperator] =
         normalizeIdentifierList<`and` | `or`>(
           line,
+          `flag`,
           fromColumn + prefix.length + (not === undefined ? 0 : not.length),
           match,
           startingIndex + 2
@@ -409,6 +428,7 @@ export const parse = (source: string): Document => {
 
   const statements: Statement[] = [];
   const warnings: Warning[] = [];
+  const identifierInstances: IdentifierInstance[] = [];
 
   const parseFormatted = (
     line: number,
@@ -653,20 +673,19 @@ export const parse = (source: string): Document => {
 
   let reachability: Reachability = `reachable`;
 
-  const whenReachable = (line: number, then: () => void) => {
+  const checkReachable = (line: number): boolean => {
     switch (reachability) {
       case `reachable`:
-        then();
-        break;
+        return true;
 
       case `willBecomeUnreachableAtEndOfCurrentMenu`:
       case `firstUnreachable`:
         warnings.push({ type: `unreachable`, line });
         reachability = `unreachable`;
-        break;
+        return false;
 
       case `unreachable`:
-        break;
+        return false;
     }
   };
 
@@ -687,13 +706,13 @@ export const parse = (source: string): Document => {
           1 + prefix.length,
           unformatted,
           (content) => {
-            whenReachable(line, () => {
+            if (checkReachable(line)) {
               statements.push({
                 type: `line`,
                 line,
                 content,
               });
-            });
+            }
           }
         );
 
@@ -707,15 +726,17 @@ export const parse = (source: string): Document => {
       const locationMatch = locationRegex.exec(unparsed);
 
       if (locationMatch !== null) {
-        whenReachable(line, () => {
-          const prefix = locationMatch[1] as string;
-          const backgroundName = locationMatch[2] as string;
+        const prefix = locationMatch[1] as string;
+        const backgroundName = locationMatch[2] as string;
 
-          const background = normalizeIdentifier(
-            1 + prefix.length,
-            backgroundName
-          );
+        const background = normalizeIdentifier(
+          line,
+          `background`,
+          1 + prefix.length,
+          backgroundName
+        );
 
+        if (checkReachable(line)) {
           statements.push({
             type: `location`,
             line,
@@ -723,7 +744,7 @@ export const parse = (source: string): Document => {
           });
 
           checkIdentifierConsistency(`background`, line, background);
-        });
+        }
 
         continue;
       }
@@ -732,41 +753,53 @@ export const parse = (source: string): Document => {
         singleCharacterEntryAnimationRegex.exec(unparsed);
 
       if (singleCharacterEntryAnimationMatch !== null) {
-        whenReachable(line, () => {
-          const characterName = singleCharacterEntryAnimationMatch[1] as string;
-          const enters = singleCharacterEntryAnimationMatch[2] as string;
-          const animationName = singleCharacterEntryAnimationMatch[3] as string;
+        const isReachable = checkReachable(line);
+        const characterName = singleCharacterEntryAnimationMatch[1] as string;
+        const enters = singleCharacterEntryAnimationMatch[2] as string;
+        const animationName = singleCharacterEntryAnimationMatch[3] as string;
 
-          const character = normalizeIdentifier(1, characterName);
+        const character = normalizeIdentifier(
+          line,
+          `character`,
+          1,
+          characterName
+        );
 
-          const animation = normalizeIdentifier(
-            1 + characterName.length + enters.length,
-            animationName
-          );
+        const animation = normalizeIdentifier(
+          line,
+          `entryAnimation`,
+          1 + characterName.length + enters.length,
+          animationName
+        );
 
+        if (isReachable) {
           statements.push({
             type: `entryAnimation`,
             line,
             character,
             animation,
           });
+        }
 
-          const emotePrefix = singleCharacterEntryAnimationMatch[4] as
-            | undefined
-            | string;
+        const emotePrefix = singleCharacterEntryAnimationMatch[4] as
+          | undefined
+          | string;
 
-          if (emotePrefix !== undefined) {
-            const emoteName = singleCharacterEntryAnimationMatch[5] as string;
+        if (emotePrefix !== undefined) {
+          const emoteName = singleCharacterEntryAnimationMatch[5] as string;
 
-            const emote = normalizeIdentifier(
-              1 +
-                characterName.length +
-                enters.length +
-                animationName.length +
-                emotePrefix.length,
-              emoteName
-            );
+          const emote = normalizeIdentifier(
+            line,
+            `emote`,
+            1 +
+              characterName.length +
+              enters.length +
+              animationName.length +
+              emotePrefix.length,
+            emoteName
+          );
 
+          if (isReachable) {
             statements.push({
               type: `emote`,
               line,
@@ -776,11 +809,13 @@ export const parse = (source: string): Document => {
 
             checkIdentifierConsistency(`emote`, line, emote);
           }
+        }
 
+        if (isReachable) {
           checkIdentifierConsistency(`character`, line, character);
 
           checkIdentifierConsistency(`entryAnimation`, line, animation);
-        });
+        }
 
         continue;
       }
@@ -789,29 +824,33 @@ export const parse = (source: string): Document => {
         multiCharacterEntryAnimationRegex.exec(unparsed);
 
       if (multiCharacterEntryAnimationMatch !== null) {
-        whenReachable(line, () => {
-          const [characters, characterInstructions, characterWarnings] =
-            normalizeIdentifierList(
-              line,
-              1,
-              multiCharacterEntryAnimationMatch,
-              1
-            );
-
-          const entry = multiCharacterEntryAnimationMatch[6] as string;
-          const animationName = multiCharacterEntryAnimationMatch[7] as string;
-
-          const animation = normalizeIdentifier(
-            1 +
-              (multiCharacterEntryAnimationMatch[1] as string).length +
-              (multiCharacterEntryAnimationMatch[2] as string).length +
-              (multiCharacterEntryAnimationMatch[3] as string).length +
-              (multiCharacterEntryAnimationMatch[4] as string).length +
-              (multiCharacterEntryAnimationMatch[5] as string).length +
-              entry.length,
-            animationName
+        const isReachable = checkReachable(line);
+        const [characters, characterInstructions, characterWarnings] =
+          normalizeIdentifierList(
+            line,
+            `character`,
+            1,
+            multiCharacterEntryAnimationMatch,
+            1
           );
 
+        const entry = multiCharacterEntryAnimationMatch[6] as string;
+        const animationName = multiCharacterEntryAnimationMatch[7] as string;
+
+        const animation = normalizeIdentifier(
+          line,
+          `entryAnimation`,
+          1 +
+            (multiCharacterEntryAnimationMatch[1] as string).length +
+            (multiCharacterEntryAnimationMatch[2] as string).length +
+            (multiCharacterEntryAnimationMatch[3] as string).length +
+            (multiCharacterEntryAnimationMatch[4] as string).length +
+            (multiCharacterEntryAnimationMatch[5] as string).length +
+            entry.length,
+          animationName
+        );
+
+        if (isReachable) {
           for (const character of characters) {
             statements.push({
               type: `entryAnimation`,
@@ -820,27 +859,31 @@ export const parse = (source: string): Document => {
               animation,
             });
           }
+        }
 
-          const emotePrefix = multiCharacterEntryAnimationMatch[8] as
-            | undefined
-            | string;
+        const emotePrefix = multiCharacterEntryAnimationMatch[8] as
+          | undefined
+          | string;
 
-          if (emotePrefix !== undefined) {
-            const emoteName = multiCharacterEntryAnimationMatch[9] as string;
+        if (emotePrefix !== undefined) {
+          const emoteName = multiCharacterEntryAnimationMatch[9] as string;
 
-            const emote = normalizeIdentifier(
-              1 +
-                (multiCharacterEntryAnimationMatch[1] as string).length +
-                (multiCharacterEntryAnimationMatch[2] as string).length +
-                (multiCharacterEntryAnimationMatch[3] as string).length +
-                (multiCharacterEntryAnimationMatch[4] as string).length +
-                (multiCharacterEntryAnimationMatch[5] as string).length +
-                entry.length +
-                animationName.length +
-                emotePrefix.length,
-              emoteName
-            );
+          const emote = normalizeIdentifier(
+            line,
+            `emote`,
+            1 +
+              (multiCharacterEntryAnimationMatch[1] as string).length +
+              (multiCharacterEntryAnimationMatch[2] as string).length +
+              (multiCharacterEntryAnimationMatch[3] as string).length +
+              (multiCharacterEntryAnimationMatch[4] as string).length +
+              (multiCharacterEntryAnimationMatch[5] as string).length +
+              entry.length +
+              animationName.length +
+              emotePrefix.length,
+            emoteName
+          );
 
+          if (isReachable) {
             for (const character of characters) {
               statements.push({
                 type: `emote`,
@@ -852,7 +895,9 @@ export const parse = (source: string): Document => {
 
             checkIdentifierConsistency(`emote`, line, emote);
           }
+        }
 
+        if (isReachable) {
           statements.push(...characterInstructions);
           warnings.push(...characterWarnings);
 
@@ -861,7 +906,7 @@ export const parse = (source: string): Document => {
           }
 
           checkIdentifierConsistency(`entryAnimation`, line, animation);
-        });
+        }
 
         continue;
       }
@@ -870,41 +915,53 @@ export const parse = (source: string): Document => {
         singleCharacterExitAnimationRegex.exec(unparsed);
 
       if (singleCharacterExitAnimationMatch !== null) {
-        whenReachable(line, () => {
-          const characterName = singleCharacterExitAnimationMatch[1] as string;
-          const enters = singleCharacterExitAnimationMatch[2] as string;
-          const animationName = singleCharacterExitAnimationMatch[3] as string;
+        const isReachable = checkReachable(line);
+        const characterName = singleCharacterExitAnimationMatch[1] as string;
+        const enters = singleCharacterExitAnimationMatch[2] as string;
+        const animationName = singleCharacterExitAnimationMatch[3] as string;
 
-          const character = normalizeIdentifier(1, characterName);
+        const character = normalizeIdentifier(
+          line,
+          `character`,
+          1,
+          characterName
+        );
 
-          const animation = normalizeIdentifier(
-            1 + characterName.length + enters.length,
-            animationName
-          );
+        const animation = normalizeIdentifier(
+          line,
+          `exitAnimation`,
+          1 + characterName.length + enters.length,
+          animationName
+        );
 
+        if (isReachable) {
           statements.push({
             type: `exitAnimation`,
             line,
             character,
             animation,
           });
+        }
 
-          const emotePrefix = singleCharacterExitAnimationMatch[4] as
-            | undefined
-            | string;
+        const emotePrefix = singleCharacterExitAnimationMatch[4] as
+          | undefined
+          | string;
 
-          if (emotePrefix !== undefined) {
-            const emoteName = singleCharacterExitAnimationMatch[5] as string;
+        if (emotePrefix !== undefined) {
+          const emoteName = singleCharacterExitAnimationMatch[5] as string;
 
-            const emote = normalizeIdentifier(
-              1 +
-                characterName.length +
-                enters.length +
-                animationName.length +
-                emotePrefix.length,
-              emoteName
-            );
+          const emote = normalizeIdentifier(
+            line,
+            `emote`,
+            1 +
+              characterName.length +
+              enters.length +
+              animationName.length +
+              emotePrefix.length,
+            emoteName
+          );
 
+          if (isReachable) {
             statements.push({
               type: `emote`,
               line,
@@ -914,11 +971,13 @@ export const parse = (source: string): Document => {
 
             checkIdentifierConsistency(`emote`, line, emote);
           }
+        }
 
+        if (isReachable) {
           checkIdentifierConsistency(`character`, line, character);
 
           checkIdentifierConsistency(`exitAnimation`, line, animation);
-        });
+        }
 
         continue;
       }
@@ -927,29 +986,34 @@ export const parse = (source: string): Document => {
         multiCharacterExitAnimationRegex.exec(unparsed);
 
       if (multiCharacterExitAnimationMatch !== null) {
-        whenReachable(line, () => {
-          const [characters, characterInstructions, characterWarnings] =
-            normalizeIdentifierList(
-              line,
-              1,
-              multiCharacterExitAnimationMatch,
-              1
-            );
+        const isReachable = checkReachable(line);
 
-          const exit = multiCharacterExitAnimationMatch[6] as string;
-          const animationName = multiCharacterExitAnimationMatch[7] as string;
-
-          const animation = normalizeIdentifier(
-            1 +
-              (multiCharacterExitAnimationMatch[1] as string).length +
-              (multiCharacterExitAnimationMatch[2] as string).length +
-              (multiCharacterExitAnimationMatch[3] as string).length +
-              (multiCharacterExitAnimationMatch[4] as string).length +
-              (multiCharacterExitAnimationMatch[5] as string).length +
-              exit.length,
-            animationName
+        const [characters, characterInstructions, characterWarnings] =
+          normalizeIdentifierList(
+            line,
+            `character`,
+            1,
+            multiCharacterExitAnimationMatch,
+            1
           );
 
+        const exit = multiCharacterExitAnimationMatch[6] as string;
+        const animationName = multiCharacterExitAnimationMatch[7] as string;
+
+        const animation = normalizeIdentifier(
+          line,
+          `exitAnimation`,
+          1 +
+            (multiCharacterExitAnimationMatch[1] as string).length +
+            (multiCharacterExitAnimationMatch[2] as string).length +
+            (multiCharacterExitAnimationMatch[3] as string).length +
+            (multiCharacterExitAnimationMatch[4] as string).length +
+            (multiCharacterExitAnimationMatch[5] as string).length +
+            exit.length,
+          animationName
+        );
+
+        if (isReachable) {
           for (const character of characters) {
             statements.push({
               type: `exitAnimation`,
@@ -958,27 +1022,31 @@ export const parse = (source: string): Document => {
               animation,
             });
           }
+        }
 
-          const emotePrefix = multiCharacterExitAnimationMatch[8] as
-            | undefined
-            | string;
+        const emotePrefix = multiCharacterExitAnimationMatch[8] as
+          | undefined
+          | string;
 
-          if (emotePrefix !== undefined) {
-            const emoteName = multiCharacterExitAnimationMatch[9] as string;
+        if (emotePrefix !== undefined) {
+          const emoteName = multiCharacterExitAnimationMatch[9] as string;
 
-            const emote = normalizeIdentifier(
-              1 +
-                (multiCharacterExitAnimationMatch[1] as string).length +
-                (multiCharacterExitAnimationMatch[2] as string).length +
-                (multiCharacterExitAnimationMatch[3] as string).length +
-                (multiCharacterExitAnimationMatch[4] as string).length +
-                (multiCharacterExitAnimationMatch[5] as string).length +
-                exit.length +
-                animationName.length +
-                emotePrefix.length,
-              emoteName
-            );
+          const emote = normalizeIdentifier(
+            line,
+            `emote`,
+            1 +
+              (multiCharacterExitAnimationMatch[1] as string).length +
+              (multiCharacterExitAnimationMatch[2] as string).length +
+              (multiCharacterExitAnimationMatch[3] as string).length +
+              (multiCharacterExitAnimationMatch[4] as string).length +
+              (multiCharacterExitAnimationMatch[5] as string).length +
+              exit.length +
+              animationName.length +
+              emotePrefix.length,
+            emoteName
+          );
 
+          if (isReachable) {
             for (const character of characters) {
               statements.push({
                 type: `emote`,
@@ -990,7 +1058,9 @@ export const parse = (source: string): Document => {
 
             checkIdentifierConsistency(`emote`, line, emote);
           }
+        }
 
+        if (isReachable) {
           statements.push(...characterInstructions);
           warnings.push(...characterWarnings);
 
@@ -999,7 +1069,7 @@ export const parse = (source: string): Document => {
           }
 
           checkIdentifierConsistency(`exitAnimation`, line, animation);
-        });
+        }
 
         continue;
       }
@@ -1007,32 +1077,38 @@ export const parse = (source: string): Document => {
       const speakerMatch = speakerRegex.exec(unparsed);
 
       if (speakerMatch !== null) {
-        whenReachable(line, () => {
-          const [characters, characterInstructions, characterWarnings] =
-            normalizeIdentifierList(line, 1, speakerMatch, 1);
+        const isReachable = checkReachable(line);
 
+        const [characters, characterInstructions, characterWarnings] =
+          normalizeIdentifierList(line, `character`, 1, speakerMatch, 1);
+
+        if (isReachable) {
           statements.push({
             type: `speaker`,
             line,
             characters,
           });
+        }
 
-          const emotePrefix = speakerMatch[6] as undefined | string;
+        const emotePrefix = speakerMatch[6] as undefined | string;
 
-          if (emotePrefix !== undefined) {
-            const emoteName = speakerMatch[7] as string;
+        if (emotePrefix !== undefined) {
+          const emoteName = speakerMatch[7] as string;
 
-            const emote = normalizeIdentifier(
-              1 +
-                (speakerMatch[1] ?? ``).length +
-                (speakerMatch[2] ?? ``).length +
-                (speakerMatch[3] ?? ``).length +
-                (speakerMatch[4] ?? ``).length +
-                (speakerMatch[5] as string).length +
-                emotePrefix.length,
-              emoteName
-            );
+          const emote = normalizeIdentifier(
+            line,
+            `emote`,
+            1 +
+              (speakerMatch[1] ?? ``).length +
+              (speakerMatch[2] ?? ``).length +
+              (speakerMatch[3] ?? ``).length +
+              (speakerMatch[4] ?? ``).length +
+              (speakerMatch[5] as string).length +
+              emotePrefix.length,
+            emoteName
+          );
 
+          if (isReachable) {
             for (const character of characters) {
               statements.push({
                 type: `emote`,
@@ -1044,14 +1120,16 @@ export const parse = (source: string): Document => {
 
             checkIdentifierConsistency(`emote`, line, emote);
           }
+        }
 
+        if (isReachable) {
           statements.push(...characterInstructions);
           warnings.push(...characterWarnings);
 
           for (const character of characters) {
             checkIdentifierConsistency(`character`, line, character);
           }
-        });
+        }
 
         continue;
       }
@@ -1060,18 +1138,25 @@ export const parse = (source: string): Document => {
         singleCharacterEmoteRegex.exec(unparsed);
 
       if (singleCharacterEmoteMatch !== null) {
-        whenReachable(line, () => {
-          const characterName = singleCharacterEmoteMatch[1] as string;
-          const is = singleCharacterEmoteMatch[2] as string;
-          const emoteName = singleCharacterEmoteMatch[3] as string;
+        const characterName = singleCharacterEmoteMatch[1] as string;
+        const is = singleCharacterEmoteMatch[2] as string;
+        const emoteName = singleCharacterEmoteMatch[3] as string;
 
-          const character = normalizeIdentifier(1, characterName);
+        const character = normalizeIdentifier(
+          line,
+          `character`,
+          1,
+          characterName
+        );
 
-          const emote = normalizeIdentifier(
-            1 + characterName.length + is.length,
-            emoteName
-          );
+        const emote = normalizeIdentifier(
+          line,
+          `emote`,
+          1 + characterName.length + is.length,
+          emoteName
+        );
 
+        if (checkReachable(line)) {
           statements.push({
             type: `emote`,
             line,
@@ -1081,7 +1166,7 @@ export const parse = (source: string): Document => {
 
           checkIdentifierConsistency(`character`, line, character);
           checkIdentifierConsistency(`emote`, line, emote);
-        });
+        }
 
         continue;
       }
@@ -1089,24 +1174,32 @@ export const parse = (source: string): Document => {
       const multiCharacterEmoteMatch = multiCharacterEmoteRegex.exec(unparsed);
 
       if (multiCharacterEmoteMatch !== null) {
-        whenReachable(line, () => {
-          const [characters, characterInstructions, characterWarnings] =
-            normalizeIdentifierList(line, 1, multiCharacterEmoteMatch, 1);
-
-          const are = multiCharacterEmoteMatch[6] as string;
-          const emoteName = multiCharacterEmoteMatch[7] as string;
-
-          const emote = normalizeIdentifier(
-            1 +
-              (multiCharacterEmoteMatch[1] as string).length +
-              (multiCharacterEmoteMatch[2] as string).length +
-              (multiCharacterEmoteMatch[3] as string).length +
-              (multiCharacterEmoteMatch[4] as string).length +
-              (multiCharacterEmoteMatch[5] as string).length +
-              are.length,
-            emoteName
+        const [characters, characterInstructions, characterWarnings] =
+          normalizeIdentifierList(
+            line,
+            `character`,
+            1,
+            multiCharacterEmoteMatch,
+            1
           );
 
+        const are = multiCharacterEmoteMatch[6] as string;
+        const emoteName = multiCharacterEmoteMatch[7] as string;
+
+        const emote = normalizeIdentifier(
+          line,
+          `emote`,
+          1 +
+            (multiCharacterEmoteMatch[1] as string).length +
+            (multiCharacterEmoteMatch[2] as string).length +
+            (multiCharacterEmoteMatch[3] as string).length +
+            (multiCharacterEmoteMatch[4] as string).length +
+            (multiCharacterEmoteMatch[5] as string).length +
+            are.length,
+          emoteName
+        );
+
+        if (checkReachable(line)) {
           for (const character of characters) {
             statements.push({
               type: `emote`,
@@ -1124,7 +1217,7 @@ export const parse = (source: string): Document => {
           }
 
           checkIdentifierConsistency(`emote`, line, emote);
-        });
+        }
 
         continue;
       }
@@ -1135,7 +1228,12 @@ export const parse = (source: string): Document => {
         const prefix = labelMatch[1] as string;
         const nameString = labelMatch[2] as string;
 
-        const name = normalizeIdentifier(1 + prefix.length, nameString);
+        const name = normalizeIdentifier(
+          line,
+          `label`,
+          1 + prefix.length,
+          nameString
+        );
 
         for (const previousInstruction of statements) {
           if (
@@ -1148,11 +1246,11 @@ export const parse = (source: string): Document => {
                 type: `duplicateLabel`,
                 first: {
                   line: previousInstruction.line,
-                  identifier: previousInstruction.name,
+                  ...previousInstruction.name,
                 },
                 second: {
                   line,
-                  identifier: name,
+                  ...name,
                 },
               },
             };
@@ -1175,39 +1273,41 @@ export const parse = (source: string): Document => {
       const menuOptionMatch = menuOptionRegex.exec(unparsed);
 
       if (menuOptionMatch !== null) {
-        // Workaround for https://github.com/microsoft/TypeScript/issues/46475.
-        if ((reachability as Reachability) !== `unreachable`) {
-          const prefix = menuOptionMatch[1] as string;
-          const unformattedContent = menuOptionMatch[2] as string;
+        const prefix = menuOptionMatch[1] as string;
+        const unformattedContent = menuOptionMatch[2] as string;
 
-          parseFormatted(
-            line,
-            1 + prefix.length,
-            unformattedContent,
-            (content) => {
-              const betweenContentAndLabelName = menuOptionMatch[3] as string;
-              const labelName = menuOptionMatch[4] as string;
+        parseFormatted(
+          line,
+          1 + prefix.length,
+          unformattedContent,
+          (content) => {
+            const betweenContentAndLabelName = menuOptionMatch[3] as string;
+            const labelName = menuOptionMatch[4] as string;
 
-              const label = normalizeIdentifier(
+            const label = normalizeIdentifier(
+              line,
+              `label`,
+              1 +
+                unformattedContent.length +
+                prefix.length +
+                betweenContentAndLabelName.length,
+              labelName
+            );
+
+            const [condition, conditionInstructions, conditionWarnings] =
+              parseCondition(
+                line,
                 1 +
-                  unformattedContent.length +
                   prefix.length +
-                  betweenContentAndLabelName.length,
-                labelName
+                  unformattedContent.length +
+                  betweenContentAndLabelName.length +
+                  labelName.length,
+                menuOptionMatch,
+                5
               );
 
-              const [condition, conditionInstructions, conditionWarnings] =
-                parseCondition(
-                  line,
-                  1 +
-                    prefix.length +
-                    unformattedContent.length +
-                    betweenContentAndLabelName.length +
-                    labelName.length,
-                  menuOptionMatch,
-                  5
-                );
-
+            // Workaround for https://github.com/microsoft/TypeScript/issues/46475.
+            if ((reachability as Reachability) !== `unreachable`) {
               statements.push(
                 {
                   type: `menuOption`,
@@ -1230,8 +1330,8 @@ export const parse = (source: string): Document => {
                 reachability = `willBecomeUnreachableAtEndOfCurrentMenu`;
               }
             }
-          );
-        }
+          }
+        );
 
         continue;
       }
@@ -1239,12 +1339,17 @@ export const parse = (source: string): Document => {
       const setMatch = setRegex.exec(unparsed);
 
       if (setMatch !== null) {
-        whenReachable(line, () => {
-          const prefix = setMatch[1] as string;
+        const prefix = setMatch[1] as string;
 
-          const [flags, flagInstructions, flagWarnings] =
-            normalizeIdentifierList(line, 1 + prefix.length, setMatch, 2);
+        const [flags, flagInstructions, flagWarnings] = normalizeIdentifierList(
+          line,
+          `flag`,
+          1 + prefix.length,
+          setMatch,
+          2
+        );
 
+        if (checkReachable(line)) {
           for (const flag of flags) {
             statements.push({
               type: `set`,
@@ -1257,7 +1362,7 @@ export const parse = (source: string): Document => {
 
           statements.push(...flagInstructions);
           warnings.push(...flagWarnings);
-        });
+        }
 
         continue;
       }
@@ -1265,12 +1370,17 @@ export const parse = (source: string): Document => {
       const clearMatch = clearRegex.exec(unparsed);
 
       if (clearMatch !== null) {
-        whenReachable(line, () => {
-          const prefix = clearMatch[1] as string;
+        const prefix = clearMatch[1] as string;
 
-          const [flags, flagInstructions, flagWarnings] =
-            normalizeIdentifierList(line, 1 + prefix.length, clearMatch, 2);
+        const [flags, flagInstructions, flagWarnings] = normalizeIdentifierList(
+          line,
+          `flag`,
+          1 + prefix.length,
+          clearMatch,
+          2
+        );
 
+        if (checkReachable(line)) {
           for (const flag of flags) {
             statements.push({
               type: `clear`,
@@ -1283,7 +1393,7 @@ export const parse = (source: string): Document => {
 
           statements.push(...flagInstructions);
           warnings.push(...flagWarnings);
-        });
+        }
 
         continue;
       }
@@ -1291,25 +1401,28 @@ export const parse = (source: string): Document => {
       const jumpMatch = jumpRegex.exec(unparsed);
 
       if (jumpMatch !== null) {
-        whenReachable(line, () => {
-          const prefix = jumpMatch[1] as string;
-          const labelName = jumpMatch[2] as string;
+        const prefix = jumpMatch[1] as string;
+        const labelName = jumpMatch[2] as string;
 
-          const previousInstruction =
-            statements.length > 0
-              ? statements[statements.length - 1]
-              : undefined;
+        const previousInstruction =
+          statements.length > 0 ? statements[statements.length - 1] : undefined;
 
-          const label = normalizeIdentifier(1 + prefix.length, labelName);
+        const label = normalizeIdentifier(
+          line,
+          `label`,
+          1 + prefix.length,
+          labelName
+        );
 
-          const [condition, conditionInstructions, conditionWarnings] =
-            parseCondition(
-              line,
-              1 + prefix.length + labelName.length,
-              jumpMatch,
-              3
-            );
+        const [condition, conditionInstructions, conditionWarnings] =
+          parseCondition(
+            line,
+            1 + prefix.length + labelName.length,
+            jumpMatch,
+            3
+          );
 
+        if (checkReachable(line)) {
           if (
             previousInstruction !== undefined &&
             previousInstruction.type === `label` &&
@@ -1342,7 +1455,7 @@ export const parse = (source: string): Document => {
           if (condition === null) {
             reachability = `firstUnreachable`;
           }
-        });
+        }
 
         continue;
       }
@@ -1418,12 +1531,12 @@ export const parse = (source: string): Document => {
           instruction.flag.normalized === normalizedFlag
       )
     ) {
-      const flag = identifiers.flag[normalizedFlag] as IdentifierInstance;
+      const flag = identifiers.flag[normalizedFlag] as LocalIdentifierInstance;
 
       warnings.push({
         type: `flagNeverSet`,
         line: flag.first.line,
-        name: flag.first.identifier,
+        flag: unwrapIdentifier(flag.first),
       });
     }
 
@@ -1440,12 +1553,12 @@ export const parse = (source: string): Document => {
               ))
       )
     ) {
-      const flag = identifiers.flag[normalizedFlag] as IdentifierInstance;
+      const flag = identifiers.flag[normalizedFlag] as LocalIdentifierInstance;
 
       warnings.push({
         type: `flagNeverReferenced`,
         line: flag.first.line,
-        name: flag.first.identifier,
+        flag: unwrapIdentifier(flag.first),
       });
     }
   }
@@ -1523,5 +1636,5 @@ export const parse = (source: string): Document => {
     }
   }
 
-  return { type: `valid`, instructions, warnings };
+  return { type: `valid`, instructions, warnings, identifierInstances };
 };

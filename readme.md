@@ -76,6 +76,9 @@ console.log(parsed);
   ],
   "warnings": [
     ...
+  ],
+  "identifierInstances": [
+    ...
   ]
 }
 ```
