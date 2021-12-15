@@ -39,7 +39,7 @@ const identifierDisallowedWords = [
 
 const identifierDisallowedCharacters = [`,`, `(`, `)`, `\\s`, `:`, `~`];
 
-const identifierRegexFragment = `(?=.*[^${identifierFilteredCharacterRegexFragment}\\s].*)(?:(?!(?:${identifierDisallowedWords.join(
+export const identifierRegexFragment = `(?=.*[^${identifierFilteredCharacterRegexFragment}\\s].*)(?:(?!(?:${identifierDisallowedWords.join(
   `|`
 )})\\b)[^${identifierDisallowedCharacters.join(
   ``
