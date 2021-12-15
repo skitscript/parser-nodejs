@@ -698,26 +698,31 @@ export const parse = (source: string): Document => {
 
   let reachability: Reachability = `reachable`;
 
-  const checkReachable = (line: number): boolean => {
-    switch (reachability) {
-      case `reachable`:
-        return true;
-
-      case `willBecomeUnreachableAtEndOfCurrentMenu`:
-      case `firstUnreachable`:
-        warnings.push({ type: `unreachable`, line });
-        reachability = `unreachable`;
-        return false;
-
-      case `unreachable`:
-        return false;
-    }
-  };
-
   let line = 0;
 
   for (const unparsed of source.split(/\r\n|\r|\n/g)) {
     line++;
+
+    const checkReachable = (): boolean => {
+      switch (reachability) {
+        case `reachable`:
+          return true;
+
+        case `willBecomeUnreachableAtEndOfCurrentMenu`:
+        case `firstUnreachable`:
+          warnings.push({
+            type: `unreachable`,
+            line,
+            fromColumn: unparsed.length - unparsed.trimStart().length + 1,
+            toColumn: unparsed.trimEnd().length,
+          });
+          reachability = `unreachable`;
+          return false;
+
+        case `unreachable`:
+          return false;
+      }
+    };
 
     if (/\S/.test(unparsed)) {
       const lineMatch = lineRegex.exec(unparsed);
@@ -731,7 +736,7 @@ export const parse = (source: string): Document => {
           1 + prefix.length,
           unformatted,
           (content) => {
-            if (checkReachable(line)) {
+            if (checkReachable()) {
               statements.push({
                 type: `line`,
                 line,
@@ -762,7 +767,7 @@ export const parse = (source: string): Document => {
           backgroundName
         );
 
-        if (checkReachable(line)) {
+        if (checkReachable()) {
           statements.push({
             type: `location`,
             line,
@@ -779,7 +784,7 @@ export const parse = (source: string): Document => {
         singleCharacterEntryAnimationRegex.exec(unparsed);
 
       if (singleCharacterEntryAnimationMatch !== null) {
-        const isReachable = checkReachable(line);
+        const isReachable = checkReachable();
         const characterName = singleCharacterEntryAnimationMatch[1] as string;
         const enters = singleCharacterEntryAnimationMatch[2] as string;
         const animationName = singleCharacterEntryAnimationMatch[3] as string;
@@ -853,7 +858,7 @@ export const parse = (source: string): Document => {
         multiCharacterEntryAnimationRegex.exec(unparsed);
 
       if (multiCharacterEntryAnimationMatch !== null) {
-        const isReachable = checkReachable(line);
+        const isReachable = checkReachable();
         const [characters, characterInstructions, characterWarnings] =
           normalizeIdentifierList(
             line,
@@ -946,7 +951,7 @@ export const parse = (source: string): Document => {
         singleCharacterExitAnimationRegex.exec(unparsed);
 
       if (singleCharacterExitAnimationMatch !== null) {
-        const isReachable = checkReachable(line);
+        const isReachable = checkReachable();
         const characterName = singleCharacterExitAnimationMatch[1] as string;
         const enters = singleCharacterExitAnimationMatch[2] as string;
         const animationName = singleCharacterExitAnimationMatch[3] as string;
@@ -1020,7 +1025,7 @@ export const parse = (source: string): Document => {
         multiCharacterExitAnimationRegex.exec(unparsed);
 
       if (multiCharacterExitAnimationMatch !== null) {
-        const isReachable = checkReachable(line);
+        const isReachable = checkReachable();
 
         const [characters, characterInstructions, characterWarnings] =
           normalizeIdentifierList(
@@ -1113,7 +1118,7 @@ export const parse = (source: string): Document => {
       const speakerMatch = speakerRegex.exec(unparsed);
 
       if (speakerMatch !== null) {
-        const isReachable = checkReachable(line);
+        const isReachable = checkReachable();
 
         const [characters, characterInstructions, characterWarnings] =
           normalizeIdentifierList(line, `character`, 1, speakerMatch, 1);
@@ -1195,7 +1200,7 @@ export const parse = (source: string): Document => {
           emoteName
         );
 
-        if (checkReachable(line)) {
+        if (checkReachable()) {
           statements.push({
             type: `emote`,
             line,
@@ -1239,7 +1244,7 @@ export const parse = (source: string): Document => {
           emoteName
         );
 
-        if (checkReachable(line)) {
+        if (checkReachable()) {
           for (const character of characters) {
             statements.push({
               type: `emote`,
@@ -1391,7 +1396,7 @@ export const parse = (source: string): Document => {
           2
         );
 
-        if (checkReachable(line)) {
+        if (checkReachable()) {
           for (const flag of flags) {
             statements.push({
               type: `set`,
@@ -1422,7 +1427,7 @@ export const parse = (source: string): Document => {
           2
         );
 
-        if (checkReachable(line)) {
+        if (checkReachable()) {
           for (const flag of flags) {
             statements.push({
               type: `clear`,
@@ -1465,7 +1470,7 @@ export const parse = (source: string): Document => {
             3
           );
 
-        if (checkReachable(line)) {
+        if (checkReachable()) {
           if (
             previousInstruction !== undefined &&
             previousInstruction.type === `label` &&
@@ -1508,6 +1513,8 @@ export const parse = (source: string): Document => {
         error: {
           type: `unparsable`,
           line,
+          fromColumn: unparsed.length - unparsed.trimStart().length + 1,
+          toColumn: unparsed.trimEnd().length,
         },
       };
     }
