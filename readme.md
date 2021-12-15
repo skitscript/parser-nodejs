@@ -57,6 +57,25 @@ npm install --save-dev @skitscript/parser-nodejs @skitscript/types-nodejs
 
 ## Usage
 
+### Validating identifiers
+
+Import the `identifierIsValid` function, and provide it with a string containing
+a possible identifier:
+
+```typescript
+import { identifierIsValid } from "@skitscript/parser-nodejs";
+
+console.log(identifierIsValid(`Example Identifier`));
+console.log(identifierIsValid(`???`));
+```
+
+```
+true
+false
+```
+
+### Parsing documents
+
 Import the `parse` function, and provide it with a string containing your
 document's content:
 
