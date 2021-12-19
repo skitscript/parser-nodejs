@@ -1361,7 +1361,7 @@ export const parse = (source: string): Document => {
                   line,
                   content,
                   label,
-                  statementIndex: -1,
+                  instructionIndex: -1,
                   condition,
                 },
                 ...conditionInstructions
@@ -1488,7 +1488,7 @@ export const parse = (source: string): Document => {
               type: `jump`,
               line,
               label,
-              statementIndex: -1,
+              instructionIndex: -1,
               condition,
             },
             ...conditionInstructions
@@ -1633,21 +1633,21 @@ export const parse = (source: string): Document => {
     }
   }
 
-  const labelStatementIndices: { [normalized: string]: number } = {};
+  const labelInstructionIndices: { [normalized: string]: number } = {};
 
-  let statementIndex = 0;
+  let instructionIndex = 0;
 
   for (const statement of statements) {
     if (statement.type === `label`) {
-      labelStatementIndices[statement.name.normalized] = statementIndex;
+      labelInstructionIndices[statement.name.normalized] = instructionIndex;
     } else {
-      statementIndex++;
+      instructionIndex++;
     }
   }
 
-  for (const normalized in labelStatementIndices) {
-    if (labelStatementIndices[normalized] === statementIndex) {
-      labelStatementIndices[normalized] = 0;
+  for (const normalized in labelInstructionIndices) {
+    if (labelInstructionIndices[normalized] === instructionIndex) {
+      labelInstructionIndices[normalized] = 0;
     }
   }
 
@@ -1669,7 +1669,7 @@ export const parse = (source: string): Document => {
       case `jump`:
         instructions.push({
           ...statement,
-          statementIndex: labelStatementIndices[
+          instructionIndex: labelInstructionIndices[
             statement.label.normalized
           ] as number,
         });
@@ -1678,7 +1678,7 @@ export const parse = (source: string): Document => {
       case `menuOption`:
         instructions.push({
           ...statement,
-          statementIndex: labelStatementIndices[
+          instructionIndex: labelInstructionIndices[
             statement.label.normalized
           ] as number,
         });
