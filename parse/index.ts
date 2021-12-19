@@ -620,15 +620,15 @@ export const parse = (source: string): Document => {
           toColumn: toColumn - (insertBackslash ? 2 : 1),
         });
 
-        previousBold = boldFromColumn !== null;
-        previousItalic = italicFromColumn !== null;
-        previousCode = codeFromColumn !== null;
-
         plainText = ``;
         verbatim = ``;
 
         currentRunFromColumn = toColumn - (insertBackslash ? 1 : 0);
       }
+
+      previousBold = boldFromColumn !== null;
+      previousItalic = italicFromColumn !== null;
+      previousCode = codeFromColumn !== null;
 
       if (insertBackslash) {
         verbatim += `\\`;
