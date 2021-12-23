@@ -18,7 +18,7 @@
   "devDependencies": {
     "@skitscript/types-nodejs": "0.0.26",
     "@types/jasmine": "3.10.2",
-    "@types/node": "16.11.15",
+    "@types/node": "16.11.16",
     "@typescript-eslint/eslint-plugin": "5.8.0",
     "@typescript-eslint/parser": "5.8.0",
     "del-cli": "4.0.1",
