@@ -154,14 +154,6 @@ type Reachability =
   | `firstUnreachable`
   | `unreachable`;
 
-type Statement =
-  | Instruction
-  | {
-      readonly type: `label`;
-      readonly line: number;
-      readonly name: Identifier;
-    };
-
 const unwrapIdentifier = (identifier: Identifier): Identifier => ({
   verbatim: identifier.verbatim,
   normalized: identifier.normalized,
@@ -451,7 +443,7 @@ export const parse = (source: string): Document => {
     }
   }
 
-  const statements: Statement[] = [];
+  const instructions: Instruction[] = [];
   const warnings: Warning[] = [];
   const identifierInstances: IdentifierInstance[] = [];
 
@@ -737,7 +729,7 @@ export const parse = (source: string): Document => {
           unformatted,
           (content) => {
             if (checkReachable()) {
-              statements.push({
+              instructions.push({
                 type: `line`,
                 line,
                 content,
@@ -768,7 +760,7 @@ export const parse = (source: string): Document => {
         );
 
         if (checkReachable()) {
-          statements.push({
+          instructions.push({
             type: `location`,
             line,
             background,
@@ -806,7 +798,7 @@ export const parse = (source: string): Document => {
         );
 
         if (isReachable) {
-          statements.push({
+          instructions.push({
             type: `entryAnimation`,
             line,
             character,
@@ -834,7 +826,7 @@ export const parse = (source: string): Document => {
           );
 
           if (isReachable) {
-            statements.push({
+            instructions.push({
               type: `emote`,
               line,
               character,
@@ -887,7 +879,7 @@ export const parse = (source: string): Document => {
 
         if (isReachable) {
           for (const character of characters) {
-            statements.push({
+            instructions.push({
               type: `entryAnimation`,
               line,
               character,
@@ -921,7 +913,7 @@ export const parse = (source: string): Document => {
 
           if (isReachable) {
             for (const character of characters) {
-              statements.push({
+              instructions.push({
                 type: `emote`,
                 line,
                 character,
@@ -934,7 +926,7 @@ export const parse = (source: string): Document => {
         }
 
         if (isReachable) {
-          statements.push(...characterInstructions);
+          instructions.push(...characterInstructions);
           warnings.push(...characterWarnings);
 
           for (const character of characters) {
@@ -973,7 +965,7 @@ export const parse = (source: string): Document => {
         );
 
         if (isReachable) {
-          statements.push({
+          instructions.push({
             type: `exitAnimation`,
             line,
             character,
@@ -1001,7 +993,7 @@ export const parse = (source: string): Document => {
           );
 
           if (isReachable) {
-            statements.push({
+            instructions.push({
               type: `emote`,
               line,
               character,
@@ -1055,7 +1047,7 @@ export const parse = (source: string): Document => {
 
         if (isReachable) {
           for (const character of characters) {
-            statements.push({
+            instructions.push({
               type: `exitAnimation`,
               line,
               character,
@@ -1089,7 +1081,7 @@ export const parse = (source: string): Document => {
 
           if (isReachable) {
             for (const character of characters) {
-              statements.push({
+              instructions.push({
                 type: `emote`,
                 line,
                 character,
@@ -1102,7 +1094,7 @@ export const parse = (source: string): Document => {
         }
 
         if (isReachable) {
-          statements.push(...characterInstructions);
+          instructions.push(...characterInstructions);
           warnings.push(...characterWarnings);
 
           for (const character of characters) {
@@ -1124,7 +1116,7 @@ export const parse = (source: string): Document => {
           normalizeIdentifierList(line, `character`, 1, speakerMatch, 1);
 
         if (isReachable) {
-          statements.push({
+          instructions.push({
             type: `speaker`,
             line,
             characters,
@@ -1152,7 +1144,7 @@ export const parse = (source: string): Document => {
 
           if (isReachable) {
             for (const character of characters) {
-              statements.push({
+              instructions.push({
                 type: `emote`,
                 line,
                 character,
@@ -1165,7 +1157,7 @@ export const parse = (source: string): Document => {
         }
 
         if (isReachable) {
-          statements.push(...characterInstructions);
+          instructions.push(...characterInstructions);
           warnings.push(...characterWarnings);
 
           for (const character of characters) {
@@ -1201,7 +1193,7 @@ export const parse = (source: string): Document => {
         );
 
         if (checkReachable()) {
-          statements.push({
+          instructions.push({
             type: `emote`,
             line,
             character,
@@ -1246,7 +1238,7 @@ export const parse = (source: string): Document => {
 
         if (checkReachable()) {
           for (const character of characters) {
-            statements.push({
+            instructions.push({
               type: `emote`,
               line,
               character,
@@ -1254,7 +1246,7 @@ export const parse = (source: string): Document => {
             });
           }
 
-          statements.push(...characterInstructions);
+          instructions.push(...characterInstructions);
           warnings.push(...characterWarnings);
 
           for (const character of characters) {
@@ -1281,10 +1273,10 @@ export const parse = (source: string): Document => {
           nameString
         );
 
-        for (const previousInstruction of statements) {
+        for (const previousInstruction of instructions) {
           if (
             previousInstruction.type === `label` &&
-            previousInstruction.name.normalized === name.normalized
+            previousInstruction.label.normalized === name.normalized
           ) {
             return {
               type: `invalid`,
@@ -1292,7 +1284,7 @@ export const parse = (source: string): Document => {
                 type: `duplicateLabel`,
                 first: {
                   line: previousInstruction.line,
-                  ...previousInstruction.name,
+                  ...previousInstruction.label,
                 },
                 second: {
                   line,
@@ -1303,10 +1295,10 @@ export const parse = (source: string): Document => {
           }
         }
 
-        statements.push({
+        instructions.push({
           type: `label`,
           line,
-          name,
+          label: name,
         });
 
         checkIdentifierConsistency(`label`, line, name);
@@ -1355,7 +1347,7 @@ export const parse = (source: string): Document => {
 
             // Workaround for https://github.com/microsoft/TypeScript/issues/46475.
             if ((reachability as Reachability) !== `unreachable`) {
-              statements.push(
+              instructions.push(
                 {
                   type: `menuOption`,
                   line,
@@ -1398,7 +1390,7 @@ export const parse = (source: string): Document => {
 
         if (checkReachable()) {
           for (const flag of flags) {
-            statements.push({
+            instructions.push({
               type: `set`,
               line,
               flag,
@@ -1407,7 +1399,7 @@ export const parse = (source: string): Document => {
             checkIdentifierConsistency(`flag`, line, flag);
           }
 
-          statements.push(...flagInstructions);
+          instructions.push(...flagInstructions);
           warnings.push(...flagWarnings);
         }
 
@@ -1429,7 +1421,7 @@ export const parse = (source: string): Document => {
 
         if (checkReachable()) {
           for (const flag of flags) {
-            statements.push({
+            instructions.push({
               type: `clear`,
               line,
               flag,
@@ -1438,7 +1430,7 @@ export const parse = (source: string): Document => {
             checkIdentifierConsistency(`flag`, line, flag);
           }
 
-          statements.push(...flagInstructions);
+          instructions.push(...flagInstructions);
           warnings.push(...flagWarnings);
         }
 
@@ -1452,7 +1444,9 @@ export const parse = (source: string): Document => {
         const labelName = jumpMatch[2] as string;
 
         const previousInstruction =
-          statements.length > 0 ? statements[statements.length - 1] : undefined;
+          instructions.length > 0
+            ? instructions[instructions.length - 1]
+            : undefined;
 
         const label = normalizeIdentifier(
           line,
@@ -1479,11 +1473,11 @@ export const parse = (source: string): Document => {
             warnings.push({
               type: `emptyLabel`,
               line: previousInstruction.line,
-              label: previousInstruction.name,
+              label: previousInstruction.label,
             });
           }
 
-          statements.push(
+          instructions.push(
             {
               type: `jump`,
               line,
@@ -1522,30 +1516,31 @@ export const parse = (source: string): Document => {
 
   for (
     let instructionIndex = 0;
-    instructionIndex < statements.length;
+    instructionIndex < instructions.length;
     instructionIndex++
   ) {
-    const statement = statements[instructionIndex] as Statement;
+    const statement = instructions[instructionIndex] as Instruction;
 
     switch (statement.type) {
       case `label`: {
-        const referencedByAJump = statements.some(
+        const referencedByAJump = instructions.some(
           (jumpInstruction) =>
             jumpInstruction.type === `jump` &&
-            jumpInstruction.label.normalized === statement.name.normalized
+            jumpInstruction.label.normalized === statement.label.normalized
         );
 
-        const referencedByAMenuOption = statements.some(
+        const referencedByAMenuOption = instructions.some(
           (menuOptionInstruction) =>
             menuOptionInstruction.type === `menuOption` &&
-            menuOptionInstruction.label.normalized === statement.name.normalized
+            menuOptionInstruction.label.normalized ===
+              statement.label.normalized
         );
 
         if (!referencedByAJump && !referencedByAMenuOption) {
           warnings.push({
             type: `unreferencedLabel`,
             line: statement.line,
-            label: statement.name,
+            label: statement.label,
           });
         }
 
@@ -1555,10 +1550,10 @@ export const parse = (source: string): Document => {
       case `jump`:
       case `menuOption`:
         if (
-          !statements.some(
+          !instructions.some(
             (labelInstruction) =>
               labelInstruction.type === `label` &&
-              labelInstruction.name.normalized === statement.label.normalized
+              labelInstruction.label.normalized === statement.label.normalized
           )
         ) {
           return {
@@ -1575,7 +1570,7 @@ export const parse = (source: string): Document => {
 
   for (const normalizedFlag in identifiers.flag) {
     if (
-      !statements.some(
+      !instructions.some(
         (instruction) =>
           instruction.type === `set` &&
           instruction.flag.normalized === normalizedFlag
@@ -1591,7 +1586,7 @@ export const parse = (source: string): Document => {
     }
 
     if (
-      !statements.some(
+      !instructions.some(
         (instruction) =>
           (instruction.type === `jump` || instruction.type === `menuOption`) &&
           instruction.condition !== null &&
@@ -1613,22 +1608,24 @@ export const parse = (source: string): Document => {
     }
   }
 
-  if (statements.length > 0) {
-    const lastStatement = statements[statements.length - 1] as Statement;
+  if (instructions.length > 0) {
+    const lastInstruction = instructions[
+      instructions.length - 1
+    ] as Instruction;
 
     if (
-      lastStatement.type === `label` &&
+      lastInstruction.type === `label` &&
       !warnings.some(
         (flagNeverReferencedWarning) =>
           flagNeverReferencedWarning.type === `unreferencedLabel` &&
           flagNeverReferencedWarning.label.normalized ===
-            lastStatement.name.normalized
+            lastInstruction.label.normalized
       )
     ) {
       warnings.push({
         type: `emptyLabel`,
-        line: lastStatement.line,
-        label: lastStatement.name,
+        line: lastInstruction.line,
+        label: lastInstruction.label,
       });
     }
   }
@@ -1637,24 +1634,16 @@ export const parse = (source: string): Document => {
 
   let instructionIndex = 0;
 
-  for (const statement of statements) {
+  for (const statement of instructions) {
     if (statement.type === `label`) {
-      labelInstructionIndices[statement.name.normalized] = instructionIndex;
-    } else {
-      instructionIndex++;
+      labelInstructionIndices[statement.label.normalized] = instructionIndex;
     }
+
+    instructionIndex++;
   }
 
-  for (const normalized in labelInstructionIndices) {
-    if (labelInstructionIndices[normalized] === instructionIndex) {
-      labelInstructionIndices[normalized] = 0;
-    }
-  }
-
-  const instructions: Instruction[] = [];
-
-  for (const statement of statements) {
-    switch (statement.type) {
+  const mappedInstructions = instructions.map((instruction) => {
+    switch (instruction.type) {
       case `clear`:
       case `emote`:
       case `entryAnimation`:
@@ -1663,28 +1652,31 @@ export const parse = (source: string): Document => {
       case `location`:
       case `set`:
       case `speaker`:
-        instructions.push(statement);
-        break;
+      case `label`:
+        return instruction;
 
       case `jump`:
-        instructions.push({
-          ...statement,
+        return {
+          ...instruction,
           instructionIndex: labelInstructionIndices[
-            statement.label.normalized
+            instruction.label.normalized
           ] as number,
-        });
-        break;
+        };
 
       case `menuOption`:
-        instructions.push({
-          ...statement,
+        return {
+          ...instruction,
           instructionIndex: labelInstructionIndices[
-            statement.label.normalized
+            instruction.label.normalized
           ] as number,
-        });
-        break;
+        };
     }
-  }
+  });
 
-  return { type: `valid`, instructions, warnings, identifierInstances };
+  return {
+    type: `valid`,
+    instructions: mappedInstructions,
+    warnings,
+    identifierInstances,
+  };
 };
