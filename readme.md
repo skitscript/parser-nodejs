@@ -105,8 +105,14 @@ console.log(parsed);
 ```json
 {
   "type": "invalid",
-  "error": {
+  "errors": [
     ...
-  }
+  ],
+  "warnings": [
+    ...
+  ],
+  "identifierInstances": [
+    ...
+  ]
 }
 ```
