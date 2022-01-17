@@ -444,6 +444,7 @@ export const parse = (source: string): Document => {
   }
 
   const instructions: Instruction[] = [];
+  const errors: Error[] = [];
   const warnings: Warning[] = [];
   const identifierInstances: IdentifierInstance[] = [];
 
@@ -452,7 +453,7 @@ export const parse = (source: string): Document => {
     fromColumn: number,
     unformatted: string,
     onSuccess: (formatted: Formatted) => void
-  ): null | Error => {
+  ): void => {
     const formatted: Run[] = [];
 
     let previousBold = false;
@@ -514,13 +515,15 @@ export const parse = (source: string): Document => {
               break;
 
             default:
-              return {
+              errors.push({
                 type: `invalidEscapeSequence`,
                 line,
                 verbatim: `\\${character}`,
                 fromColumn: toColumn - 1,
                 toColumn,
-              };
+              });
+
+              return;
           }
           break;
 
@@ -585,13 +588,15 @@ export const parse = (source: string): Document => {
               break;
 
             default:
-              return {
+              errors.push({
                 type: `invalidEscapeSequence`,
                 line,
                 verbatim: `\\${character}`,
                 fromColumn: toColumn - 1,
                 toColumn,
-              };
+              });
+
+              return;
           }
       }
 
@@ -633,11 +638,13 @@ export const parse = (source: string): Document => {
     switch (state) {
       case `backslash`:
       case `codeBackslash`:
-        return {
+        errors.push({
           type: `incompleteEscapeSequence`,
           line,
           column: toColumn,
-        };
+        });
+
+        return;
 
       case `asterisk`:
         if (italicFromColumn === null) {
@@ -649,29 +656,35 @@ export const parse = (source: string): Document => {
     }
 
     if (boldFromColumn !== null) {
-      return {
+      errors.push({
         type: `unterminatedBold`,
         line,
         verbatim: unformatted.slice(boldFromColumn - fromColumn),
         fromColumn: boldFromColumn,
         toColumn,
-      };
+      });
+
+      return;
     } else if (italicFromColumn !== null) {
-      return {
+      errors.push({
         type: `unterminatedItalic`,
         line,
         verbatim: unformatted.slice(italicFromColumn - fromColumn),
         fromColumn: italicFromColumn,
         toColumn,
-      };
+      });
+
+      return;
     } else if (codeFromColumn !== null) {
-      return {
+      errors.push({
         type: `unterminatedCode`,
         line,
         verbatim: unformatted.slice(codeFromColumn - fromColumn),
         fromColumn: codeFromColumn,
         toColumn,
-      };
+      });
+
+      return;
     } else {
       formatted.push({
         bold: previousBold,
@@ -684,7 +697,6 @@ export const parse = (source: string): Document => {
       });
 
       onSuccess(formatted);
-      return null;
     }
   };
 
@@ -723,26 +735,17 @@ export const parse = (source: string): Document => {
         const prefix = lineMatch[1] as string;
         const unformatted = lineMatch[2] as string;
 
-        const error = parseFormatted(
-          line,
-          1 + prefix.length,
-          unformatted,
-          (content) => {
-            if (checkReachable()) {
-              instructions.push({
-                type: `line`,
-                line,
-                content,
-              });
-            }
+        parseFormatted(line, 1 + prefix.length, unformatted, (content) => {
+          if (checkReachable()) {
+            instructions.push({
+              type: `line`,
+              line,
+              content,
+            });
           }
-        );
+        });
 
-        if (error === null) {
-          continue;
-        } else {
-          return { type: `invalid`, error };
-        }
+        continue;
       }
 
       const locationMatch = locationRegex.exec(unparsed);
@@ -1273,26 +1276,31 @@ export const parse = (source: string): Document => {
           nameString
         );
 
+        let failed = false;
+
         for (const previousInstruction of instructions) {
           if (
             previousInstruction.type === `label` &&
             previousInstruction.label.normalized === name.normalized
           ) {
-            return {
-              type: `invalid`,
-              error: {
-                type: `duplicateLabel`,
-                first: {
-                  line: previousInstruction.line,
-                  ...previousInstruction.label,
-                },
-                second: {
-                  line,
-                  ...name,
-                },
+            errors.push({
+              type: `duplicateLabel`,
+              first: {
+                line: previousInstruction.line,
+                ...previousInstruction.label,
               },
-            };
+              second: {
+                line,
+                ...name,
+              },
+            });
+
+            failed = true;
           }
+        }
+
+        if (failed) {
+          continue;
         }
 
         instructions.push({
@@ -1502,15 +1510,12 @@ export const parse = (source: string): Document => {
         continue;
       }
 
-      return {
-        type: `invalid`,
-        error: {
-          type: `unparsable`,
-          line,
-          fromColumn: unparsed.length - unparsed.trimStart().length + 1,
-          toColumn: unparsed.trimEnd().length,
-        },
-      };
+      errors.push({
+        type: `unparsable`,
+        line,
+        fromColumn: unparsed.length - unparsed.trimStart().length + 1,
+        toColumn: unparsed.trimEnd().length,
+      });
     }
   }
 
@@ -1556,14 +1561,11 @@ export const parse = (source: string): Document => {
               labelInstruction.label.normalized === statement.label.normalized
           )
         ) {
-          return {
-            type: `invalid`,
-            error: {
-              type: `undefinedLabel`,
-              line: statement.line,
-              label: statement.label,
-            },
-          };
+          errors.push({
+            type: `undefinedLabel`,
+            line: statement.line,
+            label: statement.label,
+          });
         }
     }
   }
@@ -1606,6 +1608,10 @@ export const parse = (source: string): Document => {
         flag: unwrapIdentifier(flag.first),
       });
     }
+  }
+
+  if (errors.length > 0) {
+    return { type: `invalid`, errors, warnings, identifierInstances };
   }
 
   if (instructions.length > 0) {
