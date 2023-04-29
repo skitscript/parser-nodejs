@@ -1,6 +1,6 @@
-import { identifierRegexFragment } from "../parse";
+import { identifierRegexFragment } from '../parse'
 
-const regex = new RegExp(`^${identifierRegexFragment}$`, `i`);
+const regex = new RegExp(`^${identifierRegexFragment}$`, 'i')
 
 /**
  * Determines whether text is a valid identifier.
@@ -8,4 +8,4 @@ const regex = new RegExp(`^${identifierRegexFragment}$`, `i`);
  * @returns True when the given text is a valid identifier, otherwise, false.
  */
 export const identifierIsValid = (verbatim: string): boolean =>
-  regex.test(verbatim);
+  regex.test(verbatim)
