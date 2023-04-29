@@ -47,6 +47,6 @@
   "types": "index.d.ts",
   "sideEffects": false,
   "peerDependencies": {
-    "@skitscript/types-nodejs": "2.0.0"
+    "@skitscript/types-nodejs": "2.0.1"
   }
 }
