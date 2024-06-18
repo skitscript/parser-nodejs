@@ -25,3 +25,5 @@ export type Instruction =
   | SetInstruction
   | SpeakerInstruction
   | LabelInstruction
+
+/* c8 ignore next */

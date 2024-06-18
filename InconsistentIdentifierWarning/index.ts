@@ -19,3 +19,5 @@ export interface InconsistentIdentifierWarning {
    */
   readonly second: IdentifierReference
 }
+
+/* c8 ignore next */

@@ -37,3 +37,5 @@ export interface MenuOptionInstruction {
    */
   readonly condition: null | Condition
 }
+
+/* c8 ignore next */

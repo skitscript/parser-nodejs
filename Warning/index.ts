@@ -17,3 +17,5 @@ export type Warning =
   | InconsistentIdentifierWarning
   | UnreachableWarning
   | UnreferencedLabelWarning
+
+/* c8 ignore next */

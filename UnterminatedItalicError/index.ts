@@ -30,3 +30,5 @@ export interface UnterminatedItalicError {
    */
   readonly toColumn: number
 }
+
+/* c8 ignore next */

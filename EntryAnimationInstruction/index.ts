@@ -24,3 +24,5 @@ export interface EntryAnimationInstruction {
    */
   readonly animation: Identifier
 }
+
+/* c8 ignore next */

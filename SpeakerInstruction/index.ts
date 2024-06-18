@@ -19,3 +19,5 @@ export interface SpeakerInstruction {
    */
   readonly characters: readonly Identifier[]
 }
+
+/* c8 ignore next */

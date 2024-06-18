@@ -19,3 +19,5 @@ export type Error =
   | UnterminatedBoldError
   | UnterminatedItalicError
   | UnterminatedCodeError
+
+/* c8 ignore next */

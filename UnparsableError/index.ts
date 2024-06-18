@@ -22,3 +22,5 @@ export interface UnparsableError {
    */
   readonly toColumn: number
 }
+
+/* c8 ignore next */

@@ -24,3 +24,5 @@ export interface ExitAnimationInstruction {
    */
   readonly animation: Identifier
 }
+
+/* c8 ignore next */

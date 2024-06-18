@@ -16,3 +16,5 @@ export type Condition =
   | FlagSetCondition
   | SomeFlagsClearCondition
   | SomeFlagsSetCondition
+
+/* c8 ignore next */

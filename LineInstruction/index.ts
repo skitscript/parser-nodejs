@@ -19,3 +19,5 @@ export interface LineInstruction {
    */
   readonly content: Formatted
 }
+
+/* c8 ignore next */

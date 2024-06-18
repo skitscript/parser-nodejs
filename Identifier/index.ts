@@ -22,3 +22,5 @@ export interface Identifier {
    */
   readonly toColumn: number
 }
+
+/* c8 ignore next */

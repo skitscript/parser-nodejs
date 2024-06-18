@@ -9,3 +9,5 @@ export type IdentifierReference = Identifier & {
    */
   readonly line: number
 }
+
+/* c8 ignore next */

@@ -24,3 +24,5 @@ export interface DuplicateIdentifierInListWarning {
    */
   readonly second: Identifier
 }
+
+/* c8 ignore next */

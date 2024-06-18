@@ -18,3 +18,5 @@ export interface IncompleteEscapeSequenceError {
    */
   readonly column: number
 }
+
+/* c8 ignore next */

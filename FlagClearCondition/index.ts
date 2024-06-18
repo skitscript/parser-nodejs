@@ -14,3 +14,5 @@ export interface FlagClearCondition {
    */
   readonly flag: Identifier
 }
+
+/* c8 ignore next */

@@ -19,3 +19,5 @@ export interface FlagNeverReferencedWarning {
    */
   readonly flag: Identifier
 }
+
+/* c8 ignore next */

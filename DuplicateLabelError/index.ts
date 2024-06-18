@@ -19,3 +19,5 @@ export interface DuplicateLabelError {
    */
   readonly second: IdentifierReference
 }
+
+/* c8 ignore next */

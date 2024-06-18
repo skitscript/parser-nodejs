@@ -19,3 +19,5 @@ export interface SetInstruction {
    */
   readonly flag: Identifier
 }
+
+/* c8 ignore next */

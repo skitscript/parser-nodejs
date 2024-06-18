@@ -22,3 +22,5 @@ export interface UnreachableWarning {
    */
   readonly toColumn: number
 }
+
+/* c8 ignore next */

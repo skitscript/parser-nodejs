@@ -19,3 +19,5 @@ export interface UnreferencedLabelWarning {
    */
   readonly label: Identifier
 }
+
+/* c8 ignore next */

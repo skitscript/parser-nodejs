@@ -5,3 +5,5 @@ export type IdentifierContext =
   | 'declaration'
   | 'reference'
   | 'implicitDeclaration'
+
+/* c8 ignore next */

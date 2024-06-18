@@ -31,3 +31,5 @@ export interface JumpInstruction {
    */
   readonly condition: null | Condition
 }
+
+/* c8 ignore next */

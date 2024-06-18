@@ -40,3 +40,5 @@ export interface Run {
    */
   readonly toColumn: number
 }
+
+/* c8 ignore next */

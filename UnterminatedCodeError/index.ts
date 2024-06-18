@@ -29,3 +29,5 @@ export interface UnterminatedCodeError {
    */
   readonly toColumn: number
 }
+
+/* c8 ignore next */

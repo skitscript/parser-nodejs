@@ -16,3 +16,5 @@ export type IdentifierInstance = {
    */
   readonly context: IdentifierContext
 } & IdentifierReference
+
+/* c8 ignore next */

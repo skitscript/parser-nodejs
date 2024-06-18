@@ -9,3 +9,5 @@ export type IdentifierType =
   | 'background'
   | 'label'
   | 'flag'
+
+/* c8 ignore next */

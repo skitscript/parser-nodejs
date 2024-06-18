@@ -26,3 +26,5 @@ export interface ValidDocument {
    */
   readonly identifierInstances: readonly IdentifierInstance[]
 }
+
+/* c8 ignore next */

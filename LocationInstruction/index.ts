@@ -19,3 +19,5 @@ export interface LocationInstruction {
    */
   readonly background: Identifier
 }
+
+/* c8 ignore next */

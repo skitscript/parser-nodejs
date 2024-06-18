@@ -19,3 +19,5 @@ export interface ClearInstruction {
    */
   readonly flag: Identifier
 }
+
+/* c8 ignore next */

@@ -24,3 +24,5 @@ export interface EmoteInstruction {
    */
   readonly emote: Identifier
 }
+
+/* c8 ignore next */

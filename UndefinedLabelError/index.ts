@@ -19,3 +19,5 @@ export interface UndefinedLabelError {
    */
   readonly label: Identifier
 }
+
+/* c8 ignore next */

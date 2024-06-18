@@ -20,3 +20,5 @@ export interface LabelInstruction {
    */
   readonly label: Identifier
 }
+
+/* c8 ignore next */

@@ -21,3 +21,5 @@ export interface EmptyLabelWarning {
    */
   readonly label: Identifier
 }
+
+/* c8 ignore next */

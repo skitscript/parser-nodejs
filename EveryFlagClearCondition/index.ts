@@ -14,3 +14,5 @@ export interface EveryFlagClearCondition {
    */
   readonly flags: readonly Identifier[]
 }
+
+/* c8 ignore next */
