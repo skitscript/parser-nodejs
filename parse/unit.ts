@@ -1,8 +1,7 @@
-import type { Document } from '@skitscript/types-nodejs'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as url from 'url'
-import { parse } from '../index.js'
+import { parse, type Document } from '../index.js'
 
 describe('parse', () => {
   const documentCasesPath = path.join(

@@ -30,29 +30,13 @@ NPM package:
 npm install --save @skitscript/parser-nodejs
 ```
 
-Additionally install the types package:
-
-```bash
-npm install --save-dev @skitscript/types-nodejs
-```
-
-### Install `@skitscript/types-nodejs` as a peer dependency
-
-If you are developing a package which includes types from
-`@skitscript/types-nodejs` in its public API, additionally install it as a peer
-dependency so that consumers of your package know to include it as well:
-
-```bash
-npm install --save-peer @skitscript/types-nodejs
-```
-
 ### Install as a development dependency
 
 If this is used when building your application and not at runtime, install it as
 a development dependency:
 
 ```bash
-npm install --save-dev @skitscript/parser-nodejs @skitscript/types-nodejs
+npm install --save-dev @skitscript/parser-nodejs
 ```
 
 ## Usage
@@ -116,3 +100,79 @@ console.log(parsed);
   ]
 }
 ```
+
+### Types
+
+A comprehensive library of types representing the results of attempting to parse
+documents can be imported:
+
+```typescript
+import { Document } from "@skitscript/parser-nodejs";
+```
+
+#### Documents
+
+- [Document](./Document/index.ts)
+- [InvalidDocument](./InvalidDocument/index.ts)
+- [ValidDocument](./ValidDocument/index.ts)
+
+#### Instructions
+
+- [ClearInstruction](./ClearInstruction/index.ts)
+- [EmoteInstruction](./EmoteInstruction/index.ts)
+- [EntryAnimationInstruction](./EntryAnimationInstruction/index.ts)
+- [ExitAnimationInstruction](./ExitAnimationInstruction/index.ts)
+- [Instruction](./Instruction/index.ts)
+- [JumpInstruction](./JumpInstruction/index.ts)
+- [LabelInstruction](./LabelInstruction/index.ts)
+- [LineInstruction](./LineInstruction/index.ts)
+- [LocationInstruction](./LocationInstruction/index.ts)
+- [MenuOptionInstruction](./MenuOptionInstruction/index.ts)
+- [SetInstruction](./SetInstruction/index.ts)
+- [SpeakerInstruction](./SpeakerInstruction/index.ts)
+
+##### Formatting
+
+- [Formatted](./Formatted/index.ts)
+- [Run](./Run/index.ts)
+
+##### Conditions
+
+- [Condition](./Condition/index.ts)
+- [EveryFlagClearCondition](./EveryFlagClearCondition/index.ts)
+- [EveryFlagSetCondition](./EveryFlagSetCondition/index.ts)
+- [FlagClearCondition](./FlagClearCondition/index.ts)
+- [FlagSetCondition](./FlagSetCondition/index.ts)
+- [SomeFlagsClearCondition](./SomeFlagsClearCondition/index.ts)
+- [SomeFlagsSetCondition](./SomeFlagsSetCondition/index.ts)
+
+#### Identifiers
+
+- [Identifier](./Identifier/index.ts)
+- [IdentifierContext](./IdentifierContext/index.ts)
+- [IdentifierInstance](./IdentifierInstance/index.ts)
+- [IdentifierReference](./IdentifierReference/index.ts)
+- [IdentifierType](./IdentifierType/index.ts)
+
+#### Warnings
+
+- [DuplicateIdentifierInListWarning](./DuplicateIdentifierInListWarning/index.ts)
+- [EmptyLabelWarning](./EmptyLabelWarning/index.ts)
+- [FlagNeverReferencedWarning](./FlagNeverReferencedWarning/index.ts)
+- [FlagNeverSetWarning](./FlagNeverSetWarning/index.ts)
+- [InconsistentIdentifierWarning](./InconsistentIdentifierWarning/index.ts)
+- [UnreachableWarning](./UnreachableWarning/index.ts)
+- [UnreferencedLabelWarning](./UnreferencedLabelWarning/index.ts)
+- [Warning](./Warning/index.ts)
+
+#### Errors
+
+- [DuplicateLabelError](./DuplicateLabelError/index.ts)
+- [Error](./Error/index.ts)
+- [IncompleteEscapeSequenceError](./IncompleteEscapeSequenceError/index.ts)
+- [InvalidEscapeSequenceError](./InvalidEscapeSequenceError/index.ts)
+- [UndefinedLabelError](./UndefinedLabelError/index.ts)
+- [UnparsableError](./UnparsableError/index.ts)
+- [UnterminatedBoldError](./UnterminatedBoldError/index.ts)
+- [UnterminatedCodeError](./UnterminatedCodeError/index.ts)
+- [UnterminatedItalicError](./UnterminatedItalicError/index.ts)

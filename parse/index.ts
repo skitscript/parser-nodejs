@@ -1,17 +1,15 @@
-import type {
-  Condition,
-  Document,
-  Instruction,
-  Warning,
-  Formatted,
-  Identifier,
-  IdentifierReference,
-  Run,
-  Error,
-  IdentifierType,
-  IdentifierInstance,
-  IdentifierContext
-} from '@skitscript/types-nodejs'
+import type { Condition } from '../Condition'
+import type { Document } from '../Document'
+import type { Error } from '../Error'
+import type { Formatted } from '../Formatted'
+import type { Identifier } from '../Identifier'
+import type { IdentifierContext } from '../IdentifierContext'
+import type { IdentifierInstance } from '../IdentifierInstance'
+import type { IdentifierReference } from '../IdentifierReference'
+import type { IdentifierType } from '../IdentifierType'
+import type { Instruction } from '../Instruction'
+import type { Run } from '../Run'
+import type { Warning } from '../Warning'
 
 const identifierFilteredCharacterRegexFragment = '!?\'"{}@*/\\\\&#%`+<=>|$.-'
 
