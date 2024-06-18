@@ -1,2 +1,2 @@
-export { identifierIsValid } from './identifier-is-valid'
-export { parse } from './parse'
+export { identifierIsValid } from './identifier-is-valid/index.js'
+export { parse } from './parse/index.js'

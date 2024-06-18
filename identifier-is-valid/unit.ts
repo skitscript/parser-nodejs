@@ -1,10 +1,11 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import { identifierIsValid } from '..'
+import * as url from 'url'
+import { identifierIsValid } from '../index.js'
 
 describe('identifierIsValid', () => {
   const identifierCasesPath = path.join(
-    __dirname,
+    path.dirname(url.fileURLToPath(import.meta.url)),
     '..',
     'submodules',
     'skitscript',

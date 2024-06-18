@@ -1,4 +1,4 @@
-import { identifierRegexFragment } from '../parse'
+import { identifierRegexFragment } from '../parse/index.js'
 
 const regex = new RegExp(`^${identifierRegexFragment}$`, 'i')
 

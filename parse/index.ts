@@ -285,10 +285,10 @@ export const parse = (source: string): Document => {
       readonly Warning[],
       null | TBinaryOperator
     ] {
-    const commaDelimited = match[startingIndex] as undefined | string
+    const commaDelimited = match[startingIndex]
 
     if (commaDelimited === undefined) {
-      const single = match[startingIndex + 4] as string
+      const single = match[startingIndex + 4]
 
       return [
         [
@@ -297,7 +297,7 @@ export const parse = (source: string): Document => {
             type,
             'implicitDeclaration',
             fromColumn,
-            single
+            single as string
           )
         ],
         [],
@@ -391,12 +391,12 @@ export const parse = (source: string): Document => {
     match: RegExpMatchArray,
     startingIndex: number
   ): [null | Condition, readonly Instruction[], readonly Warning[]] {
-    const prefix = match[startingIndex] as undefined | string
+    const prefix = match[startingIndex]
 
     if (prefix === undefined) {
       return [null, [], []]
     } else {
-      const not = match[startingIndex + 1] as undefined | string
+      const not = match[startingIndex + 1]
 
       const [flags, instructions, warnings, binaryOperator] =
         normalizeIdentifierList<'and' | 'or'>(
@@ -801,9 +801,7 @@ export const parse = (source: string): Document => {
           })
         }
 
-        const emotePrefix = singleCharacterEntryAnimationMatch[4] as
-          | undefined
-          | string
+        const emotePrefix = singleCharacterEntryAnimationMatch[4]
 
         if (emotePrefix !== undefined) {
           const emoteName = singleCharacterEntryAnimationMatch[5] as string
@@ -883,9 +881,7 @@ export const parse = (source: string): Document => {
           }
         }
 
-        const emotePrefix = multiCharacterEntryAnimationMatch[8] as
-          | undefined
-          | string
+        const emotePrefix = multiCharacterEntryAnimationMatch[8]
 
         if (emotePrefix !== undefined) {
           const emoteName = multiCharacterEntryAnimationMatch[9] as string
@@ -968,9 +964,7 @@ export const parse = (source: string): Document => {
           })
         }
 
-        const emotePrefix = singleCharacterExitAnimationMatch[4] as
-          | undefined
-          | string
+        const emotePrefix = singleCharacterExitAnimationMatch[4]
 
         if (emotePrefix !== undefined) {
           const emoteName = singleCharacterExitAnimationMatch[5] as string
@@ -1051,9 +1045,7 @@ export const parse = (source: string): Document => {
           }
         }
 
-        const emotePrefix = multiCharacterExitAnimationMatch[8] as
-          | undefined
-          | string
+        const emotePrefix = multiCharacterExitAnimationMatch[8]
 
         if (emotePrefix !== undefined) {
           const emoteName = multiCharacterExitAnimationMatch[9] as string
@@ -1118,7 +1110,7 @@ export const parse = (source: string): Document => {
           })
         }
 
-        const emotePrefix = speakerMatch[6] as undefined | string
+        const emotePrefix = speakerMatch[6]
 
         if (emotePrefix !== undefined) {
           const emoteName = speakerMatch[7] as string
@@ -1640,7 +1632,7 @@ export const parse = (source: string): Document => {
     instructionIndex++
   }
 
-  const mappedInstructions = instructions.map((instruction) => {
+  const mappedInstructions = instructions.map((instruction): Instruction => {
     switch (instruction.type) {
       case 'clear':
       case 'emote':
