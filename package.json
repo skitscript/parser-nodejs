@@ -45,5 +45,6 @@
   ],
   "types": "index.d.ts",
   "sideEffects": false,
-  "type": "module"
+  "type": "module",
+  "main": "index.js"
 }
