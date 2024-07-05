@@ -13,7 +13,6 @@ operating systems:
 - Ubuntu 20.04
 - macOS 13 (Ventura)
 - macOS 12 (Monterey)
-- macOS 11 (Big Sur)
 - Windows Server 2022
 - Windows Server 2019
 
