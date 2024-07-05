@@ -14,10 +14,10 @@ jobs:
           windows-2019,
         ]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: true
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@v4
       with:
         node-version: '20.14'
         registry-url: 'https://registry.npmjs.org'
@@ -28,10 +28,10 @@ jobs:
   release:
     if: github.event_name == 'release' && github.event.action == 'created'
     needs: test
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
       with:
         node-version: '20.14'
         registry-url: 'https://registry.npmjs.org'
