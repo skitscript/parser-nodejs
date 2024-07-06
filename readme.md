@@ -59,13 +59,19 @@ false
 
 ### Parsing documents
 
-Import the `parse` function, and provide it with a string containing your
-document's content:
+Import the `start`, `append` and `end` functions and feed the parser one
+character at a time:
 
 ```typescript
-import { parse } from "@skitscript/parser-nodejs";
+import { start, append, end } from "@skitscript/parser-nodejs";
 
-const parsed = parse(documentContentString);
+const parser = start();
+append(parser, 'h');
+append(parser, 'e');
+append(parser, 'l');
+append(parser, 'l');
+append(parser, 'o');
+const parsed = end(parser);
 
 console.log(parsed);
 ```

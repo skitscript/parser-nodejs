@@ -1,12 +1,11 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import * as url from 'url'
-import { parse, type Document } from '../index.js'
+import { append, end, start, type Document } from './index.js'
 
 describe('parse', () => {
   const documentCasesPath = path.join(
     path.dirname(url.fileURLToPath(import.meta.url)),
-    '..',
     'submodules',
     'skitscript',
     'parser-test-suite',
@@ -27,7 +26,13 @@ describe('parse', () => {
               'utf8'
             )
 
-            document = parse(source.replace(/\n/g, newline))
+            const parser = start()
+
+            for (const character of source.replace(/\n/g, newline)) {
+              append(parser, character)
+            }
+
+            document = end(parser)
           })
 
           it('parses to the expected document', async () => {
@@ -43,4 +48,32 @@ describe('parse', () => {
       }
     })
   }
+
+  it('throws an error when appending to an ended parser', () => {
+    const parser = start()
+    append(parser, 'h')
+    append(parser, 'e')
+    append(parser, 'l')
+    append(parser, 'l')
+    append(parser, 'o')
+    end(parser)
+
+    expect(() => {
+      append(parser, 'w')
+    }).toThrowError('Unable to append to a parser which has ended.')
+  })
+
+  it('throws an error when ending an ended parser', () => {
+    const parser = start()
+    append(parser, 'h')
+    append(parser, 'e')
+    append(parser, 'l')
+    append(parser, 'l')
+    append(parser, 'o')
+    end(parser)
+
+    expect(() => {
+      end(parser)
+    }).toThrowError('Unable to end the same parser more than once.')
+  })
 })

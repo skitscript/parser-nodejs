@@ -1,5 +1,7 @@
+export { append } from './append/index.js'
+export { end } from './end/index.js'
 export { identifierIsValid } from './identifierIsValid/index.js'
-export { parse } from './parse/index.js'
+export { start } from './start/index.js'
 export type { ClearInstruction } from './ClearInstruction'
 export type { Condition } from './Condition'
 export type { Document } from './Document'
