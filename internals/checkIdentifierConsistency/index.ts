@@ -3,6 +3,8 @@ import type { IdentifierType } from '../../IdentifierType'
 import type { LocalIdentifierInstance } from '../LocalIdentifierInstance'
 import type { ParserState } from '../ParserState'
 
+// todo: remove line parameters
+
 export const checkIdentifierConsistency = (
   parserState: ParserState,
   identifierType: IdentifierType,

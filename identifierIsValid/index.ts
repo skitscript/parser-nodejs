@@ -1,3 +1,5 @@
+// TODO: Remove regex from here.
+
 const identifierFilteredCharacterRegexFragment = '!?\'"{}@*/\\\\&#%`+<=>|$.-'
 
 const identifierDisallowedWords = [
