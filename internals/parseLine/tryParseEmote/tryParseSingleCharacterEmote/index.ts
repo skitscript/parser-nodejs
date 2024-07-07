@@ -1,7 +1,7 @@
-import { checkIdentifierConsistency } from '../../checkIdentifierConsistency/index.js'
-import { normalizeIdentifier } from '../../normalizeIdentifier/index.js'
-import type { ParserState } from '../../ParserState'
-import { checkReachable } from '../checkReachable/index.js'
+import { checkIdentifierConsistency } from '../../../checkIdentifierConsistency/index.js'
+import { normalizeIdentifier } from '../../../normalizeIdentifier/index.js'
+import type { ParserState } from '../../../ParserState/index.js'
+import { checkReachable } from '../../checkReachable/index.js'
 
 const identifierFilteredCharacterRegexFragment = '!?\'"{}@*/\\\\&#%`+<=>|$.-'
 

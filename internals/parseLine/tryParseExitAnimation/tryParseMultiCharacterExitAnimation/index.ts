@@ -1,8 +1,8 @@
-import { checkIdentifierConsistency } from '../../checkIdentifierConsistency/index.js'
-import { normalizeIdentifier } from '../../normalizeIdentifier/index.js'
-import { normalizeIdentifierList } from '../../normalizeIdentifierList/index.js'
-import type { ParserState } from '../../ParserState'
-import { checkReachable } from '../checkReachable/index.js'
+import { checkIdentifierConsistency } from '../../../checkIdentifierConsistency/index.js'
+import { normalizeIdentifier } from '../../../normalizeIdentifier/index.js'
+import { normalizeIdentifierList } from '../../../normalizeIdentifierList/index.js'
+import type { ParserState } from '../../../ParserState/index.js'
+import { checkReachable } from '../../checkReachable/index.js'
 
 const identifierFilteredCharacterRegexFragment = '!?\'"{}@*/\\\\&#%`+<=>|$.-'
 
@@ -41,51 +41,52 @@ const identifierListAtLeastTwoRegexFragmentFactory = (
     '|'
   )})(\\s+)(${identifierRegexFragment})`
 
-const multiCharacterEntryAnimationRegex = new RegExp(
+const multiCharacterExitAnimationRegex = new RegExp(
   `^${identifierListAtLeastTwoRegexFragmentFactory([
     'and'
-  ])}(\\s+enter\\s+)(${identifierRegexFragment})(?:(\\s*,\\s*)(${identifierRegexFragment}))?\\s*\\.\\s*$`,
+  ])}(\\s+exit\\s+)(${identifierRegexFragment})(?:(\\s*,\\s*)(${identifierRegexFragment}))?\\s*\\.\\s*$`,
   'i'
 )
 
-export const tryParseMultiCharacterEntryAnimation = (parserState: ParserState): boolean => {
-  const multiCharacterEntryAnimationMatch =
-  multiCharacterEntryAnimationRegex.exec(parserState.lineAccumulator)
+export const tryParseMultiCharacterExitAnimation = (parserState: ParserState): boolean => {
+  const multiCharacterExitAnimationMatch =
+  multiCharacterExitAnimationRegex.exec(parserState.lineAccumulator)
 
-  if (multiCharacterEntryAnimationMatch !== null) {
+  if (multiCharacterExitAnimationMatch !== null) {
     const isReachable = checkReachable(parserState)
+
     const [characters, characterInstructions, characterWarnings] =
     normalizeIdentifierList(
       parserState,
       parserState.line,
       'character',
       1,
-      multiCharacterEntryAnimationMatch,
+      multiCharacterExitAnimationMatch,
       1
     )
 
-    const entry = multiCharacterEntryAnimationMatch[6] as string
-    const animationName = multiCharacterEntryAnimationMatch[7] as string
+    const exit = multiCharacterExitAnimationMatch[6] as string
+    const animationName = multiCharacterExitAnimationMatch[7] as string
 
     const animation = normalizeIdentifier(
       parserState,
       parserState.line,
-      'entryAnimation',
+      'exitAnimation',
       'implicitDeclaration',
       1 +
-      (multiCharacterEntryAnimationMatch[1] as string).length +
-      (multiCharacterEntryAnimationMatch[2] as string).length +
-      (multiCharacterEntryAnimationMatch[3] as string).length +
-      (multiCharacterEntryAnimationMatch[4] as string).length +
-      (multiCharacterEntryAnimationMatch[5] as string).length +
-      entry.length,
+      (multiCharacterExitAnimationMatch[1] as string).length +
+      (multiCharacterExitAnimationMatch[2] as string).length +
+      (multiCharacterExitAnimationMatch[3] as string).length +
+      (multiCharacterExitAnimationMatch[4] as string).length +
+      (multiCharacterExitAnimationMatch[5] as string).length +
+      exit.length,
       animationName
     )
 
     if (isReachable) {
       for (const character of characters) {
         parserState.instructions.push({
-          type: 'entryAnimation',
+          type: 'exitAnimation',
           line: parserState.line,
           character,
           animation
@@ -93,10 +94,10 @@ export const tryParseMultiCharacterEntryAnimation = (parserState: ParserState): 
       }
     }
 
-    const emotePrefix = multiCharacterEntryAnimationMatch[8]
+    const emotePrefix = multiCharacterExitAnimationMatch[8]
 
     if (emotePrefix !== undefined) {
-      const emoteName = multiCharacterEntryAnimationMatch[9] as string
+      const emoteName = multiCharacterExitAnimationMatch[9] as string
 
       const emote = normalizeIdentifier(
         parserState,
@@ -104,12 +105,12 @@ export const tryParseMultiCharacterEntryAnimation = (parserState: ParserState): 
         'emote',
         'implicitDeclaration',
         1 +
-        (multiCharacterEntryAnimationMatch[1] as string).length +
-        (multiCharacterEntryAnimationMatch[2] as string).length +
-        (multiCharacterEntryAnimationMatch[3] as string).length +
-        (multiCharacterEntryAnimationMatch[4] as string).length +
-        (multiCharacterEntryAnimationMatch[5] as string).length +
-        entry.length +
+        (multiCharacterExitAnimationMatch[1] as string).length +
+        (multiCharacterExitAnimationMatch[2] as string).length +
+        (multiCharacterExitAnimationMatch[3] as string).length +
+        (multiCharacterExitAnimationMatch[4] as string).length +
+        (multiCharacterExitAnimationMatch[5] as string).length +
+        exit.length +
         animationName.length +
         emotePrefix.length,
         emoteName
@@ -137,7 +138,7 @@ export const tryParseMultiCharacterEntryAnimation = (parserState: ParserState): 
         checkIdentifierConsistency(parserState, 'character', parserState.line, character)
       }
 
-      checkIdentifierConsistency(parserState, 'entryAnimation', parserState.line, animation)
+      checkIdentifierConsistency(parserState, 'exitAnimation', parserState.line, animation)
     }
 
     return true
