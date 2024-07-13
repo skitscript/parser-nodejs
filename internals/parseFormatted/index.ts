@@ -4,7 +4,6 @@ import type { ParserState } from '../ParserState'
 
 export const parseFormatted = (
   parserState: ParserState,
-  line: number,
   fromColumn: number,
   unformatted: string,
   onSuccess: (formatted: Formatted) => void
@@ -72,7 +71,7 @@ export const parseFormatted = (
           default:
             parserState.errors.push({
               type: 'invalidEscapeSequence',
-              line,
+              line: parserState.line,
               verbatim: `\\${character}`,
               fromColumn: toColumn - 1,
               toColumn
@@ -145,7 +144,7 @@ export const parseFormatted = (
           default:
             parserState.errors.push({
               type: 'invalidEscapeSequence',
-              line,
+              line: parserState.line,
               verbatim: `\\${character}`,
               fromColumn: toColumn - 1,
               toColumn
@@ -195,7 +194,7 @@ export const parseFormatted = (
     case 'codeBackslash':
       parserState.errors.push({
         type: 'incompleteEscapeSequence',
-        line,
+        line: parserState.line,
         column: toColumn
       })
 
@@ -213,7 +212,7 @@ export const parseFormatted = (
   if (boldFromColumn !== null) {
     parserState.errors.push({
       type: 'unterminatedBold',
-      line,
+      line: parserState.line,
       verbatim: unformatted.slice(boldFromColumn - fromColumn),
       fromColumn: boldFromColumn,
       toColumn
@@ -221,7 +220,7 @@ export const parseFormatted = (
   } else if (italicFromColumn !== null) {
     parserState.errors.push({
       type: 'unterminatedItalic',
-      line,
+      line: parserState.line,
       verbatim: unformatted.slice(italicFromColumn - fromColumn),
       fromColumn: italicFromColumn,
       toColumn
@@ -229,7 +228,7 @@ export const parseFormatted = (
   } else if (codeFromColumn !== null) {
     parserState.errors.push({
       type: 'unterminatedCode',
-      line,
+      line: parserState.line,
       verbatim: unformatted.slice(codeFromColumn - fromColumn),
       fromColumn: codeFromColumn,
       toColumn

@@ -61,7 +61,6 @@ export const tryParseMenuOption = (parserState: ParserState): boolean => {
 
     parseFormatted(
       parserState,
-      parserState.line,
       1 + prefix.length,
       unformattedContent,
       (content) => {
@@ -70,7 +69,6 @@ export const tryParseMenuOption = (parserState: ParserState): boolean => {
 
         const label = normalizeIdentifier(
           parserState,
-          parserState.line,
           'label',
           'reference',
           1 +
@@ -83,7 +81,6 @@ export const tryParseMenuOption = (parserState: ParserState): boolean => {
         const [condition, conditionInstructions, conditionWarnings] =
         parseCondition(
           parserState,
-          parserState.line,
           1 +
               prefix.length +
               unformattedContent.length +
@@ -109,9 +106,9 @@ export const tryParseMenuOption = (parserState: ParserState): boolean => {
 
           parserState.warnings.push(...conditionWarnings)
 
-          checkIdentifierConsistency(parserState, 'label', parserState.line, label)
+          checkIdentifierConsistency(parserState, 'label', label)
 
-          checkConditionConsistency(parserState, parserState.line, condition)
+          checkConditionConsistency(parserState, condition)
 
           if (condition === null) {
             parserState.reachability = 'willBecomeUnreachableAtEndOfCurrentMenu'

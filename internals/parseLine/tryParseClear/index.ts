@@ -35,7 +35,7 @@ export const tryParseClear = (parserState: ParserState): boolean => {
         flag
       })
 
-      checkIdentifierConsistency(parserState, 'flag', parserState.line, flag)
+      checkIdentifierConsistency(parserState, 'flag', flag)
     }
   }
 

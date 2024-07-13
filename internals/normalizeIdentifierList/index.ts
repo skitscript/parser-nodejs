@@ -7,7 +7,6 @@ import type { ParserState } from '../ParserState'
 
 export const normalizeIdentifierList = <TBinaryOperator extends string>(
   parserState: ParserState,
-  line: number,
   type: IdentifierType,
   fromColumn: number,
   match: RegExpMatchArray,
@@ -27,7 +26,6 @@ export const normalizeIdentifierList = <TBinaryOperator extends string>(
       [
         normalizeIdentifier(
           parserState,
-          line,
           type,
           'implicitDeclaration',
           fromColumn,
@@ -56,7 +54,6 @@ export const normalizeIdentifierList = <TBinaryOperator extends string>(
       identifiers.push(
         normalizeIdentifier(
           parserState,
-          line,
           type,
           'implicitDeclaration',
           fromColumn,
@@ -74,7 +71,6 @@ export const normalizeIdentifierList = <TBinaryOperator extends string>(
     identifiers.push(
       normalizeIdentifier(
         parserState,
-        line,
         type,
         'implicitDeclaration',
         fromColumn,
@@ -99,7 +95,7 @@ export const normalizeIdentifierList = <TBinaryOperator extends string>(
           if (firstDuplicate) {
             warnings.push({
               type: 'duplicateIdentifierInList',
-              line,
+              line: parserState.line,
               first,
               second
             })

@@ -68,7 +68,7 @@ export const tryParseLabel = (parserState: ParserState): boolean => {
     label: name
   })
 
-  checkIdentifierConsistency(parserState, 'label', parserState.line, name)
+  checkIdentifierConsistency(parserState, 'label', name)
 
   parserState.reachability = 'reachable'
 

@@ -65,7 +65,6 @@ export const tryParseJump = (parserState: ParserState): boolean => {
 
     const label = normalizeIdentifier(
       parserState,
-      parserState.line,
       'label',
       'reference',
       1 + prefix.length,
@@ -75,7 +74,6 @@ export const tryParseJump = (parserState: ParserState): boolean => {
     const [condition, conditionInstructions, conditionWarnings] =
       parseCondition(
         parserState,
-        parserState.line,
         1 + prefix.length + labelName.length,
         jumpMatch,
         3
@@ -107,9 +105,9 @@ export const tryParseJump = (parserState: ParserState): boolean => {
 
       parserState.warnings.push(...conditionWarnings)
 
-      checkIdentifierConsistency(parserState, 'label', parserState.line, label)
+      checkIdentifierConsistency(parserState, 'label', label)
 
-      checkConditionConsistency(parserState, parserState.line, condition)
+      checkConditionConsistency(parserState, condition)
 
       if (condition === null) {
         parserState.reachability = 'firstUnreachable'

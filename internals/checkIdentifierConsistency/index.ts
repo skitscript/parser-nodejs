@@ -3,19 +3,16 @@ import type { IdentifierType } from '../../IdentifierType'
 import type { LocalIdentifierInstance } from '../LocalIdentifierInstance'
 import type { ParserState } from '../ParserState'
 
-// todo: remove line parameters
-
 export const checkIdentifierConsistency = (
   parserState: ParserState,
   identifierType: IdentifierType,
-  line: number,
   identifier: Identifier
 ): void => {
   const identifiersByType = parserState.identifiers[identifierType]
 
   const identifierReference = {
     ...identifier,
-    line
+    line: parserState.line
   }
 
   if (
@@ -31,7 +28,7 @@ export const checkIdentifierConsistency = (
     if (
       !existing.reportedInconsistent &&
       existing.first.verbatim !== identifier.verbatim &&
-      existing.first.line !== line
+      existing.first.line !== parserState.line
     ) {
       parserState.warnings.push({
         type: 'inconsistentIdentifier',

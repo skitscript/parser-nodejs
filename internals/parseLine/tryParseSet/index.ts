@@ -33,7 +33,7 @@ export const tryParseSet = (parserState: ParserState): boolean => {
         flag
       })
 
-      checkIdentifierConsistency(parserState, 'flag', parserState.line, flag)
+      checkIdentifierConsistency(parserState, 'flag', flag)
     }
   }
 

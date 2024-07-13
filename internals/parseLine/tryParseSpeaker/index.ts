@@ -55,7 +55,7 @@ export const tryParseSpeaker = (parserState: ParserState): boolean => {
     const isReachable = checkReachable(parserState)
 
     const [characters, characterInstructions, characterWarnings] =
-    normalizeIdentifierList(parserState, parserState.line, 'character', 1, speakerMatch, 1)
+    normalizeIdentifierList(parserState, 'character', 1, speakerMatch, 1)
 
     if (isReachable) {
       parserState.instructions.push({
@@ -72,7 +72,6 @@ export const tryParseSpeaker = (parserState: ParserState): boolean => {
 
       const emote = normalizeIdentifier(
         parserState,
-        parserState.line,
         'emote',
         'implicitDeclaration',
         1 +
@@ -95,7 +94,7 @@ export const tryParseSpeaker = (parserState: ParserState): boolean => {
           })
         }
 
-        checkIdentifierConsistency(parserState, 'emote', parserState.line, emote)
+        checkIdentifierConsistency(parserState, 'emote', emote)
       }
     }
 
@@ -104,7 +103,7 @@ export const tryParseSpeaker = (parserState: ParserState): boolean => {
       parserState.warnings.push(...characterWarnings)
 
       for (const character of characters) {
-        checkIdentifierConsistency(parserState, 'character', parserState.line, character)
+        checkIdentifierConsistency(parserState, 'character', character)
       }
     }
 

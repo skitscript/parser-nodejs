@@ -108,9 +108,9 @@ export const tryParseEntryAnimation = (parserState: ParserState): boolean => {
                 addIdentifierToIndex(parserState, emote, 'emote', 'implicitDeclaration')
 
                 if (checkReachable(parserState)) {
-                  checkIdentifierConsistency(parserState, 'character', parserState.line, character)
-                  checkIdentifierConsistency(parserState, 'entryAnimation', parserState.line, animation)
-                  checkIdentifierConsistency(parserState, 'emote', parserState.line, emote)
+                  checkIdentifierConsistency(parserState, 'character', character)
+                  checkIdentifierConsistency(parserState, 'entryAnimation', animation)
+                  checkIdentifierConsistency(parserState, 'emote', emote)
 
                   parserState.instructions.push({
                     type: 'entryAnimation',
@@ -145,8 +145,8 @@ export const tryParseEntryAnimation = (parserState: ParserState): boolean => {
                 addIdentifierToIndex(parserState, animation, 'entryAnimation', 'implicitDeclaration')
 
                 if (checkReachable(parserState)) {
-                  checkIdentifierConsistency(parserState, 'character', parserState.line, character)
-                  checkIdentifierConsistency(parserState, 'entryAnimation', parserState.line, animation)
+                  checkIdentifierConsistency(parserState, 'character', character)
+                  checkIdentifierConsistency(parserState, 'entryAnimation', animation)
 
                   parserState.instructions.push({
                     type: 'entryAnimation',
@@ -227,11 +227,11 @@ export const tryParseEntryAnimation = (parserState: ParserState): boolean => {
 
                 if (checkReachable(parserState)) {
                   for (const character of characters) {
-                    checkIdentifierConsistency(parserState, 'character', parserState.line, character)
+                    checkIdentifierConsistency(parserState, 'character', character)
                   }
 
-                  checkIdentifierConsistency(parserState, 'entryAnimation', parserState.line, animation)
-                  checkIdentifierConsistency(parserState, 'emote', parserState.line, emote)
+                  checkIdentifierConsistency(parserState, 'entryAnimation', animation)
+                  checkIdentifierConsistency(parserState, 'emote', emote)
 
                   for (const character of characters) {
                     parserState.instructions.push({
@@ -279,10 +279,10 @@ export const tryParseEntryAnimation = (parserState: ParserState): boolean => {
                       animation
                     })
 
-                    checkIdentifierConsistency(parserState, 'character', parserState.line, character)
+                    checkIdentifierConsistency(parserState, 'character', character)
                   }
 
-                  checkIdentifierConsistency(parserState, 'entryAnimation', parserState.line, animation)
+                  checkIdentifierConsistency(parserState, 'entryAnimation', animation)
                 }
               }
             }

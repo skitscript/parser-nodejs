@@ -70,7 +70,7 @@ export const tryParseEmote = (parserState: ParserState): boolean => {
 
                   if (checkReachable(parserState)) {
                     for (const character of characters) {
-                      checkIdentifierConsistency(parserState, 'character', parserState.line, character)
+                      checkIdentifierConsistency(parserState, 'character', character)
 
                       parserState.instructions.push({
                         type: 'emote',
@@ -80,7 +80,7 @@ export const tryParseEmote = (parserState: ParserState): boolean => {
                       })
                     }
 
-                    checkIdentifierConsistency(parserState, 'emote', parserState.line, emote)
+                    checkIdentifierConsistency(parserState, 'emote', emote)
                   }
 
                   return true
@@ -147,8 +147,8 @@ export const tryParseEmote = (parserState: ParserState): boolean => {
             addIdentifierToIndex(parserState, emote, 'emote', 'implicitDeclaration')
 
             if (checkReachable(parserState)) {
-              checkIdentifierConsistency(parserState, 'character', parserState.line, character)
-              checkIdentifierConsistency(parserState, 'emote', parserState.line, emote)
+              checkIdentifierConsistency(parserState, 'character', character)
+              checkIdentifierConsistency(parserState, 'emote', emote)
 
               parserState.instructions.push({
                 type: 'emote',

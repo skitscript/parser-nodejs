@@ -4,14 +4,13 @@ import type { ParserState } from '../ParserState'
 
 export const checkConditionConsistency = (
   parserState: ParserState,
-  line: number,
   condition: null | Condition
 ): void => {
   if (condition !== null) {
     switch (condition.type) {
       case 'flagClear':
       case 'flagSet':
-        checkIdentifierConsistency(parserState, 'flag', line, condition.flag)
+        checkIdentifierConsistency(parserState, 'flag', condition.flag)
         break
 
       case 'someFlagsClear':
@@ -19,7 +18,7 @@ export const checkConditionConsistency = (
       case 'everyFlagClear':
       case 'everyFlagSet':
         for (const flag of condition.flags) {
-          checkIdentifierConsistency(parserState, 'flag', line, flag)
+          checkIdentifierConsistency(parserState, 'flag', flag)
         }
         break
     }

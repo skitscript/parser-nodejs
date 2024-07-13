@@ -7,7 +7,6 @@ import type { ParserState } from '../ParserState'
 
 export const parseCondition = (
   parserState: ParserState,
-  line: number,
   fromColumn: number,
   match: RegExpMatchArray,
   startingIndex: number
@@ -22,7 +21,6 @@ export const parseCondition = (
     const [flags, instructions, warnings, binaryOperator] =
       normalizeIdentifierList<'and' | 'or'>(
         parserState,
-        line,
         'flag',
         fromColumn + prefix.length + (not === undefined ? 0 : not.length),
         match,

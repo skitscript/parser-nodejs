@@ -74,7 +74,7 @@ export const tryParseLocation = (parserState: ParserState): boolean => {
       background
     })
 
-    checkIdentifierConsistency(parserState, 'background', parserState.line, background)
+    checkIdentifierConsistency(parserState, 'background', background)
   }
 
   return true

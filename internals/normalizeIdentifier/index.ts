@@ -8,7 +8,6 @@ const identifierFilteredCharacterRegex = /[!?'"{}@*/\\&#%`+<=>|$.-]/ig
 // TODO: This will be removed eventually.
 export const normalizeIdentifier = (
   parserState: ParserState,
-  line: number,
   type: IdentifierType,
   context: IdentifierContext,
   fromColumn: number,
@@ -28,7 +27,7 @@ export const normalizeIdentifier = (
   parserState.identifierInstances.push({
     ...identifier,
     type,
-    line,
+    line: parserState.line,
     context
   })
 
