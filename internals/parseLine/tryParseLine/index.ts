@@ -7,7 +7,7 @@ const formattedRegexFragment = '\\S.*\\S|\\S'
 const lineRegex = new RegExp(`^(\\s+)(${formattedRegexFragment})\\s*$`, 'i')
 
 export const tryParseLine = (parserState: ParserState): boolean => {
-  const lineMatch = lineRegex.exec(parserState.lineAccumulator)
+  const lineMatch = lineRegex.exec(parserState.mixedCaseLineAccumulator)
 
   if (lineMatch !== null) {
     const prefix = lineMatch[1] as string

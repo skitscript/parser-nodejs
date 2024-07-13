@@ -1,49 +1,45 @@
+import { addIdentifierToIndex } from '../../addIdentifierToIndex/index.js'
 import { characterIsWhitespace } from '../../characterIsWhitespace/index.js'
 import { checkIdentifierConsistency } from '../../checkIdentifierConsistency/index.js'
-import { normalizeIdentifier } from '../../normalizeIdentifier/index.js'
 import type { ParserState } from '../../ParserState'
+import { tryParseIdentifier } from '../../tryParseIdentifier/index.js'
 
 export const tryParseLabel = (parserState: ParserState): boolean => {
-  if (parserState.lineAccumulator.length < 3) {
+  if (parserState.lowerCaseLineAccumulator.length < 3) {
     return false
   }
 
-  if (parserState.lineAccumulator.charAt(0) !== '~') {
+  if (parserState.lowerCaseLineAccumulator.charAt(0) !== '~') {
     return false
   }
 
-  if (parserState.lineAccumulator.charAt(parserState.lineAccumulator.length - 1) !== '~') {
+  if (parserState.lowerCaseLineAccumulator.charAt(parserState.lowerCaseLineAccumulator.length - 1) !== '~') {
     return false
   }
 
   let fromColumn = 1
 
-  while (characterIsWhitespace(parserState.lineAccumulator.charAt(fromColumn))) {
+  while (characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(fromColumn))) {
     fromColumn++
   }
 
-  if (fromColumn === parserState.lineAccumulator.length - 1) {
+  if (fromColumn === parserState.lowerCaseLineAccumulator.length - 1) {
     return false
   }
 
-  let toColumn = parserState.lineAccumulator.length - 2
+  let toColumn = parserState.lowerCaseLineAccumulator.length - 2
 
-  while (characterIsWhitespace(parserState.lineAccumulator.charAt(toColumn))) {
+  while (characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(toColumn))) {
     toColumn--
   }
 
-  const nameString = parserState.lineAccumulator.slice(fromColumn, 3 + toColumn - fromColumn)
+  const name = tryParseIdentifier(parserState, fromColumn, toColumn)
 
-  const name = normalizeIdentifier(
-    parserState,
-    parserState.line,
-    'label',
-    'declaration',
-    fromColumn + 1,
-    nameString
-  )
+  if (name === null) {
+    return false
+  }
 
-  let failed = false
+  addIdentifierToIndex(parserState, name, 'label', 'declaration')
 
   for (const previousInstruction of parserState.instructions) {
     if (
@@ -62,21 +58,19 @@ export const tryParseLabel = (parserState: ParserState): boolean => {
         }
       })
 
-      failed = true
+      return true
     }
   }
 
-  if (!failed) {
-    parserState.instructions.push({
-      type: 'label',
-      line: parserState.line,
-      label: name
-    })
+  parserState.instructions.push({
+    type: 'label',
+    line: parserState.line,
+    label: name
+  })
 
-    checkIdentifierConsistency(parserState, 'label', parserState.line, name)
+  checkIdentifierConsistency(parserState, 'label', parserState.line, name)
 
-    parserState.reachability = 'reachable'
-  }
+  parserState.reachability = 'reachable'
 
   return true
 }

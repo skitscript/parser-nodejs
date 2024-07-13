@@ -52,7 +52,7 @@ const jumpRegex = new RegExp(
 )
 
 export const tryParseJump = (parserState: ParserState): boolean => {
-  const jumpMatch = jumpRegex.exec(parserState.lineAccumulator)
+  const jumpMatch = jumpRegex.exec(parserState.mixedCaseLineAccumulator)
 
   if (jumpMatch !== null) {
     const prefix = jumpMatch[1] as string

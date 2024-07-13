@@ -10,8 +10,8 @@ export const checkReachable = (parserState: ParserState): boolean => {
       parserState.warnings.push({
         type: 'unreachable',
         line: parserState.line,
-        fromColumn: parserState.lineAccumulator.length - parserState.lineAccumulator.trimStart().length + 1,
-        toColumn: parserState.lineAccumulator.trimEnd().length
+        fromColumn: parserState.lowerCaseLineAccumulator.length - parserState.lowerCaseLineAccumulator.trimStart().length + 1,
+        toColumn: parserState.lowerCaseLineAccumulator.trimEnd().length
       })
       parserState.reachability = 'unreachable'
       return false

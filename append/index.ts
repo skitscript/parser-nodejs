@@ -22,7 +22,8 @@ export const append = (parserState: ParserState, character: string): void => {
 
     default:
       parserState.state = 'normal'
-      parserState.lineAccumulator += character
+      parserState.mixedCaseLineAccumulator += character
+      parserState.lowerCaseLineAccumulator += character.toLowerCase()
       break
   }
 }

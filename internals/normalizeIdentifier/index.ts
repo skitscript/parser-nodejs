@@ -5,6 +5,7 @@ import type { ParserState } from '../ParserState'
 
 const identifierFilteredCharacterRegex = /[!?'"{}@*/\\&#%`+<=>|$.-]/ig
 
+// TODO: This will be removed eventually.
 export const normalizeIdentifier = (
   parserState: ParserState,
   line: number,

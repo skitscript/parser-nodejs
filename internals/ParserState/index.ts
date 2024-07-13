@@ -17,7 +17,8 @@ export interface ParserState {
   line: number
   reachability: Reachability
   state: 'normal' | 'followingCarriageReturn' | 'ended'
-  lineAccumulator: string
+  mixedCaseLineAccumulator: string
+  lowerCaseLineAccumulator: string
 }
 
 /* c8 ignore next */

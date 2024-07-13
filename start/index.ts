@@ -17,5 +17,6 @@ export const start = (): ParserState => ({
   line: 0,
   reachability: 'reachable',
   state: 'normal',
-  lineAccumulator: ''
+  mixedCaseLineAccumulator: '',
+  lowerCaseLineAccumulator: ''
 })
