@@ -59,63 +59,66 @@ export const tryParseMenuOption = (parserState: ParserState): boolean => {
     const prefix = menuOptionMatch[1] as string
     const unformattedContent = menuOptionMatch[2] as string
 
-    parseFormatted(
+    const content = parseFormatted(
       parserState,
       1 + prefix.length,
-      unformattedContent,
-      (content) => {
-        const betweenContentAndLabelName = menuOptionMatch[3] as string
-        const labelName = menuOptionMatch[4] as string
-
-        const label = normalizeIdentifier(
-          parserState,
-          'label',
-          'reference',
-          1 +
-            unformattedContent.length +
-            prefix.length +
-            betweenContentAndLabelName.length,
-          labelName
-        )
-
-        const [condition, conditionInstructions, conditionWarnings] =
-        parseCondition(
-          parserState,
-          1 +
-              prefix.length +
-              unformattedContent.length +
-              betweenContentAndLabelName.length +
-              labelName.length,
-          menuOptionMatch,
-          5
-        )
-
-        // Workaround for https://github.com/microsoft/TypeScript/issues/46475.
-        if (parserState.reachability !== 'unreachable') {
-          parserState.instructions.push(
-            {
-              type: 'menuOption',
-              line: parserState.line,
-              content,
-              label,
-              instructionIndex: -1,
-              condition
-            },
-            ...conditionInstructions
-          )
-
-          parserState.warnings.push(...conditionWarnings)
-
-          checkIdentifierConsistency(parserState, 'label', label)
-
-          checkConditionConsistency(parserState, condition)
-
-          if (condition === null) {
-            parserState.reachability = 'willBecomeUnreachableAtEndOfCurrentMenu'
-          }
-        }
-      }
+      unformattedContent
     )
+
+    if (content === null) {
+      return true
+    }
+
+    const betweenContentAndLabelName = menuOptionMatch[3] as string
+    const labelName = menuOptionMatch[4] as string
+
+    const label = normalizeIdentifier(
+      parserState,
+      'label',
+      'reference',
+      1 +
+        unformattedContent.length +
+        prefix.length +
+        betweenContentAndLabelName.length,
+      labelName
+    )
+
+    const [condition, conditionInstructions, conditionWarnings] =
+    parseCondition(
+      parserState,
+      1 +
+          prefix.length +
+          unformattedContent.length +
+          betweenContentAndLabelName.length +
+          labelName.length,
+      menuOptionMatch,
+      5
+    )
+
+    // Workaround for https://github.com/microsoft/TypeScript/issues/46475.
+    if (parserState.reachability !== 'unreachable') {
+      parserState.instructions.push(
+        {
+          type: 'menuOption',
+          line: parserState.line,
+          content,
+          label,
+          instructionIndex: -1,
+          condition
+        },
+        ...conditionInstructions
+      )
+
+      parserState.warnings.push(...conditionWarnings)
+
+      checkIdentifierConsistency(parserState, 'label', label)
+
+      checkConditionConsistency(parserState, condition)
+
+      if (condition === null) {
+        parserState.reachability = 'willBecomeUnreachableAtEndOfCurrentMenu'
+      }
+    }
 
     return true
   } else {

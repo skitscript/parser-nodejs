@@ -5,10 +5,9 @@ import type { ParserState } from '../ParserState'
 export const parseFormatted = (
   parserState: ParserState,
   fromColumn: number,
-  unformatted: string,
-  onSuccess: (formatted: Formatted) => void
-): void => {
-  const formatted: Run[] = []
+  unformatted: string
+): null | Formatted => {
+  const output: Run[] = []
 
   let previousBold = false
   let previousItalic = false
@@ -77,7 +76,7 @@ export const parseFormatted = (
               toColumn
             })
 
-            return
+            return null
         }
         break
 
@@ -150,7 +149,7 @@ export const parseFormatted = (
               toColumn
             })
 
-            return
+            return null
         }
     }
 
@@ -161,7 +160,7 @@ export const parseFormatted = (
       ((previousCode && plainText !== '') ||
         (!previousCode && plainText.trim() !== ''))
     ) {
-      formatted.push({
+      output.push({
         bold: previousBold,
         italic: previousItalic,
         code: previousCode,
@@ -198,7 +197,7 @@ export const parseFormatted = (
         column: toColumn
       })
 
-      return
+      return null
 
     case 'asterisk':
       if (italicFromColumn === null) {
@@ -217,6 +216,8 @@ export const parseFormatted = (
       fromColumn: boldFromColumn,
       toColumn
     })
+
+    return null
   } else if (italicFromColumn !== null) {
     parserState.errors.push({
       type: 'unterminatedItalic',
@@ -225,6 +226,8 @@ export const parseFormatted = (
       fromColumn: italicFromColumn,
       toColumn
     })
+
+    return null
   } else if (codeFromColumn !== null) {
     parserState.errors.push({
       type: 'unterminatedCode',
@@ -233,8 +236,10 @@ export const parseFormatted = (
       fromColumn: codeFromColumn,
       toColumn
     })
+
+    return null
   } else {
-    formatted.push({
+    output.push({
       bold: previousBold,
       italic: previousItalic,
       code: previousCode,
@@ -244,6 +249,6 @@ export const parseFormatted = (
       toColumn
     })
 
-    onSuccess(formatted)
+    return output
   }
 }

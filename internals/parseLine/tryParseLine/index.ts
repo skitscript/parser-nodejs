@@ -13,15 +13,19 @@ export const tryParseLine = (parserState: ParserState): boolean => {
     const prefix = lineMatch[1] as string
     const unformatted = lineMatch[2] as string
 
-    parseFormatted(parserState, 1 + prefix.length, unformatted, (content) => {
-      if (checkReachable(parserState)) {
-        parserState.instructions.push({
-          type: 'line',
-          line: parserState.line,
-          content
-        })
-      }
-    })
+    const content = parseFormatted(parserState, 1 + prefix.length, unformatted)
+
+    if (content === null) {
+      return true
+    }
+
+    if (checkReachable(parserState)) {
+      parserState.instructions.push({
+        type: 'line',
+        line: parserState.line,
+        content
+      })
+    }
 
     return true
   } else {
