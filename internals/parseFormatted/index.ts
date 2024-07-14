@@ -5,7 +5,7 @@ import type { ParserState } from '../ParserState'
 export const parseFormatted = (
   parserState: ParserState,
   fromColumn: number,
-  unformatted: string
+  toColumn: number
 ): null | Formatted => {
   const output: Run[] = []
 
@@ -28,10 +28,9 @@ export const parseFormatted = (
   | 'codeBackslash' = 'noSpecialCharacter'
 
   let currentRunFromColumn = fromColumn
-  let toColumn = fromColumn - 1
 
-  for (const character of unformatted) {
-    toColumn++
+  for (let index = fromColumn; index <= toColumn; index++) {
+    const character = parserState.mixedCaseLineAccumulator.charAt(index)
 
     let insertBackslash = false
 
@@ -45,7 +44,7 @@ export const parseFormatted = (
           case '`':
             verbatim += '`'
             state = 'code'
-            codeFromColumn = toColumn
+            codeFromColumn = index
             continue
 
           case '*':
@@ -72,8 +71,8 @@ export const parseFormatted = (
               type: 'invalidEscapeSequence',
               line: parserState.line,
               verbatim: `\\${character}`,
-              fromColumn: toColumn - 1,
-              toColumn
+              fromColumn: index,
+              toColumn: index + 1
             })
 
             return null
@@ -85,7 +84,7 @@ export const parseFormatted = (
 
         if (character === '*') {
           if (boldFromColumn === null) {
-            boldFromColumn = toColumn - 1
+            boldFromColumn = index - 1
           } else {
             boldFromColumn = null
           }
@@ -93,7 +92,7 @@ export const parseFormatted = (
           continue
         } else {
           if (italicFromColumn === null) {
-            italicFromColumn = toColumn - 1
+            italicFromColumn = index - 1
           } else {
             italicFromColumn = null
           }
@@ -106,7 +105,7 @@ export const parseFormatted = (
             case '`':
               verbatim += '`'
               state = 'code'
-              codeFromColumn = toColumn
+              codeFromColumn = index
               continue
 
             default:
@@ -145,8 +144,8 @@ export const parseFormatted = (
               type: 'invalidEscapeSequence',
               line: parserState.line,
               verbatim: `\\${character}`,
-              fromColumn: toColumn - 1,
-              toColumn
+              fromColumn: index,
+              toColumn: index + 1
             })
 
             return null
@@ -166,14 +165,14 @@ export const parseFormatted = (
         code: previousCode,
         verbatim,
         plainText,
-        fromColumn: currentRunFromColumn,
-        toColumn: toColumn - (insertBackslash ? 2 : 1)
+        fromColumn: currentRunFromColumn + 1,
+        toColumn: index - (insertBackslash ? 1 : 0)
       })
 
       plainText = ''
       verbatim = ''
 
-      currentRunFromColumn = toColumn - (insertBackslash ? 1 : 0)
+      currentRunFromColumn = insertBackslash ? index - 1 : index
     }
 
     previousBold = boldFromColumn !== null
@@ -194,7 +193,7 @@ export const parseFormatted = (
       parserState.errors.push({
         type: 'incompleteEscapeSequence',
         line: parserState.line,
-        column: toColumn
+        column: toColumn + 1
       })
 
       return null
@@ -212,9 +211,9 @@ export const parseFormatted = (
     parserState.errors.push({
       type: 'unterminatedBold',
       line: parserState.line,
-      verbatim: unformatted.slice(boldFromColumn - fromColumn),
-      fromColumn: boldFromColumn,
-      toColumn
+      verbatim: parserState.mixedCaseLineAccumulator.slice(boldFromColumn, toColumn + 1),
+      fromColumn: boldFromColumn + 1,
+      toColumn: toColumn + 1
     })
 
     return null
@@ -222,9 +221,9 @@ export const parseFormatted = (
     parserState.errors.push({
       type: 'unterminatedItalic',
       line: parserState.line,
-      verbatim: unformatted.slice(italicFromColumn - fromColumn),
-      fromColumn: italicFromColumn,
-      toColumn
+      verbatim: parserState.mixedCaseLineAccumulator.slice(italicFromColumn, toColumn + 1),
+      fromColumn: italicFromColumn + 1,
+      toColumn: toColumn + 1
     })
 
     return null
@@ -232,9 +231,9 @@ export const parseFormatted = (
     parserState.errors.push({
       type: 'unterminatedCode',
       line: parserState.line,
-      verbatim: unformatted.slice(codeFromColumn - fromColumn),
-      fromColumn: codeFromColumn,
-      toColumn
+      verbatim: parserState.mixedCaseLineAccumulator.slice(codeFromColumn, toColumn + 1),
+      fromColumn: codeFromColumn + 1,
+      toColumn: toColumn + 1
     })
 
     return null
@@ -245,8 +244,8 @@ export const parseFormatted = (
       code: previousCode,
       verbatim,
       plainText,
-      fromColumn: currentRunFromColumn,
-      toColumn
+      fromColumn: currentRunFromColumn + 1,
+      toColumn: toColumn + 1
     })
 
     return output

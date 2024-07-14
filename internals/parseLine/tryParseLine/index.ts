@@ -13,7 +13,7 @@ export const tryParseLine = (parserState: ParserState): boolean => {
     const prefix = lineMatch[1] as string
     const unformatted = lineMatch[2] as string
 
-    const content = parseFormatted(parserState, 1 + prefix.length, unformatted)
+    const content = parseFormatted(parserState, prefix.length, prefix.length + unformatted.length - 1)
 
     if (content === null) {
       return true

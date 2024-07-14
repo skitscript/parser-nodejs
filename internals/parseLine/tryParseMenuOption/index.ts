@@ -61,8 +61,8 @@ export const tryParseMenuOption = (parserState: ParserState): boolean => {
 
     const content = parseFormatted(
       parserState,
-      1 + prefix.length,
-      unformattedContent
+      prefix.length,
+      prefix.length + unformattedContent.length - 1
     )
 
     if (content === null) {
