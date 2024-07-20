@@ -18,5 +18,7 @@ export const start = (): ParserState => ({
   reachability: 'reachable',
   state: 'normal',
   mixedCaseLineAccumulator: '',
-  lowerCaseLineAccumulator: ''
+  lowerCaseLineAccumulator: '',
+  indexOfFirstNonWhiteSpaceCharacter: -1,
+  indexOfLastNonWhiteSpaceCharacter: -1
 })

@@ -7,7 +7,7 @@ import { tryParseIdentifier } from '../../tryParseIdentifier/index.js'
 import { checkReachable } from '../checkReachable/index.js'
 
 export const tryParseExitAnimation = (parserState: ParserState): boolean => {
-  if (parserState.lowerCaseLineAccumulator.length < 8) {
+  if (parserState.indexOfLastNonWhiteSpaceCharacter < 7) {
     return false
   }
 
@@ -33,7 +33,7 @@ export const tryParseExitAnimation = (parserState: ParserState): boolean => {
               parserState.lowerCaseLineAccumulator.charAt(separatorColumn + 4) === 't'
           ) {
             if (
-              separatorColumn < parserState.lowerCaseLineAccumulator.length - 4 &&
+              separatorColumn < parserState.indexOfLastNonWhiteSpaceCharacter - 5 &&
                   parserState.lowerCaseLineAccumulator.charAt(separatorColumn + 5) === 's' &&
                   characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(separatorColumn + 6))
             ) {
@@ -47,7 +47,7 @@ export const tryParseExitAnimation = (parserState: ParserState): boolean => {
               let emoteFrom: null | number = null
               let emoteTo: null | number = null
 
-              for (let index = separatorColumn + 7; index < parserState.lowerCaseLineAccumulator.length - 1; index++) {
+              for (let index = separatorColumn + 7; index < parserState.indexOfLastNonWhiteSpaceCharacter; index++) {
                 const character = parserState.lowerCaseLineAccumulator.charAt(index)
 
                 if (characterIsWhitespace(character)) {
@@ -166,7 +166,7 @@ export const tryParseExitAnimation = (parserState: ParserState): boolean => {
               let emoteFrom: null | number = null
               let emoteTo: null | number = null
 
-              for (let index = separatorColumn + 6; index < parserState.lowerCaseLineAccumulator.length - 1; index++) {
+              for (let index = separatorColumn + 6; index < parserState.indexOfLastNonWhiteSpaceCharacter; index++) {
                 const character = parserState.lowerCaseLineAccumulator.charAt(index)
 
                 if (characterIsWhitespace(character)) {
@@ -294,7 +294,7 @@ export const tryParseExitAnimation = (parserState: ParserState): boolean => {
       characterToColumn = separatorColumn
     }
 
-    if (separatorColumn === parserState.lowerCaseLineAccumulator.length - 5) {
+    if (separatorColumn === parserState.indexOfLastNonWhiteSpaceCharacter - 4) {
       return false
     }
 

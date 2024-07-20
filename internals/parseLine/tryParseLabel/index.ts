@@ -4,8 +4,11 @@ import { checkIdentifierConsistency } from '../../checkIdentifierConsistency/ind
 import type { ParserState } from '../../ParserState'
 import { tryParseIdentifier } from '../../tryParseIdentifier/index.js'
 
+// TODO: Warning for immediately overwritten emote
+// TODO: Warning for immediately overwritten speaker
+// TODO: Warning for immediately overwritten exit/entry animation
 export const tryParseLabel = (parserState: ParserState): boolean => {
-  if (parserState.lowerCaseLineAccumulator.length < 3) {
+  if (parserState.indexOfLastNonWhiteSpaceCharacter < 2) {
     return false
   }
 
@@ -13,7 +16,7 @@ export const tryParseLabel = (parserState: ParserState): boolean => {
     return false
   }
 
-  if (parserState.lowerCaseLineAccumulator.charAt(parserState.lowerCaseLineAccumulator.length - 1) !== '~') {
+  if (parserState.lowerCaseLineAccumulator.charAt(parserState.indexOfLastNonWhiteSpaceCharacter) !== '~') {
     return false
   }
 
@@ -23,11 +26,11 @@ export const tryParseLabel = (parserState: ParserState): boolean => {
     fromColumn++
   }
 
-  if (fromColumn === parserState.lowerCaseLineAccumulator.length - 1) {
+  if (fromColumn === parserState.indexOfLastNonWhiteSpaceCharacter) {
     return false
   }
 
-  let toColumn = parserState.lowerCaseLineAccumulator.length - 2
+  let toColumn = parserState.indexOfLastNonWhiteSpaceCharacter - 1
 
   while (characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(toColumn))) {
     toColumn--

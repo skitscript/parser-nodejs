@@ -6,7 +6,7 @@ import { tryParseIdentifier } from '../../tryParseIdentifier/index.js'
 import { checkReachable } from '../checkReachable/index.js'
 
 export const tryParseLocation = (parserState: ParserState): boolean => {
-  if (parserState.lowerCaseLineAccumulator.length < 11) {
+  if (parserState.indexOfLastNonWhiteSpaceCharacter < 10) {
     return false
   }
 
@@ -24,7 +24,7 @@ export const tryParseLocation = (parserState: ParserState): boolean => {
   let indexOfSemicolon = 8
 
   while (true) {
-    if (indexOfSemicolon === parserState.lowerCaseLineAccumulator.length - 1) {
+    if (indexOfSemicolon === parserState.indexOfLastNonWhiteSpaceCharacter) {
       return false
     }
 
@@ -38,7 +38,7 @@ export const tryParseLocation = (parserState: ParserState): boolean => {
   let fromColumn = indexOfSemicolon + 1
 
   while (true) {
-    if (fromColumn === parserState.lowerCaseLineAccumulator.length - 1) {
+    if (fromColumn === parserState.indexOfLastNonWhiteSpaceCharacter) {
       return false
     }
 
@@ -49,7 +49,7 @@ export const tryParseLocation = (parserState: ParserState): boolean => {
     fromColumn++
   }
 
-  let toColumn = parserState.lowerCaseLineAccumulator.length - 2
+  let toColumn = parserState.indexOfLastNonWhiteSpaceCharacter - 1
 
   while (true) {
     if (!characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(toColumn))) {

@@ -19,6 +19,8 @@ export interface ParserState {
   state: 'normal' | 'followingCarriageReturn' | 'ended'
   mixedCaseLineAccumulator: string
   lowerCaseLineAccumulator: string
+  indexOfFirstNonWhiteSpaceCharacter: number
+  indexOfLastNonWhiteSpaceCharacter: number
 }
 
 /* c8 ignore next */

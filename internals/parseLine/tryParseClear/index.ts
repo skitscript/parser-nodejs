@@ -5,7 +5,7 @@ import { tryParseAndIdentifierList } from '../../tryParseAndIdentifierList/index
 import { checkReachable } from '../checkReachable/index.js'
 
 export const tryParseClear = (parserState: ParserState): boolean => {
-  if (parserState.lowerCaseLineAccumulator.length < 8) {
+  if (parserState.indexOfLastNonWhiteSpaceCharacter < 7) {
     return false
   }
 
@@ -21,7 +21,7 @@ export const tryParseClear = (parserState: ParserState): boolean => {
     return false
   }
 
-  const flags = tryParseAndIdentifierList(parserState, 6, parserState.lowerCaseLineAccumulator.length - 2, 'flag')
+  const flags = tryParseAndIdentifierList(parserState, 6, parserState.indexOfLastNonWhiteSpaceCharacter - 1, 'flag')
 
   if (flags === null) {
     return false
