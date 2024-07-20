@@ -51,7 +51,7 @@ const jumpRegex = new RegExp(
   'i'
 )
 
-export const tryParseJump = (parserState: ParserState): boolean => {
+export const tryParseJump = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number): boolean => {
   const jumpMatch = jumpRegex.exec(parserState.mixedCaseLineAccumulator)
 
   if (jumpMatch !== null) {
@@ -79,7 +79,7 @@ export const tryParseJump = (parserState: ParserState): boolean => {
         3
       )
 
-    if (checkReachable(parserState)) {
+    if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
       if (
         previousInstruction !== undefined &&
         previousInstruction.type === 'label' &&

@@ -19,6 +19,5 @@ export const start = (): ParserState => ({
   state: 'normal',
   mixedCaseLineAccumulator: '',
   lowerCaseLineAccumulator: '',
-  indexOfFirstNonWhiteSpaceCharacter: -1,
-  indexOfLastNonWhiteSpaceCharacter: -1
+  indexOfFirstNonWhiteSpaceCharacter: -1
 })

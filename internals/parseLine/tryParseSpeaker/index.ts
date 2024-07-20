@@ -48,11 +48,11 @@ const speakerRegex = new RegExp(
   'i'
 )
 
-export const tryParseSpeaker = (parserState: ParserState): boolean => {
+export const tryParseSpeaker = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number): boolean => {
   const speakerMatch = speakerRegex.exec(parserState.mixedCaseLineAccumulator)
 
   if (speakerMatch !== null) {
-    const isReachable = checkReachable(parserState)
+    const isReachable = checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)
 
     const [characters, characterInstructions, characterWarnings] =
     normalizeIdentifierList(parserState, 'character', 1, speakerMatch, 1)

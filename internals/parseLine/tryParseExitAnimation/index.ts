@@ -6,8 +6,8 @@ import { tryParseAndIdentifierList } from '../../tryParseAndIdentifierList/index
 import { tryParseIdentifier } from '../../tryParseIdentifier/index.js'
 import { checkReachable } from '../checkReachable/index.js'
 
-export const tryParseExitAnimation = (parserState: ParserState): boolean => {
-  if (parserState.indexOfLastNonWhiteSpaceCharacter < 7) {
+export const tryParseExitAnimation = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number): boolean => {
+  if (indexOfLastNonWhiteSpaceCharacter < 7) {
     return false
   }
 
@@ -33,7 +33,7 @@ export const tryParseExitAnimation = (parserState: ParserState): boolean => {
               parserState.lowerCaseLineAccumulator.charAt(separatorColumn + 4) === 't'
           ) {
             if (
-              separatorColumn < parserState.indexOfLastNonWhiteSpaceCharacter - 5 &&
+              separatorColumn < indexOfLastNonWhiteSpaceCharacter - 5 &&
                   parserState.lowerCaseLineAccumulator.charAt(separatorColumn + 5) === 's' &&
                   characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(separatorColumn + 6))
             ) {
@@ -47,7 +47,7 @@ export const tryParseExitAnimation = (parserState: ParserState): boolean => {
               let emoteFrom: null | number = null
               let emoteTo: null | number = null
 
-              for (let index = separatorColumn + 7; index < parserState.indexOfLastNonWhiteSpaceCharacter; index++) {
+              for (let index = separatorColumn + 7; index < indexOfLastNonWhiteSpaceCharacter; index++) {
                 const character = parserState.lowerCaseLineAccumulator.charAt(index)
 
                 if (characterIsWhitespace(character)) {
@@ -106,7 +106,7 @@ export const tryParseExitAnimation = (parserState: ParserState): boolean => {
                 addIdentifierToIndex(parserState, animation, 'exitAnimation', 'implicitDeclaration')
                 addIdentifierToIndex(parserState, emote, 'emote', 'implicitDeclaration')
 
-                if (checkReachable(parserState)) {
+                if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
                   checkIdentifierConsistency(parserState, 'character', character)
                   checkIdentifierConsistency(parserState, 'exitAnimation', animation)
                   checkIdentifierConsistency(parserState, 'emote', emote)
@@ -143,7 +143,7 @@ export const tryParseExitAnimation = (parserState: ParserState): boolean => {
                 addIdentifierToIndex(parserState, character, 'character', 'implicitDeclaration')
                 addIdentifierToIndex(parserState, animation, 'exitAnimation', 'implicitDeclaration')
 
-                if (checkReachable(parserState)) {
+                if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
                   checkIdentifierConsistency(parserState, 'character', character)
                   checkIdentifierConsistency(parserState, 'exitAnimation', animation)
 
@@ -166,7 +166,7 @@ export const tryParseExitAnimation = (parserState: ParserState): boolean => {
               let emoteFrom: null | number = null
               let emoteTo: null | number = null
 
-              for (let index = separatorColumn + 6; index < parserState.indexOfLastNonWhiteSpaceCharacter; index++) {
+              for (let index = separatorColumn + 6; index < indexOfLastNonWhiteSpaceCharacter; index++) {
                 const character = parserState.lowerCaseLineAccumulator.charAt(index)
 
                 if (characterIsWhitespace(character)) {
@@ -224,7 +224,7 @@ export const tryParseExitAnimation = (parserState: ParserState): boolean => {
                 addIdentifierToIndex(parserState, animation, 'exitAnimation', 'implicitDeclaration')
                 addIdentifierToIndex(parserState, emote, 'emote', 'implicitDeclaration')
 
-                if (checkReachable(parserState)) {
+                if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
                   for (const character of characters) {
                     checkIdentifierConsistency(parserState, 'character', character)
                   }
@@ -269,7 +269,7 @@ export const tryParseExitAnimation = (parserState: ParserState): boolean => {
 
                 addIdentifierToIndex(parserState, animation, 'exitAnimation', 'implicitDeclaration')
 
-                if (checkReachable(parserState)) {
+                if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
                   for (const character of characters) {
                     parserState.instructions.push({
                       type: 'exitAnimation',
@@ -294,7 +294,7 @@ export const tryParseExitAnimation = (parserState: ParserState): boolean => {
       characterToColumn = separatorColumn
     }
 
-    if (separatorColumn === parserState.indexOfLastNonWhiteSpaceCharacter - 4) {
+    if (separatorColumn === indexOfLastNonWhiteSpaceCharacter - 4) {
       return false
     }
 

@@ -5,8 +5,8 @@ import type { ParserState } from '../../ParserState'
 import { tryParseIdentifier } from '../../tryParseIdentifier/index.js'
 import { checkReachable } from '../checkReachable/index.js'
 
-export const tryParseLocation = (parserState: ParserState): boolean => {
-  if (parserState.indexOfLastNonWhiteSpaceCharacter < 10) {
+export const tryParseLocation = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number): boolean => {
+  if (indexOfLastNonWhiteSpaceCharacter < 10) {
     return false
   }
 
@@ -24,7 +24,7 @@ export const tryParseLocation = (parserState: ParserState): boolean => {
   let indexOfSemicolon = 8
 
   while (true) {
-    if (indexOfSemicolon === parserState.indexOfLastNonWhiteSpaceCharacter) {
+    if (indexOfSemicolon === indexOfLastNonWhiteSpaceCharacter) {
       return false
     }
 
@@ -38,7 +38,7 @@ export const tryParseLocation = (parserState: ParserState): boolean => {
   let fromColumn = indexOfSemicolon + 1
 
   while (true) {
-    if (fromColumn === parserState.indexOfLastNonWhiteSpaceCharacter) {
+    if (fromColumn === indexOfLastNonWhiteSpaceCharacter) {
       return false
     }
 
@@ -49,7 +49,7 @@ export const tryParseLocation = (parserState: ParserState): boolean => {
     fromColumn++
   }
 
-  let toColumn = parserState.indexOfLastNonWhiteSpaceCharacter - 1
+  let toColumn = indexOfLastNonWhiteSpaceCharacter - 1
 
   while (true) {
     if (!characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(toColumn))) {
@@ -67,7 +67,7 @@ export const tryParseLocation = (parserState: ParserState): boolean => {
 
   addIdentifierToIndex(parserState, background, 'background', 'implicitDeclaration')
 
-  if (checkReachable(parserState)) {
+  if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
     parserState.instructions.push({
       type: 'location',
       line: parserState.line,

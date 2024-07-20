@@ -20,7 +20,6 @@ export interface ParserState {
   mixedCaseLineAccumulator: string
   lowerCaseLineAccumulator: string
   indexOfFirstNonWhiteSpaceCharacter: number
-  indexOfLastNonWhiteSpaceCharacter: number
 }
 
 /* c8 ignore next */

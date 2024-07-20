@@ -4,8 +4,8 @@ import type { ParserState } from '../../ParserState'
 import { tryParseAndIdentifierList } from '../../tryParseAndIdentifierList/index.js'
 import { checkReachable } from '../checkReachable/index.js'
 
-export const tryParseClear = (parserState: ParserState): boolean => {
-  if (parserState.indexOfLastNonWhiteSpaceCharacter < 7) {
+export const tryParseClear = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number): boolean => {
+  if (indexOfLastNonWhiteSpaceCharacter < 7) {
     return false
   }
 
@@ -21,13 +21,13 @@ export const tryParseClear = (parserState: ParserState): boolean => {
     return false
   }
 
-  const flags = tryParseAndIdentifierList(parserState, 6, parserState.indexOfLastNonWhiteSpaceCharacter - 1, 'flag')
+  const flags = tryParseAndIdentifierList(parserState, 6, indexOfLastNonWhiteSpaceCharacter - 1, 'flag')
 
   if (flags === null) {
     return false
   }
 
-  if (checkReachable(parserState)) {
+  if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
     for (const flag of flags) {
       parserState.instructions.push({
         type: 'clear',

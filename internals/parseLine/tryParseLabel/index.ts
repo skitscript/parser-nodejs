@@ -7,8 +7,8 @@ import { tryParseIdentifier } from '../../tryParseIdentifier/index.js'
 // TODO: Warning for immediately overwritten emote
 // TODO: Warning for immediately overwritten speaker
 // TODO: Warning for immediately overwritten exit/entry animation
-export const tryParseLabel = (parserState: ParserState): boolean => {
-  if (parserState.indexOfLastNonWhiteSpaceCharacter < 2) {
+export const tryParseLabel = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number): boolean => {
+  if (indexOfLastNonWhiteSpaceCharacter < 2) {
     return false
   }
 
@@ -16,7 +16,7 @@ export const tryParseLabel = (parserState: ParserState): boolean => {
     return false
   }
 
-  if (parserState.lowerCaseLineAccumulator.charAt(parserState.indexOfLastNonWhiteSpaceCharacter) !== '~') {
+  if (parserState.lowerCaseLineAccumulator.charAt(indexOfLastNonWhiteSpaceCharacter) !== '~') {
     return false
   }
 
@@ -26,11 +26,11 @@ export const tryParseLabel = (parserState: ParserState): boolean => {
     fromColumn++
   }
 
-  if (fromColumn === parserState.indexOfLastNonWhiteSpaceCharacter) {
+  if (fromColumn === indexOfLastNonWhiteSpaceCharacter) {
     return false
   }
 
-  let toColumn = parserState.indexOfLastNonWhiteSpaceCharacter - 1
+  let toColumn = indexOfLastNonWhiteSpaceCharacter - 1
 
   while (characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(toColumn))) {
     toColumn--

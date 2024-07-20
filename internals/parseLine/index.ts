@@ -11,69 +11,44 @@ import { tryParseEntryAnimation } from './tryParseEntryAnimation/index.js'
 import { tryParseExitAnimation } from './tryParseExitAnimation/index.js'
 import { parseFormatted } from '../parseFormatted/index.js'
 import { checkReachable } from './checkReachable/index.js'
+import { characterIsWhitespace } from '../characterIsWhitespace/index.js'
 
 export const parseLine = (parserState: ParserState): void => {
   parserState.line++
 
-  switch (parserState.indexOfFirstNonWhiteSpaceCharacter) {
-    case -1:
-      break
+  if (parserState.indexOfFirstNonWhiteSpaceCharacter !== -1) {
+    let indexOfLastNonWhiteSpaceCharacter = parserState.mixedCaseLineAccumulator.length - 1
 
-    case 0:
-      if (tryParseLabel(parserState)) {
-        break
+    while (characterIsWhitespace(parserState.mixedCaseLineAccumulator.charAt(indexOfLastNonWhiteSpaceCharacter))) {
+      indexOfLastNonWhiteSpaceCharacter--
+    }
+
+    if (parserState.indexOfFirstNonWhiteSpaceCharacter === 0) {
+      if (!tryParseLabel(parserState, indexOfLastNonWhiteSpaceCharacter) &&
+        !tryParseSpeaker(parserState, indexOfLastNonWhiteSpaceCharacter) &&
+        (
+          parserState.lowerCaseLineAccumulator.charAt(indexOfLastNonWhiteSpaceCharacter) !== '.' ||
+          (
+            !tryParseClear(parserState, indexOfLastNonWhiteSpaceCharacter) &&
+            !tryParseJump(parserState, indexOfLastNonWhiteSpaceCharacter) &&
+            !tryParseLocation(parserState, indexOfLastNonWhiteSpaceCharacter) &&
+            !tryParseMenuOption(parserState) &&
+            !tryParseSet(parserState, indexOfLastNonWhiteSpaceCharacter) &&
+            !tryParseEmote(parserState, indexOfLastNonWhiteSpaceCharacter) &&
+            !tryParseEntryAnimation(parserState, indexOfLastNonWhiteSpaceCharacter) &&
+            !tryParseExitAnimation(parserState, indexOfLastNonWhiteSpaceCharacter)
+          ))) {
+        parserState.errors.push({
+          type: 'unparsable',
+          line: parserState.line,
+          fromColumn: parserState.indexOfFirstNonWhiteSpaceCharacter + 1,
+          toColumn: indexOfLastNonWhiteSpaceCharacter + 1
+        })
       }
+    } else {
+      const content = parseFormatted(parserState, parserState.indexOfFirstNonWhiteSpaceCharacter, indexOfLastNonWhiteSpaceCharacter)
 
-      if (tryParseSpeaker(parserState)) {
-        break
-      }
-
-      if (parserState.lowerCaseLineAccumulator.charAt(parserState.indexOfLastNonWhiteSpaceCharacter) === '.') {
-        if (tryParseClear(parserState)) {
-          break
-        }
-
-        if (tryParseJump(parserState)) {
-          break
-        }
-
-        if (tryParseLocation(parserState)) {
-          break
-        }
-
-        if (tryParseMenuOption(parserState)) {
-          break
-        }
-
-        if (tryParseSet(parserState)) {
-          break
-        }
-
-        if (tryParseEmote(parserState)) {
-          break
-        }
-
-        if (tryParseEntryAnimation(parserState)) {
-          break
-        }
-
-        if (tryParseExitAnimation(parserState)) {
-          break
-        }
-      }
-
-      parserState.errors.push({
-        type: 'unparsable',
-        line: parserState.line,
-        fromColumn: parserState.indexOfFirstNonWhiteSpaceCharacter + 1,
-        toColumn: parserState.indexOfLastNonWhiteSpaceCharacter + 1
-      })
-      break
-
-    default: {
-      const content = parseFormatted(parserState, parserState.indexOfFirstNonWhiteSpaceCharacter, parserState.indexOfLastNonWhiteSpaceCharacter)
-
-      if (content !== null && checkReachable(parserState)) {
+      if (content !== null && checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
         parserState.instructions.push({
           type: 'line',
           line: parserState.line,
@@ -81,11 +56,9 @@ export const parseLine = (parserState: ParserState): void => {
         })
       }
     }
-      break
   }
 
   parserState.mixedCaseLineAccumulator = ''
   parserState.lowerCaseLineAccumulator = ''
   parserState.indexOfFirstNonWhiteSpaceCharacter = -1
-  parserState.indexOfLastNonWhiteSpaceCharacter = -1
 }
