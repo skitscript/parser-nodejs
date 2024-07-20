@@ -16,7 +16,7 @@ describe('parse', () => {
 
   for (const caseName of caseNames) {
     describe(caseName, () => {
-      for (const newline of ['\n', '\r', '\r\n']) {
+      for (const newline of ['\n', '\r', '\r\n', ' \n', ' \r', ' \r\n']) {
         describe(`with a newline of ${JSON.stringify(newline)}`, () => {
           let document: Document
 
