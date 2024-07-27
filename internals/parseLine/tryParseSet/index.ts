@@ -1,3 +1,6 @@
+import { characterIsE } from '../../characterIsE/index.js'
+import { characterIsS } from '../../characterIsS/index.js'
+import { characterIsT } from '../../characterIsT/index.js'
 import { characterIsWhitespace } from '../../characterIsWhitespace/index.js'
 import { checkIdentifierConsistency } from '../../checkIdentifierConsistency/index.js'
 import type { ParserState } from '../../ParserState'
@@ -9,13 +12,19 @@ export const tryParseSet = (parserState: ParserState, indexOfLastNonWhiteSpaceCh
     return false
   }
 
-  if (parserState.lowerCaseLineAccumulator.charAt(0) !== 's' ||
-   parserState.lowerCaseLineAccumulator.charAt(1) !== 'e' ||
-    parserState.lowerCaseLineAccumulator.charAt(2) !== 't') {
+  if (!characterIsS(parserState.lineAccumulator.charAt(0))) {
     return false
   }
 
-  if (!characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(3))) {
+  if (!characterIsE(parserState.lineAccumulator.charAt(1))) {
+    return false
+  }
+
+  if (!characterIsT(parserState.lineAccumulator.charAt(2))) {
+    return false
+  }
+
+  if (!characterIsWhitespace(parserState.lineAccumulator.charAt(3))) {
     return false
   }
 

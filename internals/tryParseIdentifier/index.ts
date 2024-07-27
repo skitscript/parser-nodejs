@@ -2,6 +2,7 @@ import type { Identifier } from '../../Identifier'
 import { characterIsExcludedFromIdentifiers } from '../characterIsExcludedFromIdentifiers/index.js'
 import { characterIsInvalidInIdentifiers } from '../characterIsInvalidInIdentifiers/index.js'
 import type { ParserState } from '../ParserState'
+import { transformCharacterToLowerCase } from '../transformCharacterToLowerCase/index.js'
 import { wordIsInvalidInIdentifiers } from '../wordIsInvalidInIdentifiers/index.js'
 
 export const tryParseIdentifier = (
@@ -12,7 +13,7 @@ export const tryParseIdentifier = (
   let includedFromColumn = fromColumn
 
   while (true) {
-    const character = parserState.lowerCaseLineAccumulator.charAt(includedFromColumn)
+    const character = parserState.lineAccumulator.charAt(includedFromColumn)
 
     if (characterIsInvalidInIdentifiers(character)) {
       return null
@@ -32,7 +33,7 @@ export const tryParseIdentifier = (
   let includedToColumn = toColumn
 
   while (includedToColumn > includedFromColumn) {
-    const character = parserState.lowerCaseLineAccumulator.charAt(includedToColumn)
+    const character = parserState.lineAccumulator.charAt(includedToColumn)
 
     if (characterIsInvalidInIdentifiers(character)) {
       return null
@@ -49,7 +50,7 @@ export const tryParseIdentifier = (
   let normalized = ''
 
   for (let index = includedFromColumn; index <= includedToColumn; index++) {
-    const character = parserState.lowerCaseLineAccumulator.charAt(index)
+    const character = parserState.lineAccumulator.charAt(index)
 
     if (characterIsInvalidInIdentifiers(character)) {
       return null
@@ -57,11 +58,17 @@ export const tryParseIdentifier = (
 
     if (characterIsExcludedFromIdentifiers(character)) {
       if (startOfCurrentWord !== null) {
-        if (wordIsInvalidInIdentifiers(parserState.lowerCaseLineAccumulator, startOfCurrentWord, index - 1)) {
+        const wordLength = index - startOfCurrentWord
+
+        if (wordIsInvalidInIdentifiers(parserState, startOfCurrentWord, wordLength)) {
           return null
         }
 
-        normalized += `${parserState.lowerCaseLineAccumulator.slice(startOfCurrentWord, index)}-`
+        for (let wordCharacterIndex = 0; wordCharacterIndex < wordLength; wordCharacterIndex++) {
+          normalized += transformCharacterToLowerCase(parserState.lineAccumulator.charAt(startOfCurrentWord + wordCharacterIndex))
+        }
+
+        normalized += '-'
 
         startOfCurrentWord = null
       }
@@ -71,15 +78,19 @@ export const tryParseIdentifier = (
   }
 
   if (startOfCurrentWord !== null) {
-    if (wordIsInvalidInIdentifiers(parserState.lowerCaseLineAccumulator, startOfCurrentWord, includedToColumn)) {
+    const wordLength = 1 + includedToColumn - startOfCurrentWord
+
+    if (wordIsInvalidInIdentifiers(parserState, startOfCurrentWord, wordLength)) {
       return null
     }
 
-    normalized += parserState.lowerCaseLineAccumulator.slice(startOfCurrentWord, includedToColumn + 1)
+    for (let wordCharacterIndex = 0; wordCharacterIndex < wordLength; wordCharacterIndex++) {
+      normalized += transformCharacterToLowerCase(parserState.lineAccumulator.charAt(startOfCurrentWord + wordCharacterIndex))
+    }
   }
 
   const identifier: Identifier = {
-    verbatim: parserState.mixedCaseLineAccumulator.slice(fromColumn, toColumn + 1),
+    verbatim: parserState.lineAccumulator.slice(fromColumn, toColumn + 1),
     normalized,
     fromColumn: fromColumn + 1,
     toColumn: toColumn + 1

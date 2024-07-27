@@ -12,14 +12,15 @@ import { tryParseExitAnimation } from './tryParseExitAnimation/index.js'
 import { parseFormatted } from '../parseFormatted/index.js'
 import { checkReachable } from './checkReachable/index.js'
 import { characterIsWhitespace } from '../characterIsWhitespace/index.js'
+import { characterIsPeriod } from '../characterIsPeriod/index.js'
 
 export const parseLine = (parserState: ParserState): void => {
   parserState.line++
 
   if (parserState.indexOfFirstNonWhiteSpaceCharacter !== -1) {
-    let indexOfLastNonWhiteSpaceCharacter = parserState.mixedCaseLineAccumulator.length - 1
+    let indexOfLastNonWhiteSpaceCharacter = parserState.lineAccumulator.length - 1
 
-    while (characterIsWhitespace(parserState.mixedCaseLineAccumulator.charAt(indexOfLastNonWhiteSpaceCharacter))) {
+    while (characterIsWhitespace(parserState.lineAccumulator.charAt(indexOfLastNonWhiteSpaceCharacter))) {
       indexOfLastNonWhiteSpaceCharacter--
     }
 
@@ -27,7 +28,7 @@ export const parseLine = (parserState: ParserState): void => {
       if (!tryParseLabel(parserState, indexOfLastNonWhiteSpaceCharacter) &&
         !tryParseSpeaker(parserState, indexOfLastNonWhiteSpaceCharacter) &&
         (
-          parserState.lowerCaseLineAccumulator.charAt(indexOfLastNonWhiteSpaceCharacter) !== '.' ||
+          !characterIsPeriod(parserState.lineAccumulator.charAt(indexOfLastNonWhiteSpaceCharacter)) ||
           (
             !tryParseClear(parserState, indexOfLastNonWhiteSpaceCharacter) &&
             !tryParseJump(parserState, indexOfLastNonWhiteSpaceCharacter) &&
@@ -58,7 +59,6 @@ export const parseLine = (parserState: ParserState): void => {
     }
   }
 
-  parserState.mixedCaseLineAccumulator = ''
-  parserState.lowerCaseLineAccumulator = ''
+  parserState.lineAccumulator = ''
   parserState.indexOfFirstNonWhiteSpaceCharacter = -1
 }

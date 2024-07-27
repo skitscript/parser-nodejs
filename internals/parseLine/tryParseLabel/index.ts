@@ -1,4 +1,5 @@
 import { addIdentifierToIndex } from '../../addIdentifierToIndex/index.js'
+import { characterIsTilde } from '../../characterIsTilde/index.js'
 import { characterIsWhitespace } from '../../characterIsWhitespace/index.js'
 import { checkIdentifierConsistency } from '../../checkIdentifierConsistency/index.js'
 import type { ParserState } from '../../ParserState'
@@ -12,17 +13,17 @@ export const tryParseLabel = (parserState: ParserState, indexOfLastNonWhiteSpace
     return false
   }
 
-  if (parserState.lowerCaseLineAccumulator.charAt(0) !== '~') {
+  if (!characterIsTilde(parserState.lineAccumulator.charAt(0))) {
     return false
   }
 
-  if (parserState.lowerCaseLineAccumulator.charAt(indexOfLastNonWhiteSpaceCharacter) !== '~') {
+  if (!characterIsTilde(parserState.lineAccumulator.charAt(indexOfLastNonWhiteSpaceCharacter))) {
     return false
   }
 
   let fromColumn = 1
 
-  while (characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(fromColumn))) {
+  while (characterIsWhitespace(parserState.lineAccumulator.charAt(fromColumn))) {
     fromColumn++
   }
 
@@ -32,7 +33,7 @@ export const tryParseLabel = (parserState: ParserState, indexOfLastNonWhiteSpace
 
   let toColumn = indexOfLastNonWhiteSpaceCharacter - 1
 
-  while (characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(toColumn))) {
+  while (characterIsWhitespace(parserState.lineAccumulator.charAt(toColumn))) {
     toColumn--
   }
 

@@ -1,6 +1,10 @@
 import type { Identifier } from '../../Identifier'
 import type { IdentifierType } from '../../IdentifierType'
 import { addIdentifierToIndex } from '../addIdentifierToIndex/index.js'
+import { characterIsA } from '../characterIsA/index.js'
+import { characterIsComma } from '../characterIsComma/index.js'
+import { characterIsD } from '../characterIsD/index.js'
+import { characterIsN } from '../characterIsN/index.js'
 import { characterIsWhitespace } from '../characterIsWhitespace/index.js'
 import type { ParserState } from '../ParserState'
 import { tryParseIdentifier } from '../tryParseIdentifier/index.js'
@@ -13,13 +17,13 @@ export const tryParseAndIdentifierList = (
 ): null | readonly Identifier[] => {
   const lastPossibleSeparatorFromColumn = toColumn - 5
   let separatorFromColumn = fromColumn + 1
-  let identifierFromColumn: null | number = characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(fromColumn)) ? null : fromColumn
+  let identifierFromColumn: null | number = characterIsWhitespace(parserState.lineAccumulator.charAt(fromColumn)) ? null : fromColumn
   let identifierToColumn: null | number = identifierFromColumn
 
   while (true) {
     if (separatorFromColumn > lastPossibleSeparatorFromColumn) {
       while (separatorFromColumn <= toColumn) {
-        const whitespace = characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(separatorFromColumn))
+        const whitespace = characterIsWhitespace(parserState.lineAccumulator.charAt(separatorFromColumn))
 
         if (!whitespace) {
           if (identifierFromColumn === null) {
@@ -47,13 +51,14 @@ export const tryParseAndIdentifierList = (
       return [sole]
     }
 
-    const whitespace = characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(separatorFromColumn))
+    const whitespace = characterIsWhitespace(parserState.lineAccumulator.charAt(separatorFromColumn))
 
     if (whitespace) {
-      if (parserState.lowerCaseLineAccumulator.charAt(separatorFromColumn + 1) === 'a' &&
-      parserState.lowerCaseLineAccumulator.charAt(separatorFromColumn + 2) === 'n' &&
-      parserState.lowerCaseLineAccumulator.charAt(separatorFromColumn + 3) === 'd' &&
-      characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(separatorFromColumn + 4))) {
+      if (
+        characterIsA(parserState.lineAccumulator.charAt(separatorFromColumn + 1)) &&
+        characterIsN(parserState.lineAccumulator.charAt(separatorFromColumn + 2)) &&
+        characterIsD(parserState.lineAccumulator.charAt(separatorFromColumn + 3)) &&
+        characterIsWhitespace(parserState.lineAccumulator.charAt(separatorFromColumn + 4))) {
         break
       }
     } else {
@@ -73,9 +78,9 @@ export const tryParseAndIdentifierList = (
   const output: Identifier[] = []
 
   for (let index = fromColumn; index < separatorFromColumn; index++) {
-    const character = parserState.lowerCaseLineAccumulator.charAt(index)
+    const character = parserState.lineAccumulator.charAt(index)
 
-    if (character === ',') {
+    if (characterIsComma(character)) {
       if (identifierFromColumn === null) {
         return null
       } else {
@@ -115,7 +120,7 @@ export const tryParseAndIdentifierList = (
   identifierToColumn = null
 
   for (let index = separatorFromColumn + 5; index <= toColumn; index++) {
-    if (!characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(index))) {
+    if (!characterIsWhitespace(parserState.lineAccumulator.charAt(index))) {
       if (identifierFromColumn === null) {
         identifierFromColumn = index
       }

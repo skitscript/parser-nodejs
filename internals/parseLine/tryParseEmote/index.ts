@@ -1,4 +1,11 @@
 import { addIdentifierToIndex } from '../../addIdentifierToIndex/index.js'
+import { characterIsA } from '../../characterIsA/index.js'
+import { characterIsD } from '../../characterIsD/index.js'
+import { characterIsE } from '../../characterIsE/index.js'
+import { characterIsI } from '../../characterIsI/index.js'
+import { characterIsN } from '../../characterIsN/index.js'
+import { characterIsR } from '../../characterIsR/index.js'
+import { characterIsS } from '../../characterIsS/index.js'
 import { characterIsWhitespace } from '../../characterIsWhitespace/index.js'
 import { checkIdentifierConsistency } from '../../checkIdentifierConsistency/index.js'
 import type { ParserState } from '../../ParserState'
@@ -19,14 +26,18 @@ export const tryParseEmote = (parserState: ParserState, indexOfLastNonWhiteSpace
   let characterToColumn: number = 0
 
   while (true) {
-    if (characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(separatorColumn))) {
-      switch (parserState.lowerCaseLineAccumulator.charAt(separatorColumn + 1)) {
-        case 'a':
+    if (characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn))) {
+      const firstCharacter = parserState.lineAccumulator.charAt(separatorColumn + 1)
+
+      switch (true) {
+        case characterIsA(firstCharacter):
           if (separatorColumn <= indexOfLastNonWhiteSpaceCharacter - 4) {
-            switch (parserState.lowerCaseLineAccumulator.charAt(separatorColumn + 2)) {
-              case 'r':
-                if (parserState.lowerCaseLineAccumulator.charAt(separatorColumn + 3) === 'e' &&
-                characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(separatorColumn + 4))) {
+            const secondCharacter = parserState.lineAccumulator.charAt(separatorColumn + 2)
+
+            switch (true) {
+              case characterIsR(secondCharacter):
+                if (characterIsE(parserState.lineAccumulator.charAt(separatorColumn + 3)) &&
+                characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 4))) {
                   if (!foundAnd) {
                     return false
                   }
@@ -39,7 +50,7 @@ export const tryParseEmote = (parserState: ParserState, indexOfLastNonWhiteSpace
                       return false
                     }
 
-                    if (!characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(emoteFromColumn))) {
+                    if (!characterIsWhitespace(parserState.lineAccumulator.charAt(emoteFromColumn))) {
                       break
                     }
 
@@ -49,7 +60,7 @@ export const tryParseEmote = (parserState: ParserState, indexOfLastNonWhiteSpace
                   let emoteToColumn = emoteFromColumn
 
                   for (let index = emoteFromColumn + 1; index < indexOfLastNonWhiteSpaceCharacter; index++) {
-                    if (!characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(index))) {
+                    if (!characterIsWhitespace(parserState.lineAccumulator.charAt(index))) {
                       emoteToColumn = index
                     }
                   }
@@ -89,9 +100,9 @@ export const tryParseEmote = (parserState: ParserState, indexOfLastNonWhiteSpace
                 }
                 break
 
-              case 'n':
-                if (parserState.lowerCaseLineAccumulator.charAt(separatorColumn + 3) === 'd' &&
-                characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(separatorColumn + 4))) {
+              case characterIsN(secondCharacter):
+                if (characterIsD(parserState.lineAccumulator.charAt(separatorColumn + 3)) &&
+                characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 4))) {
                   if (foundAnd) {
                     return false
                   }
@@ -103,10 +114,10 @@ export const tryParseEmote = (parserState: ParserState, indexOfLastNonWhiteSpace
           }
           break
 
-        case 'i':
+        case characterIsI(firstCharacter):
           if (
-            parserState.lowerCaseLineAccumulator.charAt(separatorColumn + 2) === 's' &&
-          characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(separatorColumn + 3))) {
+            characterIsS(parserState.lineAccumulator.charAt(separatorColumn + 2)) &&
+          characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 3))) {
             if (foundAnd) {
               return false
             }
@@ -119,7 +130,7 @@ export const tryParseEmote = (parserState: ParserState, indexOfLastNonWhiteSpace
                 return false
               }
 
-              if (!characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(emoteFromColumn))) {
+              if (!characterIsWhitespace(parserState.lineAccumulator.charAt(emoteFromColumn))) {
                 break
               }
 
@@ -135,7 +146,7 @@ export const tryParseEmote = (parserState: ParserState, indexOfLastNonWhiteSpace
             let emoteToColumn = emoteFromColumn
 
             for (let index = emoteFromColumn + 1; index < indexOfLastNonWhiteSpaceCharacter; index++) {
-              if (!characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(index))) {
+              if (!characterIsWhitespace(parserState.lineAccumulator.charAt(index))) {
                 emoteToColumn = index
               }
             }

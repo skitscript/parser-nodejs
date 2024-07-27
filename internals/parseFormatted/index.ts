@@ -1,5 +1,8 @@
 import type { Formatted } from '../../Formatted'
 import type { Run } from '../../Run'
+import { characterIsAsterisk } from '../characterIsAsterisk/index.js'
+import { characterIsBackslash } from '../characterIsBackslash/index.js'
+import { characterIsBacktick } from '../characterIsBacktick/index.js'
 import type { ParserState } from '../ParserState'
 
 export const parseFormatted = (
@@ -30,59 +33,48 @@ export const parseFormatted = (
   let currentRunFromColumn = fromColumn
 
   for (let index = fromColumn; index <= toColumn; index++) {
-    const character = parserState.mixedCaseLineAccumulator.charAt(index)
+    const character = parserState.lineAccumulator.charAt(index)
 
     let insertBackslash = false
 
     switch (state) {
       case 'noSpecialCharacter':
-        switch (character) {
-          case '\\':
-            state = 'backslash'
-            continue
-
-          case '`':
-            verbatim += '`'
-            state = 'code'
-            codeFromColumn = index
-            continue
-
-          case '*':
-            verbatim += '*'
-            state = 'asterisk'
-            continue
-
-          default:
-            break
+        if (characterIsBackslash(character)) {
+          state = 'backslash'
+          continue
+        } else if (characterIsBacktick(character)) {
+          verbatim += '`'
+          state = 'code'
+          codeFromColumn = index
+          continue
+        } else if (characterIsAsterisk(character)) {
+          verbatim += '*'
+          state = 'asterisk'
+          continue
         }
         break
 
       case 'backslash':
-        switch (character) {
-          case '\\':
-          case '`':
-          case '*':
-            insertBackslash = true
-            state = 'noSpecialCharacter'
-            break
+        if (characterIsBackslash(character) || characterIsBacktick(character) || characterIsAsterisk(character)) {
+          insertBackslash = true
+          state = 'noSpecialCharacter'
+        } else {
+          parserState.errors.push({
+            type: 'invalidEscapeSequence',
+            line: parserState.line,
+            verbatim: `\\${character}`,
+            fromColumn: index,
+            toColumn: index + 1
+          })
 
-          default:
-            parserState.errors.push({
-              type: 'invalidEscapeSequence',
-              line: parserState.line,
-              verbatim: `\\${character}`,
-              fromColumn: index,
-              toColumn: index + 1
-            })
-
-            return null
+          return null
         }
         break
 
       case 'asterisk':
         state = 'noSpecialCharacter'
 
-        if (character === '*') {
+        if (characterIsAsterisk(character)) {
           if (boldFromColumn === null) {
             boldFromColumn = index - 1
           } else {
@@ -97,58 +89,44 @@ export const parseFormatted = (
             italicFromColumn = null
           }
 
-          switch (character) {
-            case '\\':
-              state = 'backslash'
-              continue
-
-            case '`':
-              verbatim += '`'
-              state = 'code'
-              codeFromColumn = index
-              continue
-
-            default:
-              break
+          if (characterIsBackslash(character)) {
+            state = 'backslash'
+            continue
+          } else if (characterIsBacktick(character)) {
+            verbatim += '`'
+            state = 'code'
+            codeFromColumn = index
+            continue
           }
         }
         break
 
       case 'code':
-        switch (character) {
-          case '\\':
-            state = 'codeBackslash'
-            continue
-
-          case '`':
-            codeFromColumn = null
-            verbatim += '`'
-            state = 'noSpecialCharacter'
-            continue
-
-          default:
-            break
+        if (characterIsBackslash(character)) {
+          state = 'codeBackslash'
+          continue
+        } else if (characterIsBacktick(character)) {
+          codeFromColumn = null
+          verbatim += '`'
+          state = 'noSpecialCharacter'
+          continue
         }
         break
 
       case 'codeBackslash':
-        switch (character) {
-          case '\\':
-          case '`':
-            insertBackslash = true
-            state = 'code'
-            break
+        if (characterIsBackslash(character) || characterIsBacktick(character)) {
+          insertBackslash = true
+          state = 'code'
+        } else {
+          parserState.errors.push({
+            type: 'invalidEscapeSequence',
+            line: parserState.line,
+            verbatim: `\\${character}`,
+            fromColumn: index,
+            toColumn: index + 1
+          })
 
-          default:
-            parserState.errors.push({
-              type: 'invalidEscapeSequence',
-              line: parserState.line,
-              verbatim: `\\${character}`,
-              fromColumn: index,
-              toColumn: index + 1
-            })
-
-            return null
+          return null
         }
     }
 
@@ -211,7 +189,7 @@ export const parseFormatted = (
     parserState.errors.push({
       type: 'unterminatedBold',
       line: parserState.line,
-      verbatim: parserState.mixedCaseLineAccumulator.slice(boldFromColumn, toColumn + 1),
+      verbatim: parserState.lineAccumulator.slice(boldFromColumn, toColumn + 1),
       fromColumn: boldFromColumn + 1,
       toColumn: toColumn + 1
     })
@@ -221,7 +199,7 @@ export const parseFormatted = (
     parserState.errors.push({
       type: 'unterminatedItalic',
       line: parserState.line,
-      verbatim: parserState.mixedCaseLineAccumulator.slice(italicFromColumn, toColumn + 1),
+      verbatim: parserState.lineAccumulator.slice(italicFromColumn, toColumn + 1),
       fromColumn: italicFromColumn + 1,
       toColumn: toColumn + 1
     })
@@ -231,7 +209,7 @@ export const parseFormatted = (
     parserState.errors.push({
       type: 'unterminatedCode',
       line: parserState.line,
-      verbatim: parserState.mixedCaseLineAccumulator.slice(codeFromColumn, toColumn + 1),
+      verbatim: parserState.lineAccumulator.slice(codeFromColumn, toColumn + 1),
       fromColumn: codeFromColumn + 1,
       toColumn: toColumn + 1
     })

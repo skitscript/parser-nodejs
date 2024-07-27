@@ -1,85 +1,118 @@
-export const wordIsInvalidInIdentifiers = (lowerCase: string, fromColumn: number, toColumn: number): boolean => {
-  switch (toColumn - fromColumn) {
-    case 1:
-      switch (lowerCase.charAt(fromColumn)) {
-        case 'i':
-          return lowerCase.charAt(toColumn) === 's'
+import { characterIsA } from '../characterIsA/index.js'
+import { characterIsC } from '../characterIsC/index.js'
+import { characterIsD } from '../characterIsD/index.js'
+import { characterIsE } from '../characterIsE/index.js'
+import { characterIsH } from '../characterIsH/index.js'
+import { characterIsI } from '../characterIsI/index.js'
+import { characterIsJ } from '../characterIsJ/index.js'
+import { characterIsL } from '../characterIsL/index.js'
+import { characterIsM } from '../characterIsM/index.js'
+import { characterIsN } from '../characterIsN/index.js'
+import { characterIsO } from '../characterIsO/index.js'
+import { characterIsP } from '../characterIsP/index.js'
+import { characterIsR } from '../characterIsR/index.js'
+import { characterIsS } from '../characterIsS/index.js'
+import { characterIsT } from '../characterIsT/index.js'
+import { characterIsU } from '../characterIsU/index.js'
+import { characterIsW } from '../characterIsW/index.js'
+import { characterIsX } from '../characterIsX/index.js'
+import type { ParserState } from '../ParserState'
 
-        case 'o':
-          return lowerCase.charAt(toColumn) === 'r'
-
-        case 't':
-          return lowerCase.charAt(toColumn) === 'o'
-
-        default:
-          return false
-      }
-
+export const wordIsInvalidInIdentifiers = (parserState: ParserState, fromColumn: number, length: number): boolean => {
+  switch (length) {
     case 2:
-      switch (lowerCase.charAt(fromColumn)) {
-        case 'a':
-          switch (lowerCase.charAt(fromColumn + 1)) {
-            case 'n':
-              return lowerCase.charAt(toColumn) === 'd'
+    {
+      const firstCharacter = parserState.lineAccumulator.charAt(fromColumn)
 
-            case 'r':
-              return lowerCase.charAt(toColumn) === 'e'
-
-            default:
-              return false
-          }
-
-        case 'n':
-          return lowerCase.charAt(fromColumn + 1) === 'o' && lowerCase.charAt(toColumn) === 't'
-
-        case 's':
-          return lowerCase.charAt(fromColumn + 1) === 'e' && lowerCase.charAt(toColumn) === 't'
-
-        default:
-          return false
+      if (characterIsI(firstCharacter)) {
+        return characterIsS(parserState.lineAccumulator.charAt(fromColumn + 1))
+      } else if (characterIsO(firstCharacter)) {
+        return characterIsR(parserState.lineAccumulator.charAt(fromColumn + 1))
+      } else {
+        return characterIsT(firstCharacter) && characterIsO(parserState.lineAccumulator.charAt(fromColumn + 1))
       }
+    }
 
     case 3:
-      switch (lowerCase.charAt(fromColumn)) {
-        case 'e':
-          return lowerCase.charAt(fromColumn + 1) === 'x' && lowerCase.charAt(fromColumn + 2) === 'i' && lowerCase.charAt(toColumn) === 't'
+    {
+      const firstCharacter = parserState.lineAccumulator.charAt(fromColumn)
 
-        case 'j':
-          return lowerCase.charAt(fromColumn + 1) === 'u' && lowerCase.charAt(fromColumn + 2) === 'm' && lowerCase.charAt(toColumn) === 'p'
+      if (characterIsA(firstCharacter)) {
+        const secondCharacter = parserState.lineAccumulator.charAt(fromColumn + 1)
 
-        case 'w':
-          return lowerCase.charAt(fromColumn + 1) === 'h' && lowerCase.charAt(fromColumn + 2) === 'e' && lowerCase.charAt(toColumn) === 'n'
+        if (characterIsN(secondCharacter)) {
+          return characterIsD(parserState.lineAccumulator.charAt(fromColumn + 2))
+        }
 
-        default:
-          return false
+        if (characterIsR(secondCharacter)) {
+          return characterIsE(parserState.lineAccumulator.charAt(fromColumn + 2))
+        }
+
+        return false
+      } else if (characterIsN(firstCharacter)) {
+        const secondCharacter = parserState.lineAccumulator.charAt(fromColumn + 1)
+
+        if (characterIsO(secondCharacter)) {
+          return characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2))
+        } else {
+          return characterIsE(secondCharacter) && characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2))
+        }
+      } else {
+        return characterIsS(firstCharacter) &&
+          characterIsE(parserState.lineAccumulator.charAt(fromColumn + 1)) &&
+          characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2))
       }
+    }
 
-    case 4:
-      switch (lowerCase.charAt(fromColumn)) {
-        case 'c':
-          return lowerCase.charAt(fromColumn + 1) === 'l' && lowerCase.charAt(fromColumn + 2) === 'e' && lowerCase.charAt(fromColumn + 3) === 'a' && lowerCase.charAt(toColumn) === 'r'
+    case 4: {
+      const firstCharacter = parserState.lineAccumulator.charAt(fromColumn)
 
-        case 'e':
-          switch (lowerCase.charAt(fromColumn + 1)) {
-            case 'n':
-              return lowerCase.charAt(fromColumn + 2) === 't' && lowerCase.charAt(fromColumn + 3) === 'e' && lowerCase.charAt(toColumn) === 'r'
-
-            case 'x':
-              return lowerCase.charAt(fromColumn + 2) === 'i' && lowerCase.charAt(fromColumn + 3) === 't' && lowerCase.charAt(toColumn) === 's'
-
-            default:
-              return false
-          }
-
-        case 'l':
-          return lowerCase.charAt(fromColumn + 1) === 'e' && lowerCase.charAt(fromColumn + 2) === 'a' && lowerCase.charAt(fromColumn + 3) === 'd' && lowerCase.charAt(toColumn) === 's'
-
-        default:
-          return false
+      if (characterIsE(firstCharacter)) {
+        return characterIsX(parserState.lineAccumulator.charAt(fromColumn + 1)) && characterIsI(parserState.lineAccumulator.charAt(fromColumn + 2)) && characterIsT(parserState.lineAccumulator.charAt(fromColumn + 3))
+      } else if (characterIsJ(firstCharacter)) {
+        return characterIsU(parserState.lineAccumulator.charAt(fromColumn + 1)) && characterIsM(parserState.lineAccumulator.charAt(fromColumn + 2)) && characterIsP(parserState.lineAccumulator.charAt(fromColumn + 3))
+      } else {
+        return characterIsW(firstCharacter) && characterIsH(parserState.lineAccumulator.charAt(fromColumn + 1)) && characterIsE(parserState.lineAccumulator.charAt(fromColumn + 2)) && characterIsN(parserState.lineAccumulator.charAt(fromColumn + 3))
       }
+    }
 
-    case 5:
-      return lowerCase.charAt(fromColumn) === 'e' && lowerCase.charAt(fromColumn + 1) === 'n' && lowerCase.charAt(fromColumn + 2) === 't' && lowerCase.charAt(fromColumn + 3) === 'e' && lowerCase.charAt(fromColumn + 4) === 'r' && lowerCase.charAt(toColumn) === 's'
+    case 5: {
+      const firstCharacter = parserState.lineAccumulator.charAt(fromColumn)
+
+      if (characterIsC(firstCharacter)) {
+        return characterIsL(parserState.lineAccumulator.charAt(fromColumn + 1)) &&
+        characterIsE(parserState.lineAccumulator.charAt(fromColumn + 2)) &&
+        characterIsA(parserState.lineAccumulator.charAt(fromColumn + 3)) &&
+        characterIsR(parserState.lineAccumulator.charAt(fromColumn + 4))
+      } else if (characterIsE(firstCharacter)) {
+        const secondCharacter = parserState.lineAccumulator.charAt(fromColumn + 1)
+
+        if (characterIsN(secondCharacter)) {
+          return characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2)) &&
+          characterIsE(parserState.lineAccumulator.charAt(fromColumn + 3)) &&
+          characterIsR(parserState.lineAccumulator.charAt(fromColumn + 4))
+        } else {
+          return characterIsX(secondCharacter) &&
+          characterIsI(parserState.lineAccumulator.charAt(fromColumn + 2)) &&
+          characterIsT(parserState.lineAccumulator.charAt(fromColumn + 3)) &&
+          characterIsS(parserState.lineAccumulator.charAt(fromColumn + 4))
+        }
+      } else {
+        return characterIsL(firstCharacter) &&
+        characterIsE(parserState.lineAccumulator.charAt(fromColumn + 1)) &&
+        characterIsA(parserState.lineAccumulator.charAt(fromColumn + 2)) &&
+        characterIsD(parserState.lineAccumulator.charAt(fromColumn + 3)) &&
+        characterIsS(parserState.lineAccumulator.charAt(fromColumn + 4))
+      }
+    }
+
+    case 6:
+      return characterIsE(parserState.lineAccumulator.charAt(fromColumn)) &&
+      characterIsN(parserState.lineAccumulator.charAt(fromColumn + 1)) &&
+      characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2)) &&
+      characterIsE(parserState.lineAccumulator.charAt(fromColumn + 3)) &&
+      characterIsR(parserState.lineAccumulator.charAt(fromColumn + 4)) &&
+      characterIsS(parserState.lineAccumulator.charAt(fromColumn + 5))
 
     default:
       return false

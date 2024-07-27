@@ -53,7 +53,7 @@ const menuOptionRegex = new RegExp(
   'i'
 )
 export const tryParseMenuOption = (parserState: ParserState): boolean => {
-  const menuOptionMatch = menuOptionRegex.exec(parserState.mixedCaseLineAccumulator)
+  const menuOptionMatch = menuOptionRegex.exec(parserState.lineAccumulator)
 
   if (menuOptionMatch !== null) {
     const prefix = menuOptionMatch[1] as string

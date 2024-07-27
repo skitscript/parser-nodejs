@@ -49,7 +49,7 @@ const speakerRegex = new RegExp(
 )
 
 export const tryParseSpeaker = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number): boolean => {
-  const speakerMatch = speakerRegex.exec(parserState.mixedCaseLineAccumulator)
+  const speakerMatch = speakerRegex.exec(parserState.lineAccumulator)
 
   if (speakerMatch !== null) {
     const isReachable = checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)

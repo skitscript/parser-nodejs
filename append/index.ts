@@ -25,11 +25,10 @@ export const append = (parserState: ParserState, character: string): void => {
       parserState.state = 'normal'
 
       if (!characterIsWhitespace(character) && parserState.indexOfFirstNonWhiteSpaceCharacter === -1) {
-        parserState.indexOfFirstNonWhiteSpaceCharacter = parserState.mixedCaseLineAccumulator.length
+        parserState.indexOfFirstNonWhiteSpaceCharacter = parserState.lineAccumulator.length
       }
 
-      parserState.mixedCaseLineAccumulator += character
-      parserState.lowerCaseLineAccumulator += character.toLowerCase()
+      parserState.lineAccumulator += character
       break
   }
 }

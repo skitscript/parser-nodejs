@@ -1,4 +1,12 @@
 import { addIdentifierToIndex } from '../../addIdentifierToIndex/index.js'
+import { characterIsA } from '../../characterIsA/index.js'
+import { characterIsC } from '../../characterIsC/index.js'
+import { characterIsColon } from '../../characterIsColon/index.js'
+import { characterIsI } from '../../characterIsI/index.js'
+import { characterIsL } from '../../characterIsL/index.js'
+import { characterIsN } from '../../characterIsN/index.js'
+import { characterIsO } from '../../characterIsO/index.js'
+import { characterIsT } from '../../characterIsT/index.js'
 import { characterIsWhitespace } from '../../characterIsWhitespace/index.js'
 import { checkIdentifierConsistency } from '../../checkIdentifierConsistency/index.js'
 import type { ParserState } from '../../ParserState'
@@ -10,39 +18,41 @@ export const tryParseLocation = (parserState: ParserState, indexOfLastNonWhiteSp
     return false
   }
 
-  if (parserState.lowerCaseLineAccumulator.charAt(0) !== 'l' ||
-   parserState.lowerCaseLineAccumulator.charAt(1) !== 'o' ||
-    parserState.lowerCaseLineAccumulator.charAt(2) !== 'c' ||
-    parserState.lowerCaseLineAccumulator.charAt(3) !== 'a' ||
-    parserState.lowerCaseLineAccumulator.charAt(4) !== 't' ||
-    parserState.lowerCaseLineAccumulator.charAt(5) !== 'i' ||
-    parserState.lowerCaseLineAccumulator.charAt(6) !== 'o' ||
-    parserState.lowerCaseLineAccumulator.charAt(7) !== 'n') {
+  if (
+    !characterIsL(parserState.lineAccumulator.charAt(0)) ||
+    !characterIsO(parserState.lineAccumulator.charAt(1)) ||
+    !characterIsC(parserState.lineAccumulator.charAt(2)) ||
+    !characterIsA(parserState.lineAccumulator.charAt(3)) ||
+    !characterIsT(parserState.lineAccumulator.charAt(4)) ||
+    !characterIsI(parserState.lineAccumulator.charAt(5)) ||
+    !characterIsO(parserState.lineAccumulator.charAt(6)) ||
+    !characterIsN(parserState.lineAccumulator.charAt(7))
+  ) {
     return false
   }
 
-  let indexOfSemicolon = 8
+  let indexOfColon = 8
 
   while (true) {
-    if (indexOfSemicolon === indexOfLastNonWhiteSpaceCharacter) {
+    if (indexOfColon === indexOfLastNonWhiteSpaceCharacter) {
       return false
     }
 
-    if (parserState.lowerCaseLineAccumulator.charAt(indexOfSemicolon) === ':') {
+    if (characterIsColon(parserState.lineAccumulator.charAt(indexOfColon))) {
       break
     }
 
-    indexOfSemicolon++
+    indexOfColon++
   }
 
-  let fromColumn = indexOfSemicolon + 1
+  let fromColumn = indexOfColon + 1
 
   while (true) {
     if (fromColumn === indexOfLastNonWhiteSpaceCharacter) {
       return false
     }
 
-    if (!characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(fromColumn))) {
+    if (!characterIsWhitespace(parserState.lineAccumulator.charAt(fromColumn))) {
       break
     }
 
@@ -52,7 +62,7 @@ export const tryParseLocation = (parserState: ParserState, indexOfLastNonWhiteSp
   let toColumn = indexOfLastNonWhiteSpaceCharacter - 1
 
   while (true) {
-    if (!characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(toColumn))) {
+    if (!characterIsWhitespace(parserState.lineAccumulator.charAt(toColumn))) {
       break
     }
 

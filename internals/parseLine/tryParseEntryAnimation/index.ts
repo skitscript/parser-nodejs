@@ -1,4 +1,12 @@
 import { addIdentifierToIndex } from '../../addIdentifierToIndex/index.js'
+import { characterIsA } from '../../characterIsA/index.js'
+import { characterIsComma } from '../../characterIsComma/index.js'
+import { characterIsD } from '../../characterIsD/index.js'
+import { characterIsE } from '../../characterIsE/index.js'
+import { characterIsN } from '../../characterIsN/index.js'
+import { characterIsR } from '../../characterIsR/index.js'
+import { characterIsS } from '../../characterIsS/index.js'
+import { characterIsT } from '../../characterIsT/index.js'
 import { characterIsWhitespace } from '../../characterIsWhitespace/index.js'
 import { checkIdentifierConsistency } from '../../checkIdentifierConsistency/index.js'
 import type { ParserState } from '../../ParserState'
@@ -16,27 +24,31 @@ export const tryParseEntryAnimation = (parserState: ParserState, indexOfLastNonW
   let characterToColumn: number = 0
 
   while (true) {
-    if (characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(separatorColumn))) {
-      switch (parserState.lowerCaseLineAccumulator.charAt(separatorColumn + 1)) {
-        case 'a':
-          if (parserState.lowerCaseLineAccumulator.charAt(separatorColumn + 2) === 'n' &&
-          parserState.lowerCaseLineAccumulator.charAt(separatorColumn + 3) === 'd' &&
-        characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(separatorColumn + 4))) {
+    if (characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn))) {
+      const firstCharacter = parserState.lineAccumulator.charAt(separatorColumn + 1)
+      switch (true) {
+        case characterIsA(firstCharacter):
+          if (
+            characterIsN(parserState.lineAccumulator.charAt(separatorColumn + 2)) &&
+            characterIsD(parserState.lineAccumulator.charAt(separatorColumn + 3)) &&
+        characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 4))) {
             foundAnd = true
           }
           break
 
-        case 'e':
+        case characterIsE(firstCharacter):
           if (
-            parserState.lowerCaseLineAccumulator.charAt(separatorColumn + 2) === 'n' &&
-              parserState.lowerCaseLineAccumulator.charAt(separatorColumn + 3) === 't' &&
-              parserState.lowerCaseLineAccumulator.charAt(separatorColumn + 4) === 'e' &&
-              parserState.lowerCaseLineAccumulator.charAt(separatorColumn + 5) === 'r'
+            characterIsN(parserState.lineAccumulator.charAt(separatorColumn + 2)) &&
+              characterIsT(parserState.lineAccumulator.charAt(separatorColumn + 3)) &&
+              characterIsE(parserState.lineAccumulator.charAt(separatorColumn + 4)) &&
+              characterIsR(parserState.lineAccumulator.charAt(separatorColumn + 5))
           ) {
+            const nextCharacter = parserState.lineAccumulator.charAt(separatorColumn + 6)
+
             if (
               separatorColumn < indexOfLastNonWhiteSpaceCharacter - 4 &&
-                  parserState.lowerCaseLineAccumulator.charAt(separatorColumn + 6) === 's' &&
-                  characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(separatorColumn + 7))
+                  characterIsS(nextCharacter) &&
+                  characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 7))
             ) {
               if (foundAnd) {
                 return false
@@ -49,13 +61,13 @@ export const tryParseEntryAnimation = (parserState: ParserState, indexOfLastNonW
               let emoteTo: null | number = null
 
               for (let index = separatorColumn + 8; index < indexOfLastNonWhiteSpaceCharacter; index++) {
-                const character = parserState.lowerCaseLineAccumulator.charAt(index)
+                const character = parserState.lineAccumulator.charAt(index)
 
                 if (characterIsWhitespace(character)) {
                   continue
                 }
 
-                if (character === ',') {
+                if (characterIsComma(character)) {
                   if (foundComma) {
                     return false
                   }
@@ -156,7 +168,7 @@ export const tryParseEntryAnimation = (parserState: ParserState, indexOfLastNonW
                   })
                 }
               }
-            } else if (characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(separatorColumn + 6))) {
+            } else if (characterIsWhitespace(nextCharacter)) {
               if (!foundAnd) {
                 return false
               }
@@ -168,13 +180,13 @@ export const tryParseEntryAnimation = (parserState: ParserState, indexOfLastNonW
               let emoteTo: null | number = null
 
               for (let index = separatorColumn + 7; index < indexOfLastNonWhiteSpaceCharacter; index++) {
-                const character = parserState.lowerCaseLineAccumulator.charAt(index)
+                const character = parserState.lineAccumulator.charAt(index)
 
                 if (characterIsWhitespace(character)) {
                   continue
                 }
 
-                if (character === ',') {
+                if (characterIsComma(character)) {
                   if (foundComma) {
                     return false
                   }
