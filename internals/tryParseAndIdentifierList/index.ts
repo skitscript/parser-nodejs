@@ -17,8 +17,8 @@ export const tryParseAndIdentifierList = (
 ): null | readonly Identifier[] => {
   const lastPossibleSeparatorFromColumn = toColumn - 5
   let separatorFromColumn = fromColumn + 1
-  let identifierFromColumn: null | number = characterIsWhitespace(parserState.lineAccumulator.charAt(fromColumn)) ? null : fromColumn
-  let identifierToColumn: null | number = identifierFromColumn
+  let identifierFromColumn: number = characterIsWhitespace(parserState.lineAccumulator.charAt(fromColumn)) ? -1 : fromColumn
+  let identifierToColumn: number = identifierFromColumn
 
   while (true) {
     if (separatorFromColumn > lastPossibleSeparatorFromColumn) {
@@ -26,7 +26,7 @@ export const tryParseAndIdentifierList = (
         const whitespace = characterIsWhitespace(parserState.lineAccumulator.charAt(separatorFromColumn))
 
         if (!whitespace) {
-          if (identifierFromColumn === null) {
+          if (identifierFromColumn === -1) {
             identifierFromColumn = separatorFromColumn
           }
 
@@ -36,11 +36,11 @@ export const tryParseAndIdentifierList = (
         separatorFromColumn++
       }
 
-      if (identifierFromColumn === null) {
+      if (identifierFromColumn === -1) {
         return null
       }
 
-      const sole = tryParseIdentifier(parserState, identifierFromColumn, identifierToColumn as number)
+      const sole = tryParseIdentifier(parserState, identifierFromColumn, identifierToColumn)
 
       if (sole === null) {
         return null
@@ -62,7 +62,7 @@ export const tryParseAndIdentifierList = (
         break
       }
     } else {
-      if (identifierFromColumn === null) {
+      if (identifierFromColumn === -1) {
         identifierFromColumn = separatorFromColumn
       }
 
@@ -72,8 +72,8 @@ export const tryParseAndIdentifierList = (
     separatorFromColumn++
   }
 
-  identifierFromColumn = null
-  identifierToColumn = null
+  identifierFromColumn = -1
+  identifierToColumn = -1
 
   const output: Identifier[] = []
 
@@ -81,10 +81,10 @@ export const tryParseAndIdentifierList = (
     const character = parserState.lineAccumulator.charAt(index)
 
     if (characterIsComma(character)) {
-      if (identifierFromColumn === null) {
+      if (identifierFromColumn === -1) {
         return null
       } else {
-        const next = tryParseIdentifier(parserState, identifierFromColumn, identifierToColumn as number)
+        const next = tryParseIdentifier(parserState, identifierFromColumn, identifierToColumn)
 
         if (next === null) {
           return null
@@ -92,11 +92,11 @@ export const tryParseAndIdentifierList = (
 
         output.push(next)
 
-        identifierFromColumn = null
-        identifierToColumn = null
+        identifierFromColumn = -1
+        identifierToColumn = -1
       }
     } else if (!characterIsWhitespace(character)) {
-      if (identifierFromColumn === null) {
+      if (identifierFromColumn === -1) {
         identifierFromColumn = index
       }
 
@@ -104,11 +104,11 @@ export const tryParseAndIdentifierList = (
     }
   }
 
-  if (identifierFromColumn === null) {
+  if (identifierFromColumn === -1) {
     return null
   }
 
-  const lastBeforeKeyword = tryParseIdentifier(parserState, identifierFromColumn, identifierToColumn as number)
+  const lastBeforeKeyword = tryParseIdentifier(parserState, identifierFromColumn, identifierToColumn)
 
   if (lastBeforeKeyword === null) {
     return null
@@ -116,12 +116,12 @@ export const tryParseAndIdentifierList = (
 
   output.push(lastBeforeKeyword)
 
-  identifierFromColumn = null
-  identifierToColumn = null
+  identifierFromColumn = -1
+  identifierToColumn = -1
 
   for (let index = separatorFromColumn + 5; index <= toColumn; index++) {
     if (!characterIsWhitespace(parserState.lineAccumulator.charAt(index))) {
-      if (identifierFromColumn === null) {
+      if (identifierFromColumn === -1) {
         identifierFromColumn = index
       }
 
@@ -129,11 +129,11 @@ export const tryParseAndIdentifierList = (
     }
   }
 
-  if (identifierFromColumn === null) {
+  if (identifierFromColumn === -1) {
     return null
   }
 
-  const afterKeyword = tryParseIdentifier(parserState, identifierFromColumn, identifierToColumn as number)
+  const afterKeyword = tryParseIdentifier(parserState, identifierFromColumn, identifierToColumn)
 
   if (afterKeyword === null) {
     return null

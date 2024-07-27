@@ -16,9 +16,9 @@ export const parseFormatted = (
   let previousItalic = false
   let previousCode = false
 
-  let boldFromColumn: null | number = null
-  let italicFromColumn: null | number = null
-  let codeFromColumn: null | number = null
+  let boldFromColumn: number = -1
+  let italicFromColumn: number = -1
+  let codeFromColumn: number = -1
 
   let plainText = ''
   let verbatim = ''
@@ -75,18 +75,18 @@ export const parseFormatted = (
         state = 'noSpecialCharacter'
 
         if (characterIsAsterisk(character)) {
-          if (boldFromColumn === null) {
+          if (boldFromColumn === -1) {
             boldFromColumn = index - 1
           } else {
-            boldFromColumn = null
+            boldFromColumn = -1
           }
           verbatim += '*'
           continue
         } else {
-          if (italicFromColumn === null) {
+          if (italicFromColumn === -1) {
             italicFromColumn = index - 1
           } else {
-            italicFromColumn = null
+            italicFromColumn = -1
           }
 
           if (characterIsBackslash(character)) {
@@ -106,7 +106,7 @@ export const parseFormatted = (
           state = 'codeBackslash'
           continue
         } else if (characterIsBacktick(character)) {
-          codeFromColumn = null
+          codeFromColumn = -1
           verbatim += '`'
           state = 'noSpecialCharacter'
           continue
@@ -131,9 +131,9 @@ export const parseFormatted = (
     }
 
     if (
-      (previousBold !== (boldFromColumn !== null) ||
-        previousItalic !== (italicFromColumn !== null) ||
-        previousCode !== (codeFromColumn !== null)) &&
+      (previousBold !== (boldFromColumn !== -1) ||
+        previousItalic !== (italicFromColumn !== -1) ||
+        previousCode !== (codeFromColumn !== -1)) &&
       ((previousCode && plainText !== '') ||
         (!previousCode && plainText.trim() !== ''))
     ) {
@@ -153,9 +153,9 @@ export const parseFormatted = (
       currentRunFromColumn = insertBackslash ? index - 1 : index
     }
 
-    previousBold = boldFromColumn !== null
-    previousItalic = italicFromColumn !== null
-    previousCode = codeFromColumn !== null
+    previousBold = boldFromColumn !== -1
+    previousItalic = italicFromColumn !== -1
+    previousCode = codeFromColumn !== -1
 
     if (insertBackslash) {
       verbatim += '\\'
@@ -177,15 +177,15 @@ export const parseFormatted = (
       return null
 
     case 'asterisk':
-      if (italicFromColumn === null) {
+      if (italicFromColumn === -1) {
         italicFromColumn = toColumn
       } else {
-        italicFromColumn = null
+        italicFromColumn = -1
       }
       break
   }
 
-  if (boldFromColumn !== null) {
+  if (boldFromColumn !== -1) {
     parserState.errors.push({
       type: 'unterminatedBold',
       line: parserState.line,
@@ -195,7 +195,7 @@ export const parseFormatted = (
     })
 
     return null
-  } else if (italicFromColumn !== null) {
+  } else if (italicFromColumn !== -1) {
     parserState.errors.push({
       type: 'unterminatedItalic',
       line: parserState.line,
@@ -205,7 +205,7 @@ export const parseFormatted = (
     })
 
     return null
-  } else if (codeFromColumn !== null) {
+  } else if (codeFromColumn !== -1) {
     parserState.errors.push({
       type: 'unterminatedCode',
       line: parserState.line,

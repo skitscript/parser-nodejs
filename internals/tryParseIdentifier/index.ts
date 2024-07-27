@@ -46,7 +46,7 @@ export const tryParseIdentifier = (
     includedToColumn--
   }
 
-  let startOfCurrentWord: null | number = null
+  let startOfCurrentWord: number = -1
   let normalized = ''
 
   for (let index = includedFromColumn; index <= includedToColumn; index++) {
@@ -57,7 +57,7 @@ export const tryParseIdentifier = (
     }
 
     if (characterIsExcludedFromIdentifiers(character)) {
-      if (startOfCurrentWord !== null) {
+      if (startOfCurrentWord !== -1) {
         const wordLength = index - startOfCurrentWord
 
         if (wordIsInvalidInIdentifiers(parserState, startOfCurrentWord, wordLength)) {
@@ -70,14 +70,14 @@ export const tryParseIdentifier = (
 
         normalized += '-'
 
-        startOfCurrentWord = null
+        startOfCurrentWord = -1
       }
-    } else if (startOfCurrentWord === null) {
+    } else if (startOfCurrentWord === -1) {
       startOfCurrentWord = index
     }
   }
 
-  if (startOfCurrentWord !== null) {
+  if (startOfCurrentWord !== -1) {
     const wordLength = 1 + includedToColumn - startOfCurrentWord
 
     if (wordIsInvalidInIdentifiers(parserState, startOfCurrentWord, wordLength)) {

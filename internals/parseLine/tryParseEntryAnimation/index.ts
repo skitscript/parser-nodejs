@@ -54,11 +54,11 @@ export const tryParseEntryAnimation = (parserState: ParserState, indexOfLastNonW
                 return false
               }
 
-              let animationFromColumn: null | number = null
-              let animationToColumn: null | number = null
+              let animationFromColumn: number = -1
+              let animationToColumn: number = -1
               let foundComma = false
-              let emoteFrom: null | number = null
-              let emoteTo: null | number = null
+              let emoteFrom: number = -1
+              let emoteTo: number = -1
 
               for (let index = separatorColumn + 8; index < indexOfLastNonWhiteSpaceCharacter; index++) {
                 const character = parserState.lineAccumulator.charAt(index)
@@ -72,19 +72,19 @@ export const tryParseEntryAnimation = (parserState: ParserState, indexOfLastNonW
                     return false
                   }
 
-                  if (animationFromColumn === null) {
+                  if (animationFromColumn === -1) {
                     return false
                   }
 
                   foundComma = true
                 } else if (foundComma) {
-                  if (emoteFrom === null) {
+                  if (emoteFrom === -1) {
                     emoteFrom = index
                   }
 
                   emoteTo = index
                 } else {
-                  if (animationFromColumn === null) {
+                  if (animationFromColumn === -1) {
                     animationFromColumn = index
                   }
 
@@ -93,7 +93,7 @@ export const tryParseEntryAnimation = (parserState: ParserState, indexOfLastNonW
               }
 
               if (foundComma) {
-                if (emoteFrom === null) {
+                if (emoteFrom === -1) {
                   return false
                 }
 
@@ -103,13 +103,13 @@ export const tryParseEntryAnimation = (parserState: ParserState, indexOfLastNonW
                   return false
                 }
 
-                const animation = tryParseIdentifier(parserState, animationFromColumn as number, animationToColumn as number)
+                const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn)
 
                 if (animation === null) {
                   return false
                 }
 
-                const emote = tryParseIdentifier(parserState, emoteFrom, emoteTo as number)
+                const emote = tryParseIdentifier(parserState, emoteFrom, emoteTo)
 
                 if (emote === null) {
                   return false
@@ -137,7 +137,7 @@ export const tryParseEntryAnimation = (parserState: ParserState, indexOfLastNonW
                   })
                 }
               } else {
-                if (animationFromColumn === null) {
+                if (animationFromColumn === -1) {
                   return false
                 }
 
@@ -147,7 +147,7 @@ export const tryParseEntryAnimation = (parserState: ParserState, indexOfLastNonW
                   return false
                 }
 
-                const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn as number)
+                const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn)
 
                 if (animation === null) {
                   return false
@@ -173,11 +173,11 @@ export const tryParseEntryAnimation = (parserState: ParserState, indexOfLastNonW
                 return false
               }
 
-              let animationFromColumn: null | number = null
-              let animationToColumn: null | number = null
+              let animationFromColumn: number = -1
+              let animationToColumn: number = -1
               let foundComma = false
-              let emoteFrom: null | number = null
-              let emoteTo: null | number = null
+              let emoteFrom: number = -1
+              let emoteTo: number = -1
 
               for (let index = separatorColumn + 7; index < indexOfLastNonWhiteSpaceCharacter; index++) {
                 const character = parserState.lineAccumulator.charAt(index)
@@ -191,19 +191,19 @@ export const tryParseEntryAnimation = (parserState: ParserState, indexOfLastNonW
                     return false
                   }
 
-                  if (animationFromColumn === null) {
+                  if (animationFromColumn === -1) {
                     return false
                   }
 
                   foundComma = true
                 } else if (foundComma) {
-                  if (emoteFrom === null) {
+                  if (emoteFrom === -1) {
                     emoteFrom = index
                   }
 
                   emoteTo = index
                 } else {
-                  if (animationFromColumn === null) {
+                  if (animationFromColumn === -1) {
                     animationFromColumn = index
                   }
 
@@ -212,17 +212,17 @@ export const tryParseEntryAnimation = (parserState: ParserState, indexOfLastNonW
               }
 
               if (foundComma) {
-                if (emoteFrom === null) {
+                if (emoteFrom === -1) {
                   return false
                 }
 
-                const animation = tryParseIdentifier(parserState, animationFromColumn as number, animationToColumn as number)
+                const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn)
 
                 if (animation === null) {
                   return false
                 }
 
-                const emote = tryParseIdentifier(parserState, emoteFrom, emoteTo as number)
+                const emote = tryParseIdentifier(parserState, emoteFrom, emoteTo)
 
                 if (emote === null) {
                   return false
@@ -264,11 +264,11 @@ export const tryParseEntryAnimation = (parserState: ParserState, indexOfLastNonW
                   }
                 }
               } else {
-                if (animationFromColumn === null) {
+                if (animationFromColumn === -1) {
                   return false
                 }
 
-                const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn as number)
+                const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn)
 
                 if (animation === null) {
                   return false
