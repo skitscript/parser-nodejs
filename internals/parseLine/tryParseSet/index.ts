@@ -1,4 +1,5 @@
 import { characterIsE } from '../../characterIsE/index.js'
+import { characterIsPeriod } from '../../characterIsPeriod/index.js'
 import { characterIsS } from '../../characterIsS/index.js'
 import { characterIsT } from '../../characterIsT/index.js'
 import { characterIsWhitespace } from '../../characterIsWhitespace/index.js'
@@ -25,6 +26,10 @@ export const tryParseSet = (parserState: ParserState, indexOfLastNonWhiteSpaceCh
   }
 
   if (!characterIsWhitespace(parserState.lineAccumulator.charAt(3))) {
+    return false
+  }
+
+  if (!characterIsPeriod(parserState.lineAccumulator.charAt(indexOfLastNonWhiteSpaceCharacter))) {
     return false
   }
 
