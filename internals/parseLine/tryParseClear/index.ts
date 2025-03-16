@@ -2,6 +2,7 @@ import { characterIsA } from '../../characterIsA/index.js'
 import { characterIsC } from '../../characterIsC/index.js'
 import { characterIsE } from '../../characterIsE/index.js'
 import { characterIsL } from '../../characterIsL/index.js'
+import { characterIsPeriod } from '../../characterIsPeriod/index.js'
 import { characterIsR } from '../../characterIsR/index.js'
 import { characterIsWhitespace } from '../../characterIsWhitespace/index.js'
 import { checkIdentifierConsistency } from '../../checkIdentifierConsistency/index.js'
@@ -10,17 +11,37 @@ import { tryParseAndIdentifierList } from '../../tryParseAndIdentifierList/index
 import { checkReachable } from '../checkReachable/index.js'
 
 export const tryParseClear = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number): boolean => {
-  if (indexOfLastNonWhiteSpaceCharacter < 7) {
+  if (indexOfLastNonWhiteSpaceCharacter < 8) {
     return false
   }
 
   if (
-    !characterIsC(parserState.lineAccumulator.charAt(0)) ||
-     !characterIsL(parserState.lineAccumulator.charAt(1)) ||
-     !characterIsE(parserState.lineAccumulator.charAt(2)) ||
-     !characterIsA(parserState.lineAccumulator.charAt(3)) ||
-     !characterIsR(parserState.lineAccumulator.charAt(4)) ||
-     !characterIsWhitespace(parserState.lineAccumulator.charAt(5))) {
+    !characterIsC(parserState.lineAccumulator.charAt(0))
+  ) {
+    return false
+  }
+
+  if (!characterIsL(parserState.lineAccumulator.charAt(1))) {
+    return false
+  }
+
+  if (!characterIsE(parserState.lineAccumulator.charAt(2))) {
+    return false
+  }
+
+  if (!characterIsA(parserState.lineAccumulator.charAt(3))) {
+    return false
+  }
+
+  if (!characterIsR(parserState.lineAccumulator.charAt(4))) {
+    return false
+  }
+
+  if (!characterIsWhitespace(parserState.lineAccumulator.charAt(5))) {
+    return false
+  }
+
+  if (!characterIsPeriod(parserState.lineAccumulator.charAt(indexOfLastNonWhiteSpaceCharacter))) {
     return false
   }
 
