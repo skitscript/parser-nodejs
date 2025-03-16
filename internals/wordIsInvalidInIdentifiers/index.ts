@@ -55,12 +55,22 @@ export const wordIsInvalidInIdentifiers = (parserState: ParserState, fromColumn:
         if (characterIsO(secondCharacter)) {
           return characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2))
         } else {
-          return characterIsE(secondCharacter) && characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2))
+          if (!characterIsE(secondCharacter)) {
+            return false
+          }
+
+          return characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2))
         }
       } else {
-        return characterIsS(firstCharacter) &&
-          characterIsE(parserState.lineAccumulator.charAt(fromColumn + 1)) &&
-          characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2))
+        if (!characterIsS(firstCharacter)) {
+          return false
+        }
+
+        if (!characterIsE(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          return false
+        }
+
+        return characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2))
       }
     }
 
@@ -68,11 +78,39 @@ export const wordIsInvalidInIdentifiers = (parserState: ParserState, fromColumn:
       const firstCharacter = parserState.lineAccumulator.charAt(fromColumn)
 
       if (characterIsE(firstCharacter)) {
-        return characterIsX(parserState.lineAccumulator.charAt(fromColumn + 1)) && characterIsI(parserState.lineAccumulator.charAt(fromColumn + 2)) && characterIsT(parserState.lineAccumulator.charAt(fromColumn + 3))
+        if (!characterIsX(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          return false
+        }
+
+        if (!characterIsI(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+          return false
+        }
+
+        return characterIsT(parserState.lineAccumulator.charAt(fromColumn + 3))
       } else if (characterIsJ(firstCharacter)) {
-        return characterIsU(parserState.lineAccumulator.charAt(fromColumn + 1)) && characterIsM(parserState.lineAccumulator.charAt(fromColumn + 2)) && characterIsP(parserState.lineAccumulator.charAt(fromColumn + 3))
+        if (!characterIsU(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          return false
+        }
+
+        if (!characterIsM(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+          return false
+        }
+
+        return characterIsP(parserState.lineAccumulator.charAt(fromColumn + 3))
       } else {
-        return characterIsW(firstCharacter) && characterIsH(parserState.lineAccumulator.charAt(fromColumn + 1)) && characterIsE(parserState.lineAccumulator.charAt(fromColumn + 2)) && characterIsN(parserState.lineAccumulator.charAt(fromColumn + 3))
+        if (!characterIsW(firstCharacter)) {
+          return false
+        }
+
+        if (!characterIsH(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          return false
+        }
+
+        if (!characterIsE(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+          return false
+        }
+
+        return characterIsN(parserState.lineAccumulator.charAt(fromColumn + 3))
       }
     }
 
@@ -80,39 +118,88 @@ export const wordIsInvalidInIdentifiers = (parserState: ParserState, fromColumn:
       const firstCharacter = parserState.lineAccumulator.charAt(fromColumn)
 
       if (characterIsC(firstCharacter)) {
-        return characterIsL(parserState.lineAccumulator.charAt(fromColumn + 1)) &&
-        characterIsE(parserState.lineAccumulator.charAt(fromColumn + 2)) &&
-        characterIsA(parserState.lineAccumulator.charAt(fromColumn + 3)) &&
-        characterIsR(parserState.lineAccumulator.charAt(fromColumn + 4))
+        if (!characterIsL(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          return false
+        }
+
+        if (!characterIsE(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+          return false
+        }
+
+        if (!characterIsA(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+          return false
+        }
+
+        return characterIsR(parserState.lineAccumulator.charAt(fromColumn + 4))
       } else if (characterIsE(firstCharacter)) {
         const secondCharacter = parserState.lineAccumulator.charAt(fromColumn + 1)
 
         if (characterIsN(secondCharacter)) {
-          return characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2)) &&
-          characterIsE(parserState.lineAccumulator.charAt(fromColumn + 3)) &&
-          characterIsR(parserState.lineAccumulator.charAt(fromColumn + 4))
+          if (!characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+            return false
+          }
+
+          if (!characterIsE(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+            return false
+          }
+
+          return characterIsR(parserState.lineAccumulator.charAt(fromColumn + 4))
         } else {
-          return characterIsX(secondCharacter) &&
-          characterIsI(parserState.lineAccumulator.charAt(fromColumn + 2)) &&
-          characterIsT(parserState.lineAccumulator.charAt(fromColumn + 3)) &&
-          characterIsS(parserState.lineAccumulator.charAt(fromColumn + 4))
+          if (!characterIsX(secondCharacter)) {
+            return false
+          }
+
+          if (!characterIsI(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+            return false
+          }
+
+          if (!characterIsT(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+            return false
+          }
+
+          return characterIsS(parserState.lineAccumulator.charAt(fromColumn + 4))
         }
+      } else if (characterIsL(firstCharacter)) {
+        if (!characterIsE(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          return false
+        }
+
+        if (!characterIsA(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+          return false
+        }
+
+        if (!characterIsD(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+          return false
+        }
+
+        return characterIsS(parserState.lineAccumulator.charAt(fromColumn + 4))
       } else {
-        return characterIsL(firstCharacter) &&
-        characterIsE(parserState.lineAccumulator.charAt(fromColumn + 1)) &&
-        characterIsA(parserState.lineAccumulator.charAt(fromColumn + 2)) &&
-        characterIsD(parserState.lineAccumulator.charAt(fromColumn + 3)) &&
-        characterIsS(parserState.lineAccumulator.charAt(fromColumn + 4))
+        return false
       }
     }
 
     case 6:
-      return characterIsE(parserState.lineAccumulator.charAt(fromColumn)) &&
-      characterIsN(parserState.lineAccumulator.charAt(fromColumn + 1)) &&
-      characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2)) &&
-      characterIsE(parserState.lineAccumulator.charAt(fromColumn + 3)) &&
-      characterIsR(parserState.lineAccumulator.charAt(fromColumn + 4)) &&
-      characterIsS(parserState.lineAccumulator.charAt(fromColumn + 5))
+      if (!characterIsE(parserState.lineAccumulator.charAt(fromColumn))) {
+        return false
+      }
+
+      if (!characterIsN(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+        return false
+      }
+
+      if (!characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+        return false
+      }
+
+      if (!characterIsE(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+        return false
+      }
+
+      if (!characterIsR(parserState.lineAccumulator.charAt(fromColumn + 4))) {
+        return false
+      }
+
+      return characterIsS(parserState.lineAccumulator.charAt(fromColumn + 5))
 
     default:
       return false
