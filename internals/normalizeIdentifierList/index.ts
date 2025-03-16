@@ -5,6 +5,7 @@ import type { Warning } from '../../Warning'
 import { normalizeIdentifier } from '../normalizeIdentifier/index.js'
 import type { ParserState } from '../ParserState'
 
+// TODO: This will be removed eventually.
 export const normalizeIdentifierList = <TBinaryOperator extends string>(
   parserState: ParserState,
   type: IdentifierType,
