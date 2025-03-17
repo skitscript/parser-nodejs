@@ -27,7 +27,11 @@ const isAnd = (parserState: ParserState, separatorColumn: number, firstCharacter
     return false
   }
 
-  return characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 4))
+  if (!characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 4))) {
+    return false
+  }
+
+  return true
 }
 
 const isEnter = (parserState: ParserState, separatorColumn: number, firstCharacter: string): boolean => {
@@ -47,7 +51,11 @@ const isEnter = (parserState: ParserState, separatorColumn: number, firstCharact
     return false
   }
 
-  return characterIsR(parserState.lineAccumulator.charAt(separatorColumn + 5))
+  if (!characterIsR(parserState.lineAccumulator.charAt(separatorColumn + 5))) {
+    return false
+  }
+
+  return true
 }
 
 const isEnters = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number, separatorColumn: number, nextCharacter: string): boolean => {
@@ -59,7 +67,11 @@ const isEnters = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: n
     return false
   }
 
-  return characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 7))
+  if (!characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 7))) {
+    return false
+  }
+
+  return true
 }
 
 export const tryParseEntryAnimation = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number): boolean => {

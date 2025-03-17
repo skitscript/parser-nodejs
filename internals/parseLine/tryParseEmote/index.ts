@@ -22,7 +22,11 @@ const isAre = (parserState: ParserState, separatorColumn: number, secondCharacte
     return false
   }
 
-  return characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 4))
+  if (!characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 4))) {
+    return false
+  }
+
+  return true
 }
 
 const isAnd = (parserState: ParserState, separatorColumn: number, secondCharacter: string): boolean => {
@@ -34,7 +38,11 @@ const isAnd = (parserState: ParserState, separatorColumn: number, secondCharacte
     return false
   }
 
-  return characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 4))
+  if (!characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 4))) {
+    return false
+  }
+
+  return true
 }
 
 const isIs = (parserState: ParserState, separatorColumn: number, firstCharacter: string): boolean => {
@@ -46,7 +54,11 @@ const isIs = (parserState: ParserState, separatorColumn: number, firstCharacter:
     return false
   }
 
-  return characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 3))
+  if (!characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 3))) {
+    return false
+  }
+
+  return true
 }
 
 // TODO: Are there cases we can skip other parsers (e.g. is -> even if all other parsing fails, don't try).

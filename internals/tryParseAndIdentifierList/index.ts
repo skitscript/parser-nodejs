@@ -10,19 +10,23 @@ import type { ParserState } from '../ParserState'
 import { tryParseIdentifier } from '../tryParseIdentifier/index.js'
 
 const isAnd = (parserState: ParserState, separatorFromColumn: number): boolean => {
-  if (!characterIsA(parserState.lineAccumulator.charAt(separatorFromColumn + 1))) {
+  if (characterIsA(parserState.lineAccumulator.charAt(separatorFromColumn + 1))) {
+    if (characterIsN(parserState.lineAccumulator.charAt(separatorFromColumn + 2))) {
+      if (characterIsD(parserState.lineAccumulator.charAt(separatorFromColumn + 3))) {
+        if (characterIsWhitespace(parserState.lineAccumulator.charAt(separatorFromColumn + 4))) {
+          return true
+        } else {
+          return false
+        }
+      } else {
+        return false
+      }
+    } else {
+      return false
+    }
+  } else {
     return false
   }
-
-  if (!characterIsN(parserState.lineAccumulator.charAt(separatorFromColumn + 2))) {
-    return false
-  }
-
-  if (!characterIsD(parserState.lineAccumulator.charAt(separatorFromColumn + 3))) {
-    return false
-  }
-
-  return characterIsWhitespace(parserState.lineAccumulator.charAt(separatorFromColumn + 4))
 }
 
 export const tryParseAndIdentifierList = (

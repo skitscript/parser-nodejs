@@ -28,35 +28,47 @@ const isAnd = (parserState: ParserState, separatorColumn: number, firstCharacter
     return false
   }
 
-  return characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 4))
+  if (!characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 4))) {
+    return false
+  }
+
+  return true
 }
 
 const isExit = (parserState: ParserState, separatorColumn: number, firstCharacter: string): boolean => {
-  if (!characterIsE(firstCharacter)) {
+  if (characterIsE(firstCharacter)) {
+    if (characterIsX(parserState.lineAccumulator.charAt(separatorColumn + 2))) {
+      if (characterIsI(parserState.lineAccumulator.charAt(separatorColumn + 3))) {
+        if (characterIsT(parserState.lineAccumulator.charAt(separatorColumn + 4))) {
+          return true
+        } else {
+          return false
+        }
+      } else {
+        return false
+      }
+    } else {
+      return false
+    }
+  } else {
     return false
   }
-
-  if (!characterIsX(parserState.lineAccumulator.charAt(separatorColumn + 2))) {
-    return false
-  }
-
-  if (!characterIsI(parserState.lineAccumulator.charAt(separatorColumn + 3))) {
-    return false
-  }
-
-  return characterIsT(parserState.lineAccumulator.charAt(separatorColumn + 4))
 }
 
 const isExits = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number, separatorColumn: number): boolean => {
-  if (separatorColumn >= indexOfLastNonWhiteSpaceCharacter - 5) {
+  if (separatorColumn < indexOfLastNonWhiteSpaceCharacter - 5) {
+    if (characterIsS(parserState.lineAccumulator.charAt(separatorColumn + 5))) {
+      if (characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 6))) {
+        return true
+      } else {
+        return false
+      }
+    } else {
+      return false
+    }
+  } else {
     return false
   }
-
-  if (!characterIsS(parserState.lineAccumulator.charAt(separatorColumn + 5))) {
-    return false
-  }
-
-  return characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 6))
 }
 
 export const tryParseExitAnimation = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number): boolean => {

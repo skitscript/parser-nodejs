@@ -25,13 +25,25 @@ export const wordIsInvalidInIdentifiers = (parserState: ParserState, fromColumn:
       const firstCharacter = parserState.lineAccumulator.charAt(fromColumn)
 
       if (characterIsI(firstCharacter)) {
-        return characterIsS(parserState.lineAccumulator.charAt(fromColumn + 1))
+        if (characterIsS(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          return true
+        } else {
+          return false
+        }
       } else if (characterIsO(firstCharacter)) {
-        return characterIsR(parserState.lineAccumulator.charAt(fromColumn + 1))
-      } else if (!characterIsT(firstCharacter)) {
-        return false
+        if (characterIsR(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          return true
+        } else {
+          return true
+        }
+      } else if (characterIsT(firstCharacter)) {
+        if (characterIsO(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          return true
+        } else {
+          return false
+        }
       } else {
-        return characterIsO(parserState.lineAccumulator.charAt(fromColumn + 1))
+        return false
       }
     }
 
@@ -43,36 +55,44 @@ export const wordIsInvalidInIdentifiers = (parserState: ParserState, fromColumn:
         const secondCharacter = parserState.lineAccumulator.charAt(fromColumn + 1)
 
         if (characterIsN(secondCharacter)) {
-          return characterIsD(parserState.lineAccumulator.charAt(fromColumn + 2))
-        }
-
-        if (characterIsR(secondCharacter)) {
-          return characterIsE(parserState.lineAccumulator.charAt(fromColumn + 2))
+          if (characterIsD(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+            return true
+          } else {
+            return false
+          }
+        } else if (characterIsR(secondCharacter)) {
+          if (characterIsE(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+            return true
+          } else {
+            return false
+          }
         }
 
         return false
       } else if (characterIsN(firstCharacter)) {
-        const secondCharacter = parserState.lineAccumulator.charAt(fromColumn + 1)
-
-        if (characterIsO(secondCharacter)) {
-          return characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2))
-        } else {
-          if (!characterIsE(secondCharacter)) {
+        if (characterIsO(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          if (characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+            return true
+          } else {
             return false
           }
-
-          return characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2))
+        } else {
+          return false
         }
       } else {
-        if (!characterIsS(firstCharacter)) {
+        if (characterIsS(firstCharacter)) {
+          if (characterIsE(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+            if (characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+              return true
+            } else {
+              return false
+            }
+          } else {
+            return false
+          }
+        } else {
           return false
         }
-
-        if (!characterIsE(parserState.lineAccumulator.charAt(fromColumn + 1))) {
-          return false
-        }
-
-        return characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2))
       }
     }
 
@@ -80,39 +100,51 @@ export const wordIsInvalidInIdentifiers = (parserState: ParserState, fromColumn:
       const firstCharacter = parserState.lineAccumulator.charAt(fromColumn)
 
       if (characterIsE(firstCharacter)) {
-        if (!characterIsX(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+        if (characterIsX(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          if (characterIsI(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+            if (characterIsT(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+              return true
+            } else {
+              return false
+            }
+          } else {
+            return false
+          }
+        } else {
           return false
         }
-
-        if (!characterIsI(parserState.lineAccumulator.charAt(fromColumn + 2))) {
-          return false
-        }
-
-        return characterIsT(parserState.lineAccumulator.charAt(fromColumn + 3))
       } else if (characterIsJ(firstCharacter)) {
-        if (!characterIsU(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+        if (characterIsU(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          if (characterIsM(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+            if (characterIsP(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+              return true
+            } else {
+              return false
+            }
+          } else {
+            return false
+          }
+        } else {
           return false
         }
-
-        if (!characterIsM(parserState.lineAccumulator.charAt(fromColumn + 2))) {
-          return false
-        }
-
-        return characterIsP(parserState.lineAccumulator.charAt(fromColumn + 3))
       } else {
-        if (!characterIsW(firstCharacter)) {
+        if (characterIsW(firstCharacter)) {
+          if (characterIsH(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+            if (characterIsE(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+              if (characterIsN(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+                return true
+              } else {
+                return false
+              }
+            } else {
+              return false
+            }
+          } else {
+            return false
+          }
+        } else {
           return false
         }
-
-        if (!characterIsH(parserState.lineAccumulator.charAt(fromColumn + 1))) {
-          return false
-        }
-
-        if (!characterIsE(parserState.lineAccumulator.charAt(fromColumn + 2))) {
-          return false
-        }
-
-        return characterIsN(parserState.lineAccumulator.charAt(fromColumn + 3))
       }
     }
 
@@ -120,88 +152,106 @@ export const wordIsInvalidInIdentifiers = (parserState: ParserState, fromColumn:
       const firstCharacter = parserState.lineAccumulator.charAt(fromColumn)
 
       if (characterIsC(firstCharacter)) {
-        if (!characterIsL(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+        if (characterIsL(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          if (characterIsE(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+            if (characterIsA(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+              if (characterIsR(parserState.lineAccumulator.charAt(fromColumn + 4))) {
+                return true
+              } else {
+                return false
+              }
+            } else {
+              return false
+            }
+          } else {
+            return false
+          }
+        } else {
           return false
         }
-
-        if (!characterIsE(parserState.lineAccumulator.charAt(fromColumn + 2))) {
-          return false
-        }
-
-        if (!characterIsA(parserState.lineAccumulator.charAt(fromColumn + 3))) {
-          return false
-        }
-
-        return characterIsR(parserState.lineAccumulator.charAt(fromColumn + 4))
       } else if (characterIsE(firstCharacter)) {
         const secondCharacter = parserState.lineAccumulator.charAt(fromColumn + 1)
 
         if (characterIsN(secondCharacter)) {
-          if (!characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+          if (characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+            if (characterIsE(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+              if (characterIsR(parserState.lineAccumulator.charAt(fromColumn + 4))) {
+                return true
+              } else {
+                return false
+              }
+            } else {
+              return false
+            }
+          } else {
             return false
           }
-
-          if (!characterIsE(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+        } else if (characterIsX(secondCharacter)) {
+          if (characterIsI(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+            if (characterIsT(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+              if (characterIsS(parserState.lineAccumulator.charAt(fromColumn + 4))) {
+                return true
+              } else {
+                return false
+              }
+            } else {
+              return false
+            }
+          } else {
             return false
           }
-
-          return characterIsR(parserState.lineAccumulator.charAt(fromColumn + 4))
         } else {
-          if (!characterIsX(secondCharacter)) {
-            return false
-          }
-
-          if (!characterIsI(parserState.lineAccumulator.charAt(fromColumn + 2))) {
-            return false
-          }
-
-          if (!characterIsT(parserState.lineAccumulator.charAt(fromColumn + 3))) {
-            return false
-          }
-
-          return characterIsS(parserState.lineAccumulator.charAt(fromColumn + 4))
+          return false
         }
       } else if (characterIsL(firstCharacter)) {
-        if (!characterIsE(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+        if (characterIsE(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          if (characterIsA(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+            if (characterIsD(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+              if (characterIsS(parserState.lineAccumulator.charAt(fromColumn + 4))) {
+                return true
+              } else {
+                return false
+              }
+            } else {
+              return false
+            }
+          } else {
+            return false
+          }
+        } else {
           return false
         }
-
-        if (!characterIsA(parserState.lineAccumulator.charAt(fromColumn + 2))) {
-          return false
-        }
-
-        if (!characterIsD(parserState.lineAccumulator.charAt(fromColumn + 3))) {
-          return false
-        }
-
-        return characterIsS(parserState.lineAccumulator.charAt(fromColumn + 4))
       } else {
         return false
       }
     }
 
     case 6:
-      if (!characterIsE(parserState.lineAccumulator.charAt(fromColumn))) {
+      if (characterIsE(parserState.lineAccumulator.charAt(fromColumn))) {
+        if (characterIsN(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          if (characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+            if (characterIsE(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+              if (characterIsR(parserState.lineAccumulator.charAt(fromColumn + 4))) {
+                if (characterIsS(parserState.lineAccumulator.charAt(fromColumn + 5))) {
+                  return true
+                } else {
+                  return false
+                }
+              } else {
+                return false
+              }
+            } else {
+              return false
+            }
+          } else {
+            return false
+          }
+        } else {
+          return false
+        }
+      } else {
         return false
       }
-
-      if (!characterIsN(parserState.lineAccumulator.charAt(fromColumn + 1))) {
-        return false
-      }
-
-      if (!characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2))) {
-        return false
-      }
-
-      if (!characterIsE(parserState.lineAccumulator.charAt(fromColumn + 3))) {
-        return false
-      }
-
-      if (!characterIsR(parserState.lineAccumulator.charAt(fromColumn + 4))) {
-        return false
-      }
-
-      return characterIsS(parserState.lineAccumulator.charAt(fromColumn + 5))
 
     default:
       return false
