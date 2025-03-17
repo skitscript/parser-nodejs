@@ -211,6 +211,8 @@ export const tryParseEntryAnimation = (parserState: ParserState, indexOfLastNonW
               })
             }
           }
+
+          return true
         } else if (characterIsWhitespace(nextCharacter)) {
           if (!foundAnd) {
             return false
@@ -340,13 +342,13 @@ export const tryParseEntryAnimation = (parserState: ParserState, indexOfLastNonW
               checkIdentifierConsistency(parserState, 'entryAnimation', animation)
             }
           }
-        }
 
-        return true
+          return true
+        }
       }
-    } else {
-      characterToColumn = separatorColumn
     }
+
+    characterToColumn = separatorColumn
 
     if (separatorColumn === indexOfLastNonWhiteSpaceCharacter - 4) {
       return false
