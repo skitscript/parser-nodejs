@@ -53,6 +53,7 @@ const menuOptionRegex = new RegExp(
   'i'
 )
 export const tryParseMenuOption = (parserState: ParserState): boolean => {
+  // TODO: Remove regex
   const menuOptionMatch = menuOptionRegex.exec(parserState.lineAccumulator)
 
   if (menuOptionMatch !== null) {

@@ -56,7 +56,7 @@ const isExit = (parserState: ParserState, separatorColumn: number, firstCharacte
 }
 
 const isExits = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number, separatorColumn: number): boolean => {
-  if (separatorColumn < indexOfLastNonWhiteSpaceCharacter - 5) {
+  if (separatorColumn < indexOfLastNonWhiteSpaceCharacter - 7) {
     if (characterIsS(parserState.lineAccumulator.charAt(separatorColumn + 5))) {
       if (characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 6))) {
         return true
@@ -70,6 +70,8 @@ const isExits = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: nu
     return false
   }
 }
+
+// TODO: Is there a test case for "ONE CHARACTER EXIT ANIMATION" or "MANY AND CHARACTER EXITS ANIMATION"
 
 export const tryParseExitAnimation = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number): boolean => {
   if (indexOfLastNonWhiteSpaceCharacter < 7) {
@@ -343,7 +345,7 @@ export const tryParseExitAnimation = (parserState: ParserState, indexOfLastNonWh
       characterToColumn = separatorColumn
     }
 
-    if (separatorColumn === indexOfLastNonWhiteSpaceCharacter - 4) {
+    if (separatorColumn === indexOfLastNonWhiteSpaceCharacter - 7) {
       return false
     }
 

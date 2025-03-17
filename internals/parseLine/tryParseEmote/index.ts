@@ -76,7 +76,7 @@ export const tryParseEmote = (parserState: ParserState, indexOfLastNonWhiteSpace
       const firstCharacter = parserState.lineAccumulator.charAt(separatorColumn + 1)
 
       if (characterIsA(firstCharacter)) {
-        if (separatorColumn <= indexOfLastNonWhiteSpaceCharacter - 4) {
+        if (separatorColumn <= indexOfLastNonWhiteSpaceCharacter - 6) {
           const secondCharacter = parserState.lineAccumulator.charAt(separatorColumn + 2)
 
           if (isAre(parserState, separatorColumn, secondCharacter)) {
@@ -206,7 +206,7 @@ export const tryParseEmote = (parserState: ParserState, indexOfLastNonWhiteSpace
       characterToColumn = separatorColumn
     }
 
-    if (separatorColumn === indexOfLastNonWhiteSpaceCharacter - 3) {
+    if (separatorColumn === indexOfLastNonWhiteSpaceCharacter - 6) {
       return false
     }
 

@@ -49,6 +49,7 @@ const speakerRegex = new RegExp(
 )
 
 export const tryParseSpeaker = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number): boolean => {
+  // TODO: Remove regex
   const speakerMatch = speakerRegex.exec(parserState.lineAccumulator)
 
   if (speakerMatch !== null) {

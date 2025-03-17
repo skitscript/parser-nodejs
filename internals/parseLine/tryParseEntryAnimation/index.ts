@@ -59,7 +59,6 @@ const isEnter = (parserState: ParserState, separatorColumn: number, firstCharact
 }
 
 const isEnters = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number, separatorColumn: number, nextCharacter: string): boolean => {
-  // TODO: Double check all of these limits, make sure they're correctly strict.
   if (separatorColumn >= indexOfLastNonWhiteSpaceCharacter - 8) {
     return false
   }
@@ -75,6 +74,7 @@ const isEnters = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: n
   return true
 }
 
+// TODO: Is there a test case for "ONE CHARACTER ENTER ANIMATION" or "MANY AND CHARACTER ENTERS ANIMATION"
 export const tryParseEntryAnimation = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number): boolean => {
   if (indexOfLastNonWhiteSpaceCharacter < 8) {
     return false
@@ -351,7 +351,7 @@ export const tryParseEntryAnimation = (parserState: ParserState, indexOfLastNonW
 
     characterToColumn = separatorColumn
 
-    if (separatorColumn === indexOfLastNonWhiteSpaceCharacter - 4) {
+    if (separatorColumn === indexOfLastNonWhiteSpaceCharacter - 7) {
       return false
     }
 

@@ -52,6 +52,7 @@ const jumpRegex = new RegExp(
 )
 
 export const tryParseJump = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number): boolean => {
+  // TODO: Remove regex
   const jumpMatch = jumpRegex.exec(parserState.lineAccumulator)
 
   if (jumpMatch !== null) {
