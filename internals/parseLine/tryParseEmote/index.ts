@@ -61,9 +61,7 @@ const isIs = (parserState: ParserState, separatorColumn: number, firstCharacter:
   return true
 }
 
-// TODO: Are there cases we can skip other parsers (e.g. is -> even if all other parsing fails, don't try).
 // TODO: Is there a test case for "ONE CHARACTER ARE EMOTE" or "MANY AND CHARACTER IS EMOTE"
-// TODO: Test case with minimal white space, all one-letter identifiers
 export const tryParseEmote = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number): boolean => {
   if (indexOfLastNonWhiteSpaceCharacter < 6) {
     return false
@@ -89,7 +87,6 @@ export const tryParseEmote = (parserState: ParserState, indexOfLastNonWhiteSpace
             let emoteFromColumn = separatorColumn + 4
 
             while (true) {
-              // TODO looks wrong
               if (emoteFromColumn === indexOfLastNonWhiteSpaceCharacter) {
                 return false
               }
@@ -157,7 +154,6 @@ export const tryParseEmote = (parserState: ParserState, indexOfLastNonWhiteSpace
         let emoteFromColumn = separatorColumn + 4
 
         while (true) {
-        // TODO: looks wrong
           if (emoteFromColumn === indexOfLastNonWhiteSpaceCharacter) {
             return false
           }
