@@ -14,6 +14,54 @@ import { tryParseAndIdentifierList } from '../../tryParseAndIdentifierList/index
 import { tryParseIdentifier } from '../../tryParseIdentifier/index.js'
 import { checkReachable } from '../checkReachable/index.js'
 
+const isAnd = (parserState: ParserState, separatorColumn: number, firstCharacter: string): boolean => {
+  if (!characterIsA(firstCharacter)) {
+    return false
+  }
+
+  if (!characterIsN(parserState.lineAccumulator.charAt(separatorColumn + 2))) {
+    return false
+  }
+
+  if (!characterIsD(parserState.lineAccumulator.charAt(separatorColumn + 3))) {
+    return false
+  }
+
+  return characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 4))
+}
+
+const isEnter = (parserState: ParserState, separatorColumn: number, firstCharacter: string): boolean => {
+  if (!characterIsE(firstCharacter)) {
+    return false
+  }
+
+  if (!characterIsN(parserState.lineAccumulator.charAt(separatorColumn + 2))) {
+    return false
+  }
+
+  if (!characterIsT(parserState.lineAccumulator.charAt(separatorColumn + 3))) {
+    return false
+  }
+
+  if (!characterIsE(parserState.lineAccumulator.charAt(separatorColumn + 4))) {
+    return false
+  }
+
+  return characterIsR(parserState.lineAccumulator.charAt(separatorColumn + 5))
+}
+
+const isEnters = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number, separatorColumn: number, nextCharacter: string): boolean => {
+  if (separatorColumn >= indexOfLastNonWhiteSpaceCharacter - 4) {
+    return false
+  }
+
+  if (!characterIsS(nextCharacter)) {
+    return false
+  }
+
+  return characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 7))
+}
+
 export const tryParseEntryAnimation = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number): boolean => {
   if (indexOfLastNonWhiteSpaceCharacter < 8) {
     return false
@@ -26,282 +74,263 @@ export const tryParseEntryAnimation = (parserState: ParserState, indexOfLastNonW
   while (true) {
     if (characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn))) {
       const firstCharacter = parserState.lineAccumulator.charAt(separatorColumn + 1)
-      switch (true) {
-        case characterIsA(firstCharacter):
-          if (
-            characterIsN(parserState.lineAccumulator.charAt(separatorColumn + 2)) &&
-            characterIsD(parserState.lineAccumulator.charAt(separatorColumn + 3)) &&
-        characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 4))) {
-            foundAnd = true
+
+      if (isAnd(parserState, separatorColumn, firstCharacter)) {
+        foundAnd = true
+      } else if (isEnter(parserState, separatorColumn, firstCharacter)) {
+        const nextCharacter = parserState.lineAccumulator.charAt(separatorColumn + 6)
+
+        if (isEnters(parserState, indexOfLastNonWhiteSpaceCharacter, separatorColumn, nextCharacter)) {
+          if (foundAnd) {
+            return false
           }
-          break
 
-        case characterIsE(firstCharacter):
-          if (
-            characterIsN(parserState.lineAccumulator.charAt(separatorColumn + 2)) &&
-              characterIsT(parserState.lineAccumulator.charAt(separatorColumn + 3)) &&
-              characterIsE(parserState.lineAccumulator.charAt(separatorColumn + 4)) &&
-              characterIsR(parserState.lineAccumulator.charAt(separatorColumn + 5))
-          ) {
-            const nextCharacter = parserState.lineAccumulator.charAt(separatorColumn + 6)
+          let animationFromColumn: number = -1
+          let animationToColumn: number = -1
+          let foundComma = false
+          let emoteFrom: number = -1
+          let emoteTo: number = -1
 
-            if (
-              separatorColumn < indexOfLastNonWhiteSpaceCharacter - 4 &&
-                  characterIsS(nextCharacter) &&
-                  characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 7))
-            ) {
-              if (foundAnd) {
-                return false
-              }
+          for (let index = separatorColumn + 8; index < indexOfLastNonWhiteSpaceCharacter; index++) {
+            const character = parserState.lineAccumulator.charAt(index)
 
-              let animationFromColumn: number = -1
-              let animationToColumn: number = -1
-              let foundComma = false
-              let emoteFrom: number = -1
-              let emoteTo: number = -1
-
-              for (let index = separatorColumn + 8; index < indexOfLastNonWhiteSpaceCharacter; index++) {
-                const character = parserState.lineAccumulator.charAt(index)
-
-                if (characterIsWhitespace(character)) {
-                  continue
-                }
-
-                if (characterIsComma(character)) {
-                  if (foundComma) {
-                    return false
-                  }
-
-                  if (animationFromColumn === -1) {
-                    return false
-                  }
-
-                  foundComma = true
-                } else if (foundComma) {
-                  if (emoteFrom === -1) {
-                    emoteFrom = index
-                  }
-
-                  emoteTo = index
-                } else {
-                  if (animationFromColumn === -1) {
-                    animationFromColumn = index
-                  }
-
-                  animationToColumn = index
-                }
-              }
-
-              if (foundComma) {
-                if (emoteFrom === -1) {
-                  return false
-                }
-
-                const character = tryParseIdentifier(parserState, 0, characterToColumn)
-
-                if (character === null) {
-                  return false
-                }
-
-                const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn)
-
-                if (animation === null) {
-                  return false
-                }
-
-                const emote = tryParseIdentifier(parserState, emoteFrom, emoteTo)
-
-                if (emote === null) {
-                  return false
-                }
-
-                addIdentifierToIndex(parserState, character, 'character', 'implicitDeclaration')
-                addIdentifierToIndex(parserState, animation, 'entryAnimation', 'implicitDeclaration')
-                addIdentifierToIndex(parserState, emote, 'emote', 'implicitDeclaration')
-
-                if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
-                  checkIdentifierConsistency(parserState, 'character', character)
-                  checkIdentifierConsistency(parserState, 'entryAnimation', animation)
-                  checkIdentifierConsistency(parserState, 'emote', emote)
-
-                  parserState.instructions.push({
-                    type: 'entryAnimation',
-                    line: parserState.line,
-                    character,
-                    animation
-                  }, {
-                    type: 'emote',
-                    line: parserState.line,
-                    character,
-                    emote
-                  })
-                }
-              } else {
-                if (animationFromColumn === -1) {
-                  return false
-                }
-
-                const character = tryParseIdentifier(parserState, 0, characterToColumn)
-
-                if (character === null) {
-                  return false
-                }
-
-                const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn)
-
-                if (animation === null) {
-                  return false
-                }
-
-                addIdentifierToIndex(parserState, character, 'character', 'implicitDeclaration')
-                addIdentifierToIndex(parserState, animation, 'entryAnimation', 'implicitDeclaration')
-
-                if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
-                  checkIdentifierConsistency(parserState, 'character', character)
-                  checkIdentifierConsistency(parserState, 'entryAnimation', animation)
-
-                  parserState.instructions.push({
-                    type: 'entryAnimation',
-                    line: parserState.line,
-                    character,
-                    animation
-                  })
-                }
-              }
-            } else if (characterIsWhitespace(nextCharacter)) {
-              if (!foundAnd) {
-                return false
-              }
-
-              let animationFromColumn: number = -1
-              let animationToColumn: number = -1
-              let foundComma = false
-              let emoteFrom: number = -1
-              let emoteTo: number = -1
-
-              for (let index = separatorColumn + 7; index < indexOfLastNonWhiteSpaceCharacter; index++) {
-                const character = parserState.lineAccumulator.charAt(index)
-
-                if (characterIsWhitespace(character)) {
-                  continue
-                }
-
-                if (characterIsComma(character)) {
-                  if (foundComma) {
-                    return false
-                  }
-
-                  if (animationFromColumn === -1) {
-                    return false
-                  }
-
-                  foundComma = true
-                } else if (foundComma) {
-                  if (emoteFrom === -1) {
-                    emoteFrom = index
-                  }
-
-                  emoteTo = index
-                } else {
-                  if (animationFromColumn === -1) {
-                    animationFromColumn = index
-                  }
-
-                  animationToColumn = index
-                }
-              }
-
-              if (foundComma) {
-                if (emoteFrom === -1) {
-                  return false
-                }
-
-                const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn)
-
-                if (animation === null) {
-                  return false
-                }
-
-                const emote = tryParseIdentifier(parserState, emoteFrom, emoteTo)
-
-                if (emote === null) {
-                  return false
-                }
-
-                const characters = tryParseAndIdentifierList(parserState, 0, characterToColumn, 'character')
-
-                if (characters === null) {
-                  return false
-                }
-
-                addIdentifierToIndex(parserState, animation, 'entryAnimation', 'implicitDeclaration')
-                addIdentifierToIndex(parserState, emote, 'emote', 'implicitDeclaration')
-
-                if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
-                  for (const character of characters) {
-                    checkIdentifierConsistency(parserState, 'character', character)
-                  }
-
-                  checkIdentifierConsistency(parserState, 'entryAnimation', animation)
-                  checkIdentifierConsistency(parserState, 'emote', emote)
-
-                  for (const character of characters) {
-                    parserState.instructions.push({
-                      type: 'entryAnimation',
-                      line: parserState.line,
-                      character,
-                      animation
-                    })
-                  }
-
-                  for (const character of characters) {
-                    parserState.instructions.push({
-                      type: 'emote',
-                      line: parserState.line,
-                      character,
-                      emote
-                    })
-                  }
-                }
-              } else {
-                if (animationFromColumn === -1) {
-                  return false
-                }
-
-                const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn)
-
-                if (animation === null) {
-                  return false
-                }
-
-                const characters = tryParseAndIdentifierList(parserState, 0, characterToColumn, 'character')
-
-                if (characters === null) {
-                  return false
-                }
-
-                addIdentifierToIndex(parserState, animation, 'entryAnimation', 'implicitDeclaration')
-
-                if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
-                  for (const character of characters) {
-                    parserState.instructions.push({
-                      type: 'entryAnimation',
-                      line: parserState.line,
-                      character,
-                      animation
-                    })
-
-                    checkIdentifierConsistency(parserState, 'character', character)
-                  }
-
-                  checkIdentifierConsistency(parserState, 'entryAnimation', animation)
-                }
-              }
+            if (characterIsWhitespace(character)) {
+              continue
             }
 
-            return true
+            if (characterIsComma(character)) {
+              if (foundComma) {
+                return false
+              }
+
+              if (animationFromColumn === -1) {
+                return false
+              }
+
+              foundComma = true
+            } else if (foundComma) {
+              if (emoteFrom === -1) {
+                emoteFrom = index
+              }
+
+              emoteTo = index
+            } else {
+              if (animationFromColumn === -1) {
+                animationFromColumn = index
+              }
+
+              animationToColumn = index
+            }
           }
-          break
+
+          if (foundComma) {
+            if (emoteFrom === -1) {
+              return false
+            }
+
+            const character = tryParseIdentifier(parserState, 0, characterToColumn)
+
+            if (character === null) {
+              return false
+            }
+
+            const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn)
+
+            if (animation === null) {
+              return false
+            }
+
+            const emote = tryParseIdentifier(parserState, emoteFrom, emoteTo)
+
+            if (emote === null) {
+              return false
+            }
+
+            addIdentifierToIndex(parserState, character, 'character', 'implicitDeclaration')
+            addIdentifierToIndex(parserState, animation, 'entryAnimation', 'implicitDeclaration')
+            addIdentifierToIndex(parserState, emote, 'emote', 'implicitDeclaration')
+
+            if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
+              checkIdentifierConsistency(parserState, 'character', character)
+              checkIdentifierConsistency(parserState, 'entryAnimation', animation)
+              checkIdentifierConsistency(parserState, 'emote', emote)
+
+              parserState.instructions.push({
+                type: 'entryAnimation',
+                line: parserState.line,
+                character,
+                animation
+              }, {
+                type: 'emote',
+                line: parserState.line,
+                character,
+                emote
+              })
+            }
+          } else {
+            if (animationFromColumn === -1) {
+              return false
+            }
+
+            const character = tryParseIdentifier(parserState, 0, characterToColumn)
+
+            if (character === null) {
+              return false
+            }
+
+            const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn)
+
+            if (animation === null) {
+              return false
+            }
+
+            addIdentifierToIndex(parserState, character, 'character', 'implicitDeclaration')
+            addIdentifierToIndex(parserState, animation, 'entryAnimation', 'implicitDeclaration')
+
+            if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
+              checkIdentifierConsistency(parserState, 'character', character)
+              checkIdentifierConsistency(parserState, 'entryAnimation', animation)
+
+              parserState.instructions.push({
+                type: 'entryAnimation',
+                line: parserState.line,
+                character,
+                animation
+              })
+            }
+          }
+        } else if (characterIsWhitespace(nextCharacter)) {
+          if (!foundAnd) {
+            return false
+          }
+
+          let animationFromColumn: number = -1
+          let animationToColumn: number = -1
+          let foundComma = false
+          let emoteFrom: number = -1
+          let emoteTo: number = -1
+
+          for (let index = separatorColumn + 7; index < indexOfLastNonWhiteSpaceCharacter; index++) {
+            const character = parserState.lineAccumulator.charAt(index)
+
+            if (characterIsWhitespace(character)) {
+              continue
+            }
+
+            if (characterIsComma(character)) {
+              if (foundComma) {
+                return false
+              }
+
+              if (animationFromColumn === -1) {
+                return false
+              }
+
+              foundComma = true
+            } else if (foundComma) {
+              if (emoteFrom === -1) {
+                emoteFrom = index
+              }
+
+              emoteTo = index
+            } else {
+              if (animationFromColumn === -1) {
+                animationFromColumn = index
+              }
+
+              animationToColumn = index
+            }
+          }
+
+          if (foundComma) {
+            if (emoteFrom === -1) {
+              return false
+            }
+
+            const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn)
+
+            if (animation === null) {
+              return false
+            }
+
+            const emote = tryParseIdentifier(parserState, emoteFrom, emoteTo)
+
+            if (emote === null) {
+              return false
+            }
+
+            const characters = tryParseAndIdentifierList(parserState, 0, characterToColumn, 'character')
+
+            if (characters === null) {
+              return false
+            }
+
+            addIdentifierToIndex(parserState, animation, 'entryAnimation', 'implicitDeclaration')
+            addIdentifierToIndex(parserState, emote, 'emote', 'implicitDeclaration')
+
+            if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
+              for (const character of characters) {
+                checkIdentifierConsistency(parserState, 'character', character)
+              }
+
+              checkIdentifierConsistency(parserState, 'entryAnimation', animation)
+              checkIdentifierConsistency(parserState, 'emote', emote)
+
+              for (const character of characters) {
+                parserState.instructions.push({
+                  type: 'entryAnimation',
+                  line: parserState.line,
+                  character,
+                  animation
+                })
+              }
+
+              for (const character of characters) {
+                parserState.instructions.push({
+                  type: 'emote',
+                  line: parserState.line,
+                  character,
+                  emote
+                })
+              }
+            }
+          } else {
+            if (animationFromColumn === -1) {
+              return false
+            }
+
+            const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn)
+
+            if (animation === null) {
+              return false
+            }
+
+            const characters = tryParseAndIdentifierList(parserState, 0, characterToColumn, 'character')
+
+            if (characters === null) {
+              return false
+            }
+
+            addIdentifierToIndex(parserState, animation, 'entryAnimation', 'implicitDeclaration')
+
+            if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
+              for (const character of characters) {
+                parserState.instructions.push({
+                  type: 'entryAnimation',
+                  line: parserState.line,
+                  character,
+                  animation
+                })
+
+                checkIdentifierConsistency(parserState, 'character', character)
+              }
+
+              checkIdentifierConsistency(parserState, 'entryAnimation', animation)
+            }
+          }
+        }
+
+        return true
       }
     } else {
       characterToColumn = separatorColumn
