@@ -13,6 +13,42 @@ import { tryParseAndIdentifierList } from '../../tryParseAndIdentifierList/index
 import { tryParseIdentifier } from '../../tryParseIdentifier/index.js'
 import { checkReachable } from '../checkReachable/index.js'
 
+const isAre = (parserState: ParserState, separatorColumn: number, secondCharacter: string): boolean => {
+  if (!characterIsR(secondCharacter)) {
+    return false
+  }
+
+  if (!characterIsE(parserState.lineAccumulator.charAt(separatorColumn + 3))) {
+    return false
+  }
+
+  return characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 4))
+}
+
+const isAnd = (parserState: ParserState, separatorColumn: number, secondCharacter: string): boolean => {
+  if (!characterIsN(secondCharacter)) {
+    return false
+  }
+
+  if (!characterIsD(parserState.lineAccumulator.charAt(separatorColumn + 3))) {
+    return false
+  }
+
+  return characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 4))
+}
+
+const isIs = (parserState: ParserState, separatorColumn: number, firstCharacter: string): boolean => {
+  if (!characterIsI(firstCharacter)) {
+    return false
+  }
+
+  if (!characterIsS(parserState.lineAccumulator.charAt(separatorColumn + 2))) {
+    return false
+  }
+
+  return characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 3))
+}
+
 // TODO: Are there cases we can skip other parsers (e.g. is -> even if all other parsing fails, don't try).
 // TODO: Is there a test case for "ONE CHARACTER ARE EMOTE" or "MANY AND CHARACTER IS EMOTE"
 // TODO: Test case with minimal white space, all one-letter identifiers
@@ -29,103 +65,19 @@ export const tryParseEmote = (parserState: ParserState, indexOfLastNonWhiteSpace
     if (characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn))) {
       const firstCharacter = parserState.lineAccumulator.charAt(separatorColumn + 1)
 
-      switch (true) {
-        case characterIsA(firstCharacter):
-          if (separatorColumn <= indexOfLastNonWhiteSpaceCharacter - 4) {
-            const secondCharacter = parserState.lineAccumulator.charAt(separatorColumn + 2)
+      if (characterIsA(firstCharacter)) {
+        if (separatorColumn <= indexOfLastNonWhiteSpaceCharacter - 4) {
+          const secondCharacter = parserState.lineAccumulator.charAt(separatorColumn + 2)
 
-            switch (true) {
-              case characterIsR(secondCharacter):
-                if (characterIsE(parserState.lineAccumulator.charAt(separatorColumn + 3)) &&
-                characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 4))) {
-                  if (!foundAnd) {
-                    return false
-                  }
-
-                  let emoteFromColumn = separatorColumn + 4
-
-                  while (true) {
-                    // TODO looks wrong
-                    if (emoteFromColumn === indexOfLastNonWhiteSpaceCharacter) {
-                      return false
-                    }
-
-                    if (!characterIsWhitespace(parserState.lineAccumulator.charAt(emoteFromColumn))) {
-                      break
-                    }
-
-                    emoteFromColumn++
-                  }
-
-                  let emoteToColumn = emoteFromColumn
-
-                  for (let index = emoteFromColumn + 1; index < indexOfLastNonWhiteSpaceCharacter; index++) {
-                    if (!characterIsWhitespace(parserState.lineAccumulator.charAt(index))) {
-                      emoteToColumn = index
-                    }
-                  }
-
-                  const emote = tryParseIdentifier(parserState, emoteFromColumn, emoteToColumn)
-
-                  if (emote === null) {
-                    return false
-                  }
-
-                  // TODO: Avoid side effects if unreachable, but still check whether parsable!
-
-                  const characters = tryParseAndIdentifierList(parserState, 0, characterToColumn, 'character')
-
-                  if (characters === null) {
-                    return false
-                  }
-
-                  addIdentifierToIndex(parserState, emote, 'emote', 'implicitDeclaration')
-
-                  if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
-                    for (const character of characters) {
-                      checkIdentifierConsistency(parserState, 'character', character)
-
-                      parserState.instructions.push({
-                        type: 'emote',
-                        line: parserState.line,
-                        character,
-                        emote
-                      })
-                    }
-
-                    checkIdentifierConsistency(parserState, 'emote', emote)
-                  }
-
-                  return true
-                }
-                break
-
-              case characterIsN(secondCharacter):
-                if (characterIsD(parserState.lineAccumulator.charAt(separatorColumn + 3)) &&
-                characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 4))) {
-                  if (foundAnd) {
-                    return false
-                  }
-
-                  foundAnd = true
-                }
-                break
-            }
-          }
-          break
-
-        case characterIsI(firstCharacter):
-          if (
-            characterIsS(parserState.lineAccumulator.charAt(separatorColumn + 2)) &&
-          characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 3))) {
-            if (foundAnd) {
+          if (isAre(parserState, separatorColumn, secondCharacter)) {
+            if (!foundAnd) {
               return false
             }
 
             let emoteFromColumn = separatorColumn + 4
 
             while (true) {
-              // TODO: looks wrong
+              // TODO looks wrong
               if (emoteFromColumn === indexOfLastNonWhiteSpaceCharacter) {
                 return false
               }
@@ -135,12 +87,6 @@ export const tryParseEmote = (parserState: ParserState, indexOfLastNonWhiteSpace
               }
 
               emoteFromColumn++
-            }
-
-            const character = tryParseIdentifier(parserState, 0, characterToColumn)
-
-            if (character === null) {
-              return false
             }
 
             let emoteToColumn = emoteFromColumn
@@ -157,24 +103,96 @@ export const tryParseEmote = (parserState: ParserState, indexOfLastNonWhiteSpace
               return false
             }
 
-            addIdentifierToIndex(parserState, character, 'character', 'implicitDeclaration')
+            // TODO: Avoid side effects if unreachable, but still check whether parsable!
+
+            const characters = tryParseAndIdentifierList(parserState, 0, characterToColumn, 'character')
+
+            if (characters === null) {
+              return false
+            }
+
             addIdentifierToIndex(parserState, emote, 'emote', 'implicitDeclaration')
 
             if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
-              checkIdentifierConsistency(parserState, 'character', character)
-              checkIdentifierConsistency(parserState, 'emote', emote)
+              for (const character of characters) {
+                checkIdentifierConsistency(parserState, 'character', character)
 
-              parserState.instructions.push({
-                type: 'emote',
-                line: parserState.line,
-                character,
-                emote
-              })
+                parserState.instructions.push({
+                  type: 'emote',
+                  line: parserState.line,
+                  character,
+                  emote
+                })
+              }
+
+              checkIdentifierConsistency(parserState, 'emote', emote)
             }
 
             return true
+          } else if (isAnd(parserState, separatorColumn, secondCharacter)) {
+            if (foundAnd) {
+              return false
+            }
+
+            foundAnd = true
           }
-          break
+        }
+      } else if (isIs(parserState, separatorColumn, firstCharacter)) {
+        if (foundAnd) {
+          return false
+        }
+
+        let emoteFromColumn = separatorColumn + 4
+
+        while (true) {
+        // TODO: looks wrong
+          if (emoteFromColumn === indexOfLastNonWhiteSpaceCharacter) {
+            return false
+          }
+
+          if (!characterIsWhitespace(parserState.lineAccumulator.charAt(emoteFromColumn))) {
+            break
+          }
+
+          emoteFromColumn++
+        }
+
+        const character = tryParseIdentifier(parserState, 0, characterToColumn)
+
+        if (character === null) {
+          return false
+        }
+
+        let emoteToColumn = emoteFromColumn
+
+        for (let index = emoteFromColumn + 1; index < indexOfLastNonWhiteSpaceCharacter; index++) {
+          if (!characterIsWhitespace(parserState.lineAccumulator.charAt(index))) {
+            emoteToColumn = index
+          }
+        }
+
+        const emote = tryParseIdentifier(parserState, emoteFromColumn, emoteToColumn)
+
+        if (emote === null) {
+          return false
+        }
+
+        addIdentifierToIndex(parserState, character, 'character', 'implicitDeclaration')
+        addIdentifierToIndex(parserState, emote, 'emote', 'implicitDeclaration')
+
+        if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
+          checkIdentifierConsistency(parserState, 'character', character)
+          checkIdentifierConsistency(parserState, 'emote', emote)
+
+          parserState.instructions.push({
+            type: 'emote',
+            line: parserState.line,
+            character,
+            emote
+          })
+        }
+
+        return true
       }
     } else {
       characterToColumn = separatorColumn
