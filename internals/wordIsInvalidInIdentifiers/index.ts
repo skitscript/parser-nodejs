@@ -28,8 +28,10 @@ export const wordIsInvalidInIdentifiers = (parserState: ParserState, fromColumn:
         return characterIsS(parserState.lineAccumulator.charAt(fromColumn + 1))
       } else if (characterIsO(firstCharacter)) {
         return characterIsR(parserState.lineAccumulator.charAt(fromColumn + 1))
+      } else if (!characterIsT(firstCharacter)) {
+        return false
       } else {
-        return characterIsT(firstCharacter) && characterIsO(parserState.lineAccumulator.charAt(fromColumn + 1))
+        return characterIsO(parserState.lineAccumulator.charAt(fromColumn + 1))
       }
     }
 
