@@ -15,6 +15,50 @@ import { tryParseAndIdentifierList } from '../../tryParseAndIdentifierList/index
 import { tryParseIdentifier } from '../../tryParseIdentifier/index.js'
 import { checkReachable } from '../checkReachable/index.js'
 
+const isAnd = (parserState: ParserState, separatorColumn: number, firstCharacter: string): boolean => {
+  if (!characterIsA(firstCharacter)) {
+    return false
+  }
+
+  if (!characterIsN(parserState.lineAccumulator.charAt(separatorColumn + 2))) {
+    return false
+  }
+
+  if (!characterIsD(parserState.lineAccumulator.charAt(separatorColumn + 3))) {
+    return false
+  }
+
+  return characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 4))
+}
+
+const isExit = (parserState: ParserState, separatorColumn: number, firstCharacter: string): boolean => {
+  if (!characterIsE(firstCharacter)) {
+    return false
+  }
+
+  if (!characterIsX(parserState.lineAccumulator.charAt(separatorColumn + 2))) {
+    return false
+  }
+
+  if (!characterIsI(parserState.lineAccumulator.charAt(separatorColumn + 3))) {
+    return false
+  }
+
+  return characterIsT(parserState.lineAccumulator.charAt(separatorColumn + 4))
+}
+
+const isExits = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number, separatorColumn: number): boolean => {
+  if (separatorColumn >= indexOfLastNonWhiteSpaceCharacter - 5) {
+    return false
+  }
+
+  if (!characterIsS(parserState.lineAccumulator.charAt(separatorColumn + 5))) {
+    return false
+  }
+
+  return characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 6))
+}
+
 export const tryParseExitAnimation = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number): boolean => {
   if (indexOfLastNonWhiteSpaceCharacter < 7) {
     return false
@@ -26,21 +70,12 @@ export const tryParseExitAnimation = (parserState: ParserState, indexOfLastNonWh
 
   while (true) {
     if (characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn))) {
-      const character = parserState.lineAccumulator.charAt(separatorColumn + 1)
+      const firstCharacter = parserState.lineAccumulator.charAt(separatorColumn + 1)
 
-      if (characterIsA(character) && characterIsN(parserState.lineAccumulator.charAt(separatorColumn + 2)) &&
-      characterIsD(parserState.lineAccumulator.charAt(separatorColumn + 3)) &&
-    characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 4))) {
+      if (isAnd(parserState, separatorColumn, firstCharacter)) {
         foundAnd = true
-      } else if (characterIsE(character) && characterIsX(parserState.lineAccumulator.charAt(separatorColumn + 2)) &&
-              characterIsI(parserState.lineAccumulator.charAt(separatorColumn + 3)) &&
-              characterIsT(parserState.lineAccumulator.charAt(separatorColumn + 4))
-      ) {
-        if (
-          separatorColumn < indexOfLastNonWhiteSpaceCharacter - 5 &&
-                characterIsS(parserState.lineAccumulator.charAt(separatorColumn + 5)) &&
-                  characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 6))
-        ) {
+      } else if (isExit(parserState, separatorColumn, firstCharacter)) {
+        if (isExits(parserState, indexOfLastNonWhiteSpaceCharacter, separatorColumn)) {
           if (foundAnd) {
             return false
           }
