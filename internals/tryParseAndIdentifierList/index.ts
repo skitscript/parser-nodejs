@@ -9,6 +9,22 @@ import { characterIsWhitespace } from '../characterIsWhitespace/index.js'
 import type { ParserState } from '../ParserState'
 import { tryParseIdentifier } from '../tryParseIdentifier/index.js'
 
+const isAnd = (parserState: ParserState, separatorFromColumn: number): boolean => {
+  if (!characterIsA(parserState.lineAccumulator.charAt(separatorFromColumn + 1))) {
+    return false
+  }
+
+  if (!characterIsN(parserState.lineAccumulator.charAt(separatorFromColumn + 2))) {
+    return false
+  }
+
+  if (!characterIsD(parserState.lineAccumulator.charAt(separatorFromColumn + 3))) {
+    return false
+  }
+
+  return characterIsWhitespace(parserState.lineAccumulator.charAt(separatorFromColumn + 4))
+}
+
 export const tryParseAndIdentifierList = (
   parserState: ParserState,
   fromColumn: number,
@@ -23,9 +39,7 @@ export const tryParseAndIdentifierList = (
   while (true) {
     if (separatorFromColumn > lastPossibleSeparatorFromColumn) {
       while (separatorFromColumn <= toColumn) {
-        const whitespace = characterIsWhitespace(parserState.lineAccumulator.charAt(separatorFromColumn))
-
-        if (!whitespace) {
+        if (!characterIsWhitespace(parserState.lineAccumulator.charAt(separatorFromColumn))) {
           if (identifierFromColumn === -1) {
             identifierFromColumn = separatorFromColumn
           }
@@ -51,14 +65,8 @@ export const tryParseAndIdentifierList = (
       return [sole]
     }
 
-    const whitespace = characterIsWhitespace(parserState.lineAccumulator.charAt(separatorFromColumn))
-
-    if (whitespace) {
-      if (
-        characterIsA(parserState.lineAccumulator.charAt(separatorFromColumn + 1)) &&
-        characterIsN(parserState.lineAccumulator.charAt(separatorFromColumn + 2)) &&
-        characterIsD(parserState.lineAccumulator.charAt(separatorFromColumn + 3)) &&
-        characterIsWhitespace(parserState.lineAccumulator.charAt(separatorFromColumn + 4))) {
+    if (characterIsWhitespace(parserState.lineAccumulator.charAt(separatorFromColumn))) {
+      if (isAnd(parserState, separatorFromColumn)) {
         break
       }
     } else {
