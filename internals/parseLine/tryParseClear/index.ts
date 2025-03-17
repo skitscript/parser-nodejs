@@ -2,7 +2,6 @@ import { characterIsA } from '../../characterIsA/index.js'
 import { characterIsC } from '../../characterIsC/index.js'
 import { characterIsE } from '../../characterIsE/index.js'
 import { characterIsL } from '../../characterIsL/index.js'
-import { characterIsPeriod } from '../../characterIsPeriod/index.js'
 import { characterIsR } from '../../characterIsR/index.js'
 import { characterIsWhitespace } from '../../characterIsWhitespace/index.js'
 import { checkIdentifierConsistency } from '../../checkIdentifierConsistency/index.js'
@@ -11,7 +10,7 @@ import { tryParseAndIdentifierList } from '../../tryParseAndIdentifierList/index
 import { checkReachable } from '../checkReachable/index.js'
 
 export const tryParseClear = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number): boolean => {
-  if (indexOfLastNonWhiteSpaceCharacter < 8) {
+  if (indexOfLastNonWhiteSpaceCharacter < 7) {
     return false
   }
 
@@ -38,10 +37,6 @@ export const tryParseClear = (parserState: ParserState, indexOfLastNonWhiteSpace
   }
 
   if (!characterIsWhitespace(parserState.lineAccumulator.charAt(5))) {
-    return false
-  }
-
-  if (!characterIsPeriod(parserState.lineAccumulator.charAt(indexOfLastNonWhiteSpaceCharacter))) {
     return false
   }
 
