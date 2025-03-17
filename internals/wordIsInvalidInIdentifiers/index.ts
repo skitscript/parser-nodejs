@@ -34,7 +34,7 @@ export const wordIsInvalidInIdentifiers = (parserState: ParserState, fromColumn:
         if (characterIsR(parserState.lineAccumulator.charAt(fromColumn + 1))) {
           return true
         } else {
-          return true
+          return false
         }
       } else if (characterIsT(firstCharacter)) {
         if (characterIsO(parserState.lineAccumulator.charAt(fromColumn + 1))) {
