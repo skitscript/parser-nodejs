@@ -18,16 +18,35 @@ export const tryParseLocation = (parserState: ParserState, indexOfLastNonWhiteSp
     return false
   }
 
-  if (
-    !characterIsL(parserState.lineAccumulator.charAt(0)) ||
-    !characterIsO(parserState.lineAccumulator.charAt(1)) ||
-    !characterIsC(parserState.lineAccumulator.charAt(2)) ||
-    !characterIsA(parserState.lineAccumulator.charAt(3)) ||
-    !characterIsT(parserState.lineAccumulator.charAt(4)) ||
-    !characterIsI(parserState.lineAccumulator.charAt(5)) ||
-    !characterIsO(parserState.lineAccumulator.charAt(6)) ||
-    !characterIsN(parserState.lineAccumulator.charAt(7))
-  ) {
+  if (!characterIsL(parserState.lineAccumulator.charAt(0))) {
+    return false
+  }
+
+  if (!characterIsO(parserState.lineAccumulator.charAt(1))) {
+    return false
+  }
+
+  if (!characterIsC(parserState.lineAccumulator.charAt(2))) {
+    return false
+  }
+
+  if (!characterIsA(parserState.lineAccumulator.charAt(3))) {
+    return false
+  }
+
+  if (!characterIsT(parserState.lineAccumulator.charAt(4))) {
+    return false
+  }
+
+  if (!characterIsI(parserState.lineAccumulator.charAt(5))) {
+    return false
+  }
+
+  if (!characterIsO(parserState.lineAccumulator.charAt(6))) {
+    return false
+  }
+
+  if (!characterIsN(parserState.lineAccumulator.charAt(7))) {
     return false
   }
 
