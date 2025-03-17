@@ -59,7 +59,8 @@ const isEnter = (parserState: ParserState, separatorColumn: number, firstCharact
 }
 
 const isEnters = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number, separatorColumn: number, nextCharacter: string): boolean => {
-  if (separatorColumn >= indexOfLastNonWhiteSpaceCharacter - 4) {
+  // TODO: Double check all of these limits, make sure they're correctly strict.
+  if (separatorColumn >= indexOfLastNonWhiteSpaceCharacter - 8) {
     return false
   }
 
