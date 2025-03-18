@@ -151,7 +151,7 @@ export const tryParseEmote = (parserState: ParserState, indexOfLastNonWhiteSpace
           return false
         }
 
-        let emoteFromColumn = separatorColumn + 4
+        let emoteFromColumn = separatorColumn + 3
 
         while (true) {
           if (emoteFromColumn === indexOfLastNonWhiteSpaceCharacter) {
@@ -206,7 +206,7 @@ export const tryParseEmote = (parserState: ParserState, indexOfLastNonWhiteSpace
       characterToColumn = separatorColumn
     }
 
-    if (separatorColumn === indexOfLastNonWhiteSpaceCharacter - 6) {
+    if (separatorColumn === indexOfLastNonWhiteSpaceCharacter - 5) {
       return false
     }
 
