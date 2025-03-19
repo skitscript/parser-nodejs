@@ -208,6 +208,8 @@ export const tryParseExitAnimation = (parserState: ParserState, indexOfLastNonWh
               })
             }
           }
+
+          return true
         } else if (characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 5))) {
           if (!foundAnd) {
             return false
@@ -337,13 +339,13 @@ export const tryParseExitAnimation = (parserState: ParserState, indexOfLastNonWh
               checkIdentifierConsistency(parserState, 'exitAnimation', animation)
             }
           }
-        }
 
-        return true
+          return true
+        }
       }
-    } else {
-      characterToColumn = separatorColumn
     }
+
+    characterToColumn = separatorColumn
 
     if (separatorColumn === indexOfLastNonWhiteSpaceCharacter - 6) {
       return false
