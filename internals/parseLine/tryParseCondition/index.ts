@@ -70,8 +70,7 @@ const isAnd = (parserState: ParserState, index: number): boolean => {
 
 export const tryParseCondition = (
   parserState: ParserState,
-  fromColumn: number,
-  indexOfLastNonWhiteSpaceCharacter: number
+  fromColumn: number
 ): null | readonly [Condition, readonly Identifier[]] => {
   let foundNot = false
   let foundOr = false
@@ -79,11 +78,11 @@ export const tryParseCondition = (
   let listStarts = -1
   let listEnds = -1
 
-  for (let index = fromColumn - 1; index < indexOfLastNonWhiteSpaceCharacter;) {
+  for (let index = fromColumn - 1; index < parserState.indexOfLastNonWhiteSpaceCharacter;) {
     const character = parserState.lineAccumulator.charAt(index)
 
     if (characterIsWhitespace(character)) {
-      if (index < indexOfLastNonWhiteSpaceCharacter - 3) {
+      if (index < parserState.indexOfLastNonWhiteSpaceCharacter - 3) {
         if (isOr(parserState, index)) {
           if (foundOr) {
             return null
@@ -96,7 +95,7 @@ export const tryParseCondition = (
             index += 4
             continue
           }
-        } else if (index < indexOfLastNonWhiteSpaceCharacter - 4) {
+        } else if (index < parserState.indexOfLastNonWhiteSpaceCharacter - 4) {
           if (isNot(parserState, index)) {
             if (foundOr) {
               return null

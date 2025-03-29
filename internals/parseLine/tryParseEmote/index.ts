@@ -63,8 +63,8 @@ const isIs = (parserState: ParserState, separatorColumn: number, firstCharacter:
 }
 
 // TODO: Is there a test case for "ONE CHARACTER ARE EMOTE" or "MANY AND CHARACTER IS EMOTE"
-export const tryParseEmote = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number): boolean => {
-  if (indexOfLastNonWhiteSpaceCharacter < 6) {
+export const tryParseEmote = (parserState: ParserState): boolean => {
+  if (parserState.indexOfLastNonWhiteSpaceCharacter < 6) {
     return false
   }
 
@@ -77,7 +77,7 @@ export const tryParseEmote = (parserState: ParserState, indexOfLastNonWhiteSpace
       const firstCharacter = parserState.lineAccumulator.charAt(separatorColumn + 1)
 
       if (characterIsA(firstCharacter)) {
-        if (separatorColumn <= indexOfLastNonWhiteSpaceCharacter - 6) {
+        if (separatorColumn <= parserState.indexOfLastNonWhiteSpaceCharacter - 6) {
           const secondCharacter = parserState.lineAccumulator.charAt(separatorColumn + 2)
 
           if (isAre(parserState, separatorColumn, secondCharacter)) {
@@ -88,7 +88,7 @@ export const tryParseEmote = (parserState: ParserState, indexOfLastNonWhiteSpace
             let emoteFromColumn = separatorColumn + 4
 
             while (true) {
-              if (emoteFromColumn === indexOfLastNonWhiteSpaceCharacter) {
+              if (emoteFromColumn === parserState.indexOfLastNonWhiteSpaceCharacter) {
                 return false
               }
 
@@ -101,7 +101,7 @@ export const tryParseEmote = (parserState: ParserState, indexOfLastNonWhiteSpace
 
             let emoteToColumn = emoteFromColumn
 
-            for (let index = emoteFromColumn + 1; index < indexOfLastNonWhiteSpaceCharacter; index++) {
+            for (let index = emoteFromColumn + 1; index < parserState.indexOfLastNonWhiteSpaceCharacter; index++) {
               if (!characterIsWhitespace(parserState.lineAccumulator.charAt(index))) {
                 emoteToColumn = index
               }
@@ -154,7 +154,7 @@ export const tryParseEmote = (parserState: ParserState, indexOfLastNonWhiteSpace
         let emoteFromColumn = separatorColumn + 3
 
         while (true) {
-          if (emoteFromColumn === indexOfLastNonWhiteSpaceCharacter) {
+          if (emoteFromColumn === parserState.indexOfLastNonWhiteSpaceCharacter) {
             return false
           }
 
@@ -173,7 +173,7 @@ export const tryParseEmote = (parserState: ParserState, indexOfLastNonWhiteSpace
 
         let emoteToColumn = emoteFromColumn
 
-        for (let index = emoteFromColumn + 1; index < indexOfLastNonWhiteSpaceCharacter; index++) {
+        for (let index = emoteFromColumn + 1; index < parserState.indexOfLastNonWhiteSpaceCharacter; index++) {
           if (!characterIsWhitespace(parserState.lineAccumulator.charAt(index))) {
             emoteToColumn = index
           }
@@ -206,7 +206,7 @@ export const tryParseEmote = (parserState: ParserState, indexOfLastNonWhiteSpace
       characterToColumn = separatorColumn
     }
 
-    if (separatorColumn === indexOfLastNonWhiteSpaceCharacter - 5) {
+    if (separatorColumn === parserState.indexOfLastNonWhiteSpaceCharacter - 5) {
       return false
     }
 

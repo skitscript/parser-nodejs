@@ -59,8 +59,8 @@ const isEnter = (parserState: ParserState, separatorColumn: number, firstCharact
   return true
 }
 
-const isEnters = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number, separatorColumn: number, nextCharacter: string): boolean => {
-  if (separatorColumn >= indexOfLastNonWhiteSpaceCharacter - 8) {
+const isEnters = (parserState: ParserState, separatorColumn: number, nextCharacter: string): boolean => {
+  if (separatorColumn >= parserState.indexOfLastNonWhiteSpaceCharacter - 8) {
     return false
   }
 
@@ -76,8 +76,8 @@ const isEnters = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: n
 }
 
 // TODO: Is there a test case for "ONE CHARACTER ENTER ANIMATION" or "MANY AND CHARACTER ENTERS ANIMATION"
-export const tryParseEntryAnimation = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number): boolean => {
-  if (indexOfLastNonWhiteSpaceCharacter < 8) {
+export const tryParseEntryAnimation = (parserState: ParserState): boolean => {
+  if (parserState.indexOfLastNonWhiteSpaceCharacter < 8) {
     return false
   }
 
@@ -94,7 +94,7 @@ export const tryParseEntryAnimation = (parserState: ParserState, indexOfLastNonW
       } else if (isEnter(parserState, separatorColumn, firstCharacter)) {
         const nextCharacter = parserState.lineAccumulator.charAt(separatorColumn + 6)
 
-        if (isEnters(parserState, indexOfLastNonWhiteSpaceCharacter, separatorColumn, nextCharacter)) {
+        if (isEnters(parserState, separatorColumn, nextCharacter)) {
           if (foundAnd) {
             return false
           }
@@ -105,7 +105,7 @@ export const tryParseEntryAnimation = (parserState: ParserState, indexOfLastNonW
           let emoteFrom: number = -1
           let emoteTo: number = -1
 
-          for (let index = separatorColumn + 8; index < indexOfLastNonWhiteSpaceCharacter; index++) {
+          for (let index = separatorColumn + 8; index < parserState.indexOfLastNonWhiteSpaceCharacter; index++) {
             const character = parserState.lineAccumulator.charAt(index)
 
             if (characterIsWhitespace(character)) {
@@ -226,7 +226,7 @@ export const tryParseEntryAnimation = (parserState: ParserState, indexOfLastNonW
           let emoteFrom: number = -1
           let emoteTo: number = -1
 
-          for (let index = separatorColumn + 7; index < indexOfLastNonWhiteSpaceCharacter; index++) {
+          for (let index = separatorColumn + 7; index < parserState.indexOfLastNonWhiteSpaceCharacter; index++) {
             const character = parserState.lineAccumulator.charAt(index)
 
             if (characterIsWhitespace(character)) {
@@ -354,7 +354,7 @@ export const tryParseEntryAnimation = (parserState: ParserState, indexOfLastNonW
 
     characterToColumn = separatorColumn
 
-    if (separatorColumn === indexOfLastNonWhiteSpaceCharacter - 7) {
+    if (separatorColumn === parserState.indexOfLastNonWhiteSpaceCharacter - 7) {
       return false
     }
 

@@ -56,8 +56,8 @@ const isExit = (parserState: ParserState, separatorColumn: number, firstCharacte
   }
 }
 
-const isExits = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number, separatorColumn: number): boolean => {
-  if (separatorColumn < indexOfLastNonWhiteSpaceCharacter - 7) {
+const isExits = (parserState: ParserState, separatorColumn: number): boolean => {
+  if (separatorColumn < parserState.indexOfLastNonWhiteSpaceCharacter - 7) {
     if (characterIsS(parserState.lineAccumulator.charAt(separatorColumn + 5))) {
       if (characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 6))) {
         return true
@@ -74,8 +74,8 @@ const isExits = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: nu
 
 // TODO: Is there a test case for "ONE CHARACTER EXIT ANIMATION" or "MANY AND CHARACTER EXITS ANIMATION"
 
-export const tryParseExitAnimation = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number): boolean => {
-  if (indexOfLastNonWhiteSpaceCharacter < 7) {
+export const tryParseExitAnimation = (parserState: ParserState): boolean => {
+  if (parserState.indexOfLastNonWhiteSpaceCharacter < 7) {
     return false
   }
 
@@ -90,7 +90,7 @@ export const tryParseExitAnimation = (parserState: ParserState, indexOfLastNonWh
       if (isAnd(parserState, separatorColumn, firstCharacter)) {
         foundAnd = true
       } else if (isExit(parserState, separatorColumn, firstCharacter)) {
-        if (isExits(parserState, indexOfLastNonWhiteSpaceCharacter, separatorColumn)) {
+        if (isExits(parserState, separatorColumn)) {
           if (foundAnd) {
             return false
           }
@@ -101,7 +101,7 @@ export const tryParseExitAnimation = (parserState: ParserState, indexOfLastNonWh
           let emoteFrom: number = -1
           let emoteTo: number = -1
 
-          for (let index = separatorColumn + 7; index < indexOfLastNonWhiteSpaceCharacter; index++) {
+          for (let index = separatorColumn + 7; index < parserState.indexOfLastNonWhiteSpaceCharacter; index++) {
             const character = parserState.lineAccumulator.charAt(index)
 
             if (characterIsWhitespace(character)) {
@@ -222,7 +222,7 @@ export const tryParseExitAnimation = (parserState: ParserState, indexOfLastNonWh
           let emoteFrom: number = -1
           let emoteTo: number = -1
 
-          for (let index = separatorColumn + 6; index < indexOfLastNonWhiteSpaceCharacter; index++) {
+          for (let index = separatorColumn + 6; index < parserState.indexOfLastNonWhiteSpaceCharacter; index++) {
             const character = parserState.lineAccumulator.charAt(index)
 
             if (characterIsWhitespace(character)) {
@@ -350,7 +350,7 @@ export const tryParseExitAnimation = (parserState: ParserState, indexOfLastNonWh
 
     characterToColumn = separatorColumn
 
-    if (separatorColumn === indexOfLastNonWhiteSpaceCharacter - 6) {
+    if (separatorColumn === parserState.indexOfLastNonWhiteSpaceCharacter - 6) {
       return false
     }
 

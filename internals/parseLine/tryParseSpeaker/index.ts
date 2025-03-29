@@ -11,7 +11,7 @@ import { tryParseAndIdentifierList } from '../../tryParseAndIdentifierList/index
 import { tryParseIdentifier } from '../../tryParseIdentifier/index.js'
 import { checkReachable } from '../checkReachable/index.js'
 
-export const tryParseSpeaker = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number): boolean => {
+export const tryParseSpeaker = (parserState: ParserState): boolean => {
   let charactersToColumn = -1
   let foundOpeningParenthesis = false
   let emoteFromColumn = -1
@@ -19,7 +19,7 @@ export const tryParseSpeaker = (parserState: ParserState, indexOfLastNonWhiteSpa
   let foundClosingParenthesis = false
   let foundColon = false
 
-  for (let index = 0; index <= indexOfLastNonWhiteSpaceCharacter; index++) {
+  for (let index = 0; index <= parserState.indexOfLastNonWhiteSpaceCharacter; index++) {
     const character = parserState.lineAccumulator.charAt(index)
 
     if (characterIsOpeningParenthesis(character)) {

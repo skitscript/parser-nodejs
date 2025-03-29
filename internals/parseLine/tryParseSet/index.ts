@@ -8,8 +8,8 @@ import type { ParserState } from '../../ParserState'
 import { tryParseAndIdentifierList } from '../../tryParseAndIdentifierList/index.js'
 import { checkReachable } from '../checkReachable/index.js'
 
-export const tryParseSet = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number): boolean => {
-  if (indexOfLastNonWhiteSpaceCharacter < 5) {
+export const tryParseSet = (parserState: ParserState): boolean => {
+  if (parserState.indexOfLastNonWhiteSpaceCharacter < 5) {
     return false
   }
 
@@ -29,7 +29,7 @@ export const tryParseSet = (parserState: ParserState, indexOfLastNonWhiteSpaceCh
     return false
   }
 
-  const flagsAndIdentifiers = tryParseAndIdentifierList(parserState, 4, indexOfLastNonWhiteSpaceCharacter - 1)
+  const flagsAndIdentifiers = tryParseAndIdentifierList(parserState, 4, parserState.indexOfLastNonWhiteSpaceCharacter - 1)
 
   if (flagsAndIdentifiers === null) {
     return false

@@ -13,8 +13,8 @@ import type { ParserState } from '../../ParserState'
 import { tryParseIdentifier } from '../../tryParseIdentifier/index.js'
 import { checkReachable } from '../checkReachable/index.js'
 
-export const tryParseLocation = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number): boolean => {
-  if (indexOfLastNonWhiteSpaceCharacter < 10) {
+export const tryParseLocation = (parserState: ParserState): boolean => {
+  if (parserState.indexOfLastNonWhiteSpaceCharacter < 10) {
     return false
   }
 
@@ -53,7 +53,7 @@ export const tryParseLocation = (parserState: ParserState, indexOfLastNonWhiteSp
   let indexOfColon = 8
 
   while (true) {
-    if (indexOfColon === indexOfLastNonWhiteSpaceCharacter) {
+    if (indexOfColon === parserState.indexOfLastNonWhiteSpaceCharacter) {
       return false
     }
 
@@ -67,7 +67,7 @@ export const tryParseLocation = (parserState: ParserState, indexOfLastNonWhiteSp
   let fromColumn = indexOfColon + 1
 
   while (true) {
-    if (fromColumn === indexOfLastNonWhiteSpaceCharacter) {
+    if (fromColumn === parserState.indexOfLastNonWhiteSpaceCharacter) {
       return false
     }
 
@@ -78,7 +78,7 @@ export const tryParseLocation = (parserState: ParserState, indexOfLastNonWhiteSp
     fromColumn++
   }
 
-  let toColumn = indexOfLastNonWhiteSpaceCharacter - 1
+  let toColumn = parserState.indexOfLastNonWhiteSpaceCharacter - 1
 
   while (true) {
     if (!characterIsWhitespace(parserState.lineAccumulator.charAt(toColumn))) {

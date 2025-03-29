@@ -18,19 +18,19 @@ export const parseLine = (parserState: ParserState): void => {
 
   if (parserState.indexOfFirstNonWhiteSpaceCharacter !== -1) {
     if (parserState.indexOfFirstNonWhiteSpaceCharacter === 0) {
-      if (!tryParseLabel(parserState, parserState.indexOfLastNonWhiteSpaceCharacter) &&
-        !tryParseSpeaker(parserState, parserState.indexOfLastNonWhiteSpaceCharacter) &&
+      if (!tryParseLabel(parserState) &&
+        !tryParseSpeaker(parserState) &&
         (
           !characterIsPeriod(parserState.lineAccumulator.charAt(parserState.indexOfLastNonWhiteSpaceCharacter)) ||
           (
-            !tryParseClear(parserState, parserState.indexOfLastNonWhiteSpaceCharacter) &&
-            !tryParseJump(parserState, parserState.indexOfLastNonWhiteSpaceCharacter) &&
-            !tryParseLocation(parserState, parserState.indexOfLastNonWhiteSpaceCharacter) &&
+            !tryParseClear(parserState) &&
+            !tryParseJump(parserState) &&
+            !tryParseLocation(parserState) &&
             !tryParseMenuOption(parserState) &&
-            !tryParseSet(parserState, parserState.indexOfLastNonWhiteSpaceCharacter) &&
-            !tryParseEmote(parserState, parserState.indexOfLastNonWhiteSpaceCharacter) &&
-            !tryParseEntryAnimation(parserState, parserState.indexOfLastNonWhiteSpaceCharacter) &&
-            !tryParseExitAnimation(parserState, parserState.indexOfLastNonWhiteSpaceCharacter)
+            !tryParseSet(parserState) &&
+            !tryParseEmote(parserState) &&
+            !tryParseEntryAnimation(parserState) &&
+            !tryParseExitAnimation(parserState)
           ))) {
         parserState.errors.push({
           type: 'unparsable',

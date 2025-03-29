@@ -20,8 +20,8 @@ import { tryParseIdentifier } from '../../tryParseIdentifier/index.js'
 import { checkReachable } from '../checkReachable/index.js'
 import { tryParseCondition } from '../tryParseCondition/index.js'
 
-export const tryParseJump = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number): boolean => {
-  if (indexOfLastNonWhiteSpaceCharacter < 8) {
+export const tryParseJump = (parserState: ParserState): boolean => {
+  if (parserState.indexOfLastNonWhiteSpaceCharacter < 8) {
     return false
   }
 
@@ -48,7 +48,7 @@ export const tryParseJump = (parserState: ParserState, indexOfLastNonWhiteSpaceC
   let foundTo = false
   let index = 5
 
-  for (; index < indexOfLastNonWhiteSpaceCharacter - 2; index++) {
+  for (; index < parserState.indexOfLastNonWhiteSpaceCharacter - 2; index++) {
     const character = parserState.lineAccumulator.charAt(index)
 
     if (characterIsWhitespace(character)) {
@@ -81,11 +81,11 @@ export const tryParseJump = (parserState: ParserState, indexOfLastNonWhiteSpaceC
   let labelToColumn = -1
   let foundWhen = false
 
-  for (; index < indexOfLastNonWhiteSpaceCharacter; index++) {
+  for (; index < parserState.indexOfLastNonWhiteSpaceCharacter; index++) {
     const character = parserState.lineAccumulator.charAt(index)
 
     if (characterIsWhitespace(character)) {
-      if (index + 6 < indexOfLastNonWhiteSpaceCharacter) {
+      if (index + 6 < parserState.indexOfLastNonWhiteSpaceCharacter) {
         if (characterIsW(parserState.lineAccumulator.charAt(index + 1))) {
           if (characterIsH(parserState.lineAccumulator.charAt(index + 2))) {
             if (characterIsE(parserState.lineAccumulator.charAt(index + 3))) {
@@ -123,7 +123,7 @@ export const tryParseJump = (parserState: ParserState, indexOfLastNonWhiteSpaceC
 
   let conditionFromColumn = -1
 
-  for (; index < indexOfLastNonWhiteSpaceCharacter; index++) {
+  for (; index < parserState.indexOfLastNonWhiteSpaceCharacter; index++) {
     if (characterIsWhitespace(parserState.lineAccumulator.charAt(index))) {
       continue
     }
@@ -147,7 +147,7 @@ export const tryParseJump = (parserState: ParserState, indexOfLastNonWhiteSpaceC
   if (foundWhen) {
     // TODO: Is this ok (might have excess spaces at end)?  Should we be looking for last non white space ourselves?
 
-    conditionAndIdentifiers = tryParseCondition(parserState, conditionFromColumn, indexOfLastNonWhiteSpaceCharacter)
+    conditionAndIdentifiers = tryParseCondition(parserState, conditionFromColumn)
 
     if (conditionAndIdentifiers === null) {
       return false
