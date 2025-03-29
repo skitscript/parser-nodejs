@@ -11,45 +11,38 @@ import { tryParseEntryAnimation } from './tryParseEntryAnimation/index.js'
 import { tryParseExitAnimation } from './tryParseExitAnimation/index.js'
 import { parseFormatted } from '../parseFormatted/index.js'
 import { checkReachable } from './checkReachable/index.js'
-import { characterIsWhitespace } from '../characterIsWhitespace/index.js'
 import { characterIsPeriod } from '../characterIsPeriod/index.js'
 
 export const parseLine = (parserState: ParserState): void => {
   parserState.line++
 
   if (parserState.indexOfFirstNonWhiteSpaceCharacter !== -1) {
-    let indexOfLastNonWhiteSpaceCharacter = parserState.lineAccumulator.length - 1
-
-    while (characterIsWhitespace(parserState.lineAccumulator.charAt(indexOfLastNonWhiteSpaceCharacter))) {
-      indexOfLastNonWhiteSpaceCharacter--
-    }
-
     if (parserState.indexOfFirstNonWhiteSpaceCharacter === 0) {
-      if (!tryParseLabel(parserState, indexOfLastNonWhiteSpaceCharacter) &&
-        !tryParseSpeaker(parserState, indexOfLastNonWhiteSpaceCharacter) &&
+      if (!tryParseLabel(parserState, parserState.indexOfLastNonWhiteSpaceCharacter) &&
+        !tryParseSpeaker(parserState, parserState.indexOfLastNonWhiteSpaceCharacter) &&
         (
-          !characterIsPeriod(parserState.lineAccumulator.charAt(indexOfLastNonWhiteSpaceCharacter)) ||
+          !characterIsPeriod(parserState.lineAccumulator.charAt(parserState.indexOfLastNonWhiteSpaceCharacter)) ||
           (
-            !tryParseClear(parserState, indexOfLastNonWhiteSpaceCharacter) &&
-            !tryParseJump(parserState, indexOfLastNonWhiteSpaceCharacter) &&
-            !tryParseLocation(parserState, indexOfLastNonWhiteSpaceCharacter) &&
+            !tryParseClear(parserState, parserState.indexOfLastNonWhiteSpaceCharacter) &&
+            !tryParseJump(parserState, parserState.indexOfLastNonWhiteSpaceCharacter) &&
+            !tryParseLocation(parserState, parserState.indexOfLastNonWhiteSpaceCharacter) &&
             !tryParseMenuOption(parserState) &&
-            !tryParseSet(parserState, indexOfLastNonWhiteSpaceCharacter) &&
-            !tryParseEmote(parserState, indexOfLastNonWhiteSpaceCharacter) &&
-            !tryParseEntryAnimation(parserState, indexOfLastNonWhiteSpaceCharacter) &&
-            !tryParseExitAnimation(parserState, indexOfLastNonWhiteSpaceCharacter)
+            !tryParseSet(parserState, parserState.indexOfLastNonWhiteSpaceCharacter) &&
+            !tryParseEmote(parserState, parserState.indexOfLastNonWhiteSpaceCharacter) &&
+            !tryParseEntryAnimation(parserState, parserState.indexOfLastNonWhiteSpaceCharacter) &&
+            !tryParseExitAnimation(parserState, parserState.indexOfLastNonWhiteSpaceCharacter)
           ))) {
         parserState.errors.push({
           type: 'unparsable',
           line: parserState.line,
-          fromColumn: parserState.indexOfFirstNonWhiteSpaceCharacter + 1,
-          toColumn: indexOfLastNonWhiteSpaceCharacter + 1
+          fromColumn: 1,
+          toColumn: parserState.indexOfLastNonWhiteSpaceCharacter + 1
         })
       }
     } else {
-      const content = parseFormatted(parserState, parserState.indexOfFirstNonWhiteSpaceCharacter, indexOfLastNonWhiteSpaceCharacter)
+      const content = parseFormatted(parserState, parserState.indexOfFirstNonWhiteSpaceCharacter, parserState.indexOfLastNonWhiteSpaceCharacter)
 
-      if (content !== null && checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
+      if (content !== null && checkReachable(parserState, parserState.indexOfLastNonWhiteSpaceCharacter)) {
         parserState.instructions.push({
           type: 'line',
           line: parserState.line,
