@@ -87,13 +87,9 @@ export const tryParseSpeaker = (parserState: ParserState, indexOfLastNonWhiteSpa
   let emote: null | Identifier = null
 
   if (foundOpeningParenthesis) {
-    if (foundClosingParenthesis) {
-      emote = tryParseIdentifier(parserState, emoteFromColumn, emoteToColumn)
+    emote = tryParseIdentifier(parserState, emoteFromColumn, emoteToColumn)
 
-      if (emote === null) {
-        return false
-      }
-    } else {
+    if (emote === null) {
       return false
     }
   }
