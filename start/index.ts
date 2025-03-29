@@ -18,5 +18,6 @@ export const start = (): ParserState => ({
   reachability: 'reachable',
   state: 'normal',
   lineAccumulator: '',
-  indexOfFirstNonWhiteSpaceCharacter: -1
+  indexOfFirstNonWhiteSpaceCharacter: -1,
+  indexOfLastNonWhiteSpaceCharacter: -1
 })

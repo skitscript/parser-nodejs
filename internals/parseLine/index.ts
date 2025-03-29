@@ -61,4 +61,5 @@ export const parseLine = (parserState: ParserState): void => {
 
   parserState.lineAccumulator = ''
   parserState.indexOfFirstNonWhiteSpaceCharacter = -1
+  parserState.indexOfLastNonWhiteSpaceCharacter = -1
 }
