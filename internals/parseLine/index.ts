@@ -42,7 +42,7 @@ export const parseLine = (parserState: ParserState): void => {
     } else {
       const content = parseFormatted(parserState, parserState.indexOfFirstNonWhiteSpaceCharacter, parserState.indexOfLastNonWhiteSpaceCharacter)
 
-      if (content !== null && checkReachable(parserState, parserState.indexOfLastNonWhiteSpaceCharacter)) {
+      if (content !== null && checkReachable(parserState)) {
         parserState.instructions.push({
           type: 'line',
           line: parserState.line,

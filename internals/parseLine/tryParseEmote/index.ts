@@ -122,7 +122,7 @@ export const tryParseEmote = (parserState: ParserState, indexOfLastNonWhiteSpace
             addIdentifierListToIndex(parserState, charactersAndIdentifiers[1], 'character', 'implicitDeclaration')
             addIdentifierToIndex(parserState, emote, 'emote', 'implicitDeclaration')
 
-            if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
+            if (checkReachable(parserState)) {
               for (const character of charactersAndIdentifiers[0]) {
                 checkIdentifierConsistency(parserState, 'character', character)
 
@@ -188,7 +188,7 @@ export const tryParseEmote = (parserState: ParserState, indexOfLastNonWhiteSpace
         addIdentifierToIndex(parserState, character, 'character', 'implicitDeclaration')
         addIdentifierToIndex(parserState, emote, 'emote', 'implicitDeclaration')
 
-        if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
+        if (checkReachable(parserState)) {
           checkIdentifierConsistency(parserState, 'character', character)
           checkIdentifierConsistency(parserState, 'emote', emote)
 

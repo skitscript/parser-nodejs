@@ -49,7 +49,7 @@ export const tryParseClear = (parserState: ParserState, indexOfLastNonWhiteSpace
 
   addIdentifierListToIndex(parserState, flagsAndIdentifiers[1], 'flag', 'implicitDeclaration')
 
-  if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
+  if (checkReachable(parserState)) {
     for (const flag of flagsAndIdentifiers[0]) {
       parserState.instructions.push({
         type: 'clear',

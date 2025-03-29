@@ -160,7 +160,7 @@ export const tryParseExitAnimation = (parserState: ParserState, indexOfLastNonWh
             addIdentifierToIndex(parserState, animation, 'exitAnimation', 'implicitDeclaration')
             addIdentifierToIndex(parserState, emote, 'emote', 'implicitDeclaration')
 
-            if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
+            if (checkReachable(parserState)) {
               checkIdentifierConsistency(parserState, 'character', character)
               checkIdentifierConsistency(parserState, 'exitAnimation', animation)
               checkIdentifierConsistency(parserState, 'emote', emote)
@@ -197,7 +197,7 @@ export const tryParseExitAnimation = (parserState: ParserState, indexOfLastNonWh
             addIdentifierToIndex(parserState, character, 'character', 'implicitDeclaration')
             addIdentifierToIndex(parserState, animation, 'exitAnimation', 'implicitDeclaration')
 
-            if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
+            if (checkReachable(parserState)) {
               checkIdentifierConsistency(parserState, 'character', character)
               checkIdentifierConsistency(parserState, 'exitAnimation', animation)
 
@@ -281,7 +281,7 @@ export const tryParseExitAnimation = (parserState: ParserState, indexOfLastNonWh
             addIdentifierToIndex(parserState, animation, 'exitAnimation', 'implicitDeclaration')
             addIdentifierToIndex(parserState, emote, 'emote', 'implicitDeclaration')
 
-            if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
+            if (checkReachable(parserState)) {
               for (const character of charactersAndIdentifiers[0]) {
                 checkIdentifierConsistency(parserState, 'character', character)
               }
@@ -327,7 +327,7 @@ export const tryParseExitAnimation = (parserState: ParserState, indexOfLastNonWh
             addIdentifierListToIndex(parserState, charactersAndIdentifiers[1], 'character', 'implicitDeclaration')
             addIdentifierToIndex(parserState, animation, 'exitAnimation', 'implicitDeclaration')
 
-            if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
+            if (checkReachable(parserState)) {
               for (const character of charactersAndIdentifiers[0]) {
                 parserState.instructions.push({
                   type: 'exitAnimation',

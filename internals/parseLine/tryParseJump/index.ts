@@ -160,7 +160,7 @@ export const tryParseJump = (parserState: ParserState, indexOfLastNonWhiteSpaceC
     addIdentifierListToIndex(parserState, conditionAndIdentifiers[1], 'flag', 'implicitDeclaration')
   }
 
-  if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
+  if (checkReachable(parserState)) {
     const previousInstruction =
     parserState.instructions.length > 0
       ? parserState.instructions[parserState.instructions.length - 1]

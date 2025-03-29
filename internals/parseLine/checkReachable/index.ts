@@ -1,6 +1,6 @@
 import type { ParserState } from '../../ParserState'
 
-export const checkReachable = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number): boolean => {
+export const checkReachable = (parserState: ParserState): boolean => {
   switch (parserState.reachability) {
     case 'reachable':
       return true
@@ -11,7 +11,7 @@ export const checkReachable = (parserState: ParserState, indexOfLastNonWhiteSpac
         type: 'unreachable',
         line: parserState.line,
         fromColumn: parserState.indexOfFirstNonWhiteSpaceCharacter + 1,
-        toColumn: indexOfLastNonWhiteSpaceCharacter + 1
+        toColumn: parserState.indexOfLastNonWhiteSpaceCharacter + 1
       })
       parserState.reachability = 'unreachable'
       return false

@@ -107,7 +107,7 @@ export const tryParseSpeaker = (parserState: ParserState, indexOfLastNonWhiteSpa
     addIdentifierToIndex(parserState, emote, 'emote', 'implicitDeclaration')
   }
 
-  if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
+  if (checkReachable(parserState)) {
     for (const character of charactersAndIdentifiers[0]) {
       checkIdentifierConsistency(parserState, 'character', character)
     }

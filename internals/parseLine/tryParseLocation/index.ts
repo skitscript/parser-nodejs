@@ -96,7 +96,7 @@ export const tryParseLocation = (parserState: ParserState, indexOfLastNonWhiteSp
 
   addIdentifierToIndex(parserState, background, 'background', 'implicitDeclaration')
 
-  if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
+  if (checkReachable(parserState)) {
     parserState.instructions.push({
       type: 'location',
       line: parserState.line,
