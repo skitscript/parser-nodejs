@@ -59,11 +59,7 @@ export const tryParseSpeaker = (parserState: ParserState, indexOfLastNonWhiteSpa
       }
 
       foundColon = true
-    } else if (characterIsWhitespace(character)) {
-      if (charactersToColumn === -1) {
-        return false
-      }
-    } else {
+    } else if (!characterIsWhitespace(character)) {
       if (foundColon) {
         return false
       }
