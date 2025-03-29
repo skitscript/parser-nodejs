@@ -1,3 +1,4 @@
+import { addIdentifierListToIndex } from '../../addIdentifierListToIndex/index.js'
 import { addIdentifierToIndex } from '../../addIdentifierToIndex/index.js'
 import { characterIsA } from '../../characterIsA/index.js'
 import { characterIsComma } from '../../characterIsComma/index.js'
@@ -274,24 +275,25 @@ export const tryParseEntryAnimation = (parserState: ParserState, indexOfLastNonW
               return false
             }
 
-            const characters = tryParseAndIdentifierList(parserState, 0, characterToColumn, 'character')
+            const charactersAndIdentifiers = tryParseAndIdentifierList(parserState, 0, characterToColumn)
 
-            if (characters === null) {
+            if (charactersAndIdentifiers === null) {
               return false
             }
 
+            addIdentifierListToIndex(parserState, charactersAndIdentifiers[1], 'character', 'implicitDeclaration')
             addIdentifierToIndex(parserState, animation, 'entryAnimation', 'implicitDeclaration')
             addIdentifierToIndex(parserState, emote, 'emote', 'implicitDeclaration')
 
             if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
-              for (const character of characters) {
+              for (const character of charactersAndIdentifiers[0]) {
                 checkIdentifierConsistency(parserState, 'character', character)
               }
 
               checkIdentifierConsistency(parserState, 'entryAnimation', animation)
               checkIdentifierConsistency(parserState, 'emote', emote)
 
-              for (const character of characters) {
+              for (const character of charactersAndIdentifiers[0]) {
                 parserState.instructions.push({
                   type: 'entryAnimation',
                   line: parserState.line,
@@ -300,7 +302,7 @@ export const tryParseEntryAnimation = (parserState: ParserState, indexOfLastNonW
                 })
               }
 
-              for (const character of characters) {
+              for (const character of charactersAndIdentifiers[0]) {
                 parserState.instructions.push({
                   type: 'emote',
                   line: parserState.line,
@@ -320,16 +322,17 @@ export const tryParseEntryAnimation = (parserState: ParserState, indexOfLastNonW
               return false
             }
 
-            const characters = tryParseAndIdentifierList(parserState, 0, characterToColumn, 'character')
+            const charactersAndIdentifiers = tryParseAndIdentifierList(parserState, 0, characterToColumn)
 
-            if (characters === null) {
+            if (charactersAndIdentifiers === null) {
               return false
             }
 
+            addIdentifierListToIndex(parserState, charactersAndIdentifiers[1], 'character', 'implicitDeclaration')
             addIdentifierToIndex(parserState, animation, 'entryAnimation', 'implicitDeclaration')
 
             if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
-              for (const character of characters) {
+              for (const character of charactersAndIdentifiers[0]) {
                 parserState.instructions.push({
                   type: 'entryAnimation',
                   line: parserState.line,

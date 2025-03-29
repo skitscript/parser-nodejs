@@ -1,5 +1,6 @@
 import type { Identifier } from '../../../Identifier'
 import { addIdentifierToIndex } from '../../addIdentifierToIndex/index.js'
+import { addIdentifierListToIndex } from '../../addIdentifierListToIndex/index.js'
 import { characterIsClosingParenthesis } from '../../characterIsClosingParenthesis/index.js'
 import { characterIsColon } from '../../characterIsColon/index.js'
 import { characterIsOpeningParenthesis } from '../../characterIsOpeningParenthesis/index.js'
@@ -94,31 +95,33 @@ export const tryParseSpeaker = (parserState: ParserState, indexOfLastNonWhiteSpa
     }
   }
 
-  const characters = tryParseAndIdentifierList(parserState, 0, charactersToColumn, 'character')
+  const charactersAndIdentifiers = tryParseAndIdentifierList(parserState, 0, charactersToColumn)
 
-  if (characters === null) {
+  if (charactersAndIdentifiers === null) {
     return false
   }
+
+  addIdentifierListToIndex(parserState, charactersAndIdentifiers[1], 'character', 'implicitDeclaration')
 
   if (emote !== null) {
     addIdentifierToIndex(parserState, emote, 'emote', 'implicitDeclaration')
   }
 
   if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
-    for (const character of characters) {
+    for (const character of charactersAndIdentifiers[0]) {
       checkIdentifierConsistency(parserState, 'character', character)
     }
 
     parserState.instructions.push({
       type: 'speaker',
       line: parserState.line,
-      characters
+      characters: charactersAndIdentifiers[0]
     })
 
     if (emote !== null) {
       checkIdentifierConsistency(parserState, 'emote', emote)
 
-      for (const character of characters) {
+      for (const character of charactersAndIdentifiers[0]) {
         parserState.instructions.push({
           type: 'emote',
           line: parserState.line,

@@ -1,122 +1,199 @@
-import { checkConditionConsistency } from '../../checkConditionConsistency/index.js'
+import type { Condition } from '../../../Condition'
+import type { Identifier } from '../../../Identifier'
+import { addIdentifierListToIndex } from '../../addIdentifierListToIndex/index.js'
+import { addIdentifierToIndex } from '../../addIdentifierToIndex/index.js'
+import { characterIsE } from '../../characterIsE/index.js'
+import { characterIsH } from '../../characterIsH/index.js'
+import { characterIsJ } from '../../characterIsJ/index.js'
+import { characterIsM } from '../../characterIsM/index.js'
+import { characterIsN } from '../../characterIsN/index.js'
+import { characterIsO } from '../../characterIsO/index.js'
+import { characterIsP } from '../../characterIsP/index.js'
+import { characterIsT } from '../../characterIsT/index.js'
+import { characterIsU } from '../../characterIsU/index.js'
+import { characterIsW } from '../../characterIsW/index.js'
+import { characterIsWhitespace } from '../../characterIsWhitespace/index.js'
+import { checkConsistencyOfFlagIdentifiersInCondition } from '../../checkConsistencyOfFlagIdentifiersInCondition/index.js'
 import { checkIdentifierConsistency } from '../../checkIdentifierConsistency/index.js'
-import { normalizeIdentifier } from '../../normalizeIdentifier/index.js'
-import { parseCondition } from '../../parseCondition/index.js'
 import type { ParserState } from '../../ParserState'
+import { tryParseIdentifier } from '../../tryParseIdentifier/index.js'
 import { checkReachable } from '../checkReachable/index.js'
-
-const identifierFilteredCharacterRegexFragment = '!?\'"{}@*/\\\\&#%`+<=>|$.-'
-
-const identifierDisallowedWords = [
-  'and',
-  'or',
-  'when',
-  'not',
-  'is',
-  'are',
-  'enters',
-  'enter',
-  'exits',
-  'exit',
-  'leads',
-  'to',
-  'set',
-  'clear',
-  'jump'
-]
-
-const identifierDisallowedCharacters = [',', '(', ')', '\\s', ':', '~']
-
-export const identifierRegexFragment = `(?=.*[^${identifierFilteredCharacterRegexFragment}\\s].*)(?:(?!(?:${identifierDisallowedWords.join(
-  '|'
-)})\\b)[^${identifierDisallowedCharacters.join(
-  ''
-)}]+)(?:\\s+(?!(?:${identifierDisallowedWords.join(
-  '|'
-)})\\b)[^${identifierDisallowedCharacters.join('')}]+)*`
-
-const identifierListRegexFragmentFactory = (
-  binaryOperators: readonly string[]
-): string =>
-  `(?:(${identifierRegexFragment}(?:\\s*,\\s*${identifierRegexFragment})*)(\\s+)(${binaryOperators.join(
-    '|'
-  )})(\\s+))?(${identifierRegexFragment})`
-
-const conditionRegexFragment = `(?:(\\s+when\\s+)(not\\s+)?${identifierListRegexFragmentFactory(
-  ['and', 'or']
-)})?`
-
-const jumpRegex = new RegExp(
-  `^(jump\\s+to\\s+)(${identifierRegexFragment})${conditionRegexFragment}\\s*\\.\\s*$`,
-  'i'
-)
+import { tryParseCondition } from '../tryParseCondition/index.js'
 
 export const tryParseJump = (parserState: ParserState, indexOfLastNonWhiteSpaceCharacter: number): boolean => {
-  // TODO: Remove regex
-  const jumpMatch = jumpRegex.exec(parserState.lineAccumulator)
+  if (indexOfLastNonWhiteSpaceCharacter < 8) {
+    return false
+  }
 
-  if (jumpMatch !== null) {
-    const prefix = jumpMatch[1] as string
-    const labelName = jumpMatch[2] as string
+  if (!characterIsJ(parserState.lineAccumulator.charAt(0))) {
+    return false
+  }
 
+  if (!characterIsU(parserState.lineAccumulator.charAt(1))) {
+    return false
+  }
+
+  if (!characterIsM(parserState.lineAccumulator.charAt(2))) {
+    return false
+  }
+
+  if (!characterIsP(parserState.lineAccumulator.charAt(3))) {
+    return false
+  }
+
+  if (!characterIsWhitespace(parserState.lineAccumulator.charAt(4))) {
+    return false
+  }
+
+  let foundTo = false
+  let index = 5
+
+  for (; index < indexOfLastNonWhiteSpaceCharacter - 2; index++) {
+    const character = parserState.lineAccumulator.charAt(index)
+
+    if (characterIsWhitespace(character)) {
+      continue
+    }
+
+    if (!characterIsT(character)) {
+      continue
+    }
+
+    if (!characterIsO(parserState.lineAccumulator.charAt(index + 1))) {
+      continue
+    }
+
+    if (!characterIsWhitespace(parserState.lineAccumulator.charAt(index + 2))) {
+      continue
+    }
+
+    foundTo = true
+    break
+  }
+
+  if (!foundTo) {
+    return false
+  }
+
+  index += 3
+
+  let labelFromColumn = -1
+  let labelToColumn = -1
+  let foundWhen = false
+
+  for (; index < indexOfLastNonWhiteSpaceCharacter; index++) {
+    const character = parserState.lineAccumulator.charAt(index)
+
+    if (characterIsWhitespace(character)) {
+      if (index + 6 < indexOfLastNonWhiteSpaceCharacter) {
+        if (characterIsW(parserState.lineAccumulator.charAt(index + 1))) {
+          if (characterIsH(parserState.lineAccumulator.charAt(index + 2))) {
+            if (characterIsE(parserState.lineAccumulator.charAt(index + 3))) {
+              if (characterIsN(parserState.lineAccumulator.charAt(index + 4))) {
+                if (characterIsWhitespace(parserState.lineAccumulator.charAt(index + 5))) {
+                  index += 6
+                  foundWhen = true
+                  break
+                } else {
+                  continue
+                }
+              } else {
+                continue
+              }
+            } else {
+              continue
+            }
+          } else {
+            continue
+          }
+        } else {
+          continue
+        }
+      } else {
+        continue
+      }
+    } else {
+      if (labelFromColumn === -1) {
+        labelFromColumn = index
+      }
+
+      labelToColumn = index
+    }
+  }
+
+  let conditionFromColumn = -1
+
+  for (; index < indexOfLastNonWhiteSpaceCharacter; index++) {
+    if (characterIsWhitespace(parserState.lineAccumulator.charAt(index))) {
+      continue
+    }
+
+    conditionFromColumn = index
+    break
+  }
+
+  if (foundWhen && conditionFromColumn === -1) {
+    return false
+  }
+
+  const label = tryParseIdentifier(parserState, labelFromColumn, labelToColumn)
+
+  if (label === null) {
+    return false
+  }
+
+  let conditionAndIdentifiers: null | readonly [Condition, readonly Identifier[]] = null
+
+  if (foundWhen) {
+    // TODO: Is this ok (might have excess spaces at end)?  Should we be looking for last non white space ourselves?
+
+    conditionAndIdentifiers = tryParseCondition(parserState, conditionFromColumn, indexOfLastNonWhiteSpaceCharacter)
+
+    if (conditionAndIdentifiers === null) {
+      return false
+    }
+  }
+
+  addIdentifierToIndex(parserState, label, 'label', 'reference')
+
+  if (conditionAndIdentifiers !== null) {
+    addIdentifierListToIndex(parserState, conditionAndIdentifiers[1], 'flag', 'implicitDeclaration')
+  }
+
+  if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
     const previousInstruction =
     parserState.instructions.length > 0
       ? parserState.instructions[parserState.instructions.length - 1]
       : undefined
 
-    const label = normalizeIdentifier(
-      parserState,
-      'label',
-      'reference',
-      1 + prefix.length,
-      labelName
-    )
-
-    const [condition, conditionInstructions, conditionWarnings] =
-      parseCondition(
-        parserState,
-        1 + prefix.length + labelName.length,
-        jumpMatch,
-        3
-      )
-
-    if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
-      if (
-        previousInstruction !== undefined &&
-        previousInstruction.type === 'label' &&
-        condition === null
-      ) {
-        parserState.warnings.push({
-          type: 'emptyLabel',
-          line: previousInstruction.line,
-          label: previousInstruction.label
-        })
-      }
-
-      parserState.instructions.push(
-        {
-          type: 'jump',
-          line: parserState.line,
-          label,
-          instructionIndex: -1,
-          condition
-        },
-        ...conditionInstructions
-      )
-
-      parserState.warnings.push(...conditionWarnings)
-
-      checkIdentifierConsistency(parserState, 'label', label)
-
-      checkConditionConsistency(parserState, condition)
-
-      if (condition === null) {
-        parserState.reachability = 'firstUnreachable'
-      }
+    if (
+      previousInstruction !== undefined &&
+      previousInstruction.type === 'label' &&
+      conditionAndIdentifiers === null
+    ) {
+      parserState.warnings.push({
+        type: 'emptyLabel',
+        line: previousInstruction.line,
+        label: previousInstruction.label
+      })
     }
 
-    return true
-  } else {
-    return false
+    checkIdentifierConsistency(parserState, 'label', label)
+
+    parserState.instructions.push({
+      type: 'jump',
+      line: parserState.line,
+      label,
+      instructionIndex: -1,
+      condition: conditionAndIdentifiers === null ? null : conditionAndIdentifiers[0]
+    })
+
+    if (conditionAndIdentifiers === null) {
+      parserState.reachability = 'firstUnreachable'
+    } else {
+      checkConsistencyOfFlagIdentifiersInCondition(parserState, conditionAndIdentifiers[0])
+    }
   }
+
+  return true
 }

@@ -1,21 +1,16 @@
 import type { Identifier } from '../../Identifier'
-import { characterIsA } from '../characterIsA/index.js'
 import { characterIsComma } from '../characterIsComma/index.js'
-import { characterIsD } from '../characterIsD/index.js'
-import { characterIsN } from '../characterIsN/index.js'
+import { characterIsO } from '../characterIsO/index.js'
+import { characterIsR } from '../characterIsR/index.js'
 import { characterIsWhitespace } from '../characterIsWhitespace/index.js'
 import type { ParserState } from '../ParserState'
 import { tryParseIdentifier } from '../tryParseIdentifier/index.js'
 
-const isAnd = (parserState: ParserState, separatorFromColumn: number): boolean => {
-  if (characterIsA(parserState.lineAccumulator.charAt(separatorFromColumn + 1))) {
-    if (characterIsN(parserState.lineAccumulator.charAt(separatorFromColumn + 2))) {
-      if (characterIsD(parserState.lineAccumulator.charAt(separatorFromColumn + 3))) {
-        if (characterIsWhitespace(parserState.lineAccumulator.charAt(separatorFromColumn + 4))) {
-          return true
-        } else {
-          return false
-        }
+const isOr = (parserState: ParserState, separatorFromColumn: number): boolean => {
+  if (characterIsO(parserState.lineAccumulator.charAt(separatorFromColumn + 1))) {
+    if (characterIsR(parserState.lineAccumulator.charAt(separatorFromColumn + 2))) {
+      if (characterIsWhitespace(parserState.lineAccumulator.charAt(separatorFromColumn + 3))) {
+        return true
       } else {
         return false
       }
@@ -27,12 +22,12 @@ const isAnd = (parserState: ParserState, separatorFromColumn: number): boolean =
   }
 }
 
-export const tryParseAndIdentifierList = (
+export const tryParseOrIdentifierList = (
   parserState: ParserState,
   fromColumn: number,
   toColumn: number
 ): null | readonly [readonly Identifier[], readonly Identifier[]] => {
-  const lastPossibleSeparatorFromColumn = toColumn - 5
+  const lastPossibleSeparatorFromColumn = toColumn - 4
   let separatorFromColumn = fromColumn + 1
   let identifierFromColumn: number = characterIsWhitespace(parserState.lineAccumulator.charAt(fromColumn)) ? -1 : fromColumn
   let identifierToColumn: number = identifierFromColumn
@@ -65,7 +60,7 @@ export const tryParseAndIdentifierList = (
     }
 
     if (characterIsWhitespace(parserState.lineAccumulator.charAt(separatorFromColumn))) {
-      if (isAnd(parserState, separatorFromColumn)) {
+      if (isOr(parserState, separatorFromColumn)) {
         break
       }
     } else {
@@ -126,7 +121,7 @@ export const tryParseAndIdentifierList = (
   identifierFromColumn = -1
   identifierToColumn = -1
 
-  for (let index = separatorFromColumn + 5; index <= toColumn; index++) {
+  for (let index = separatorFromColumn + 4; index <= toColumn; index++) {
     if (!characterIsWhitespace(parserState.lineAccumulator.charAt(index))) {
       if (identifierFromColumn === -1) {
         identifierFromColumn = index
@@ -173,7 +168,6 @@ export const tryParseAndIdentifierList = (
       filteredOutput.push(second)
     } else if (emitWarnings) {
       if (parserState.reachability === 'reachable') {
-        // TODO: We need to defer this
         parserState.warnings.push({
           type: 'duplicateIdentifierInList',
           line: parserState.line,
@@ -184,5 +178,5 @@ export const tryParseAndIdentifierList = (
     }
   }
 
-  return [filteredOutput, output]
+  return [output, filteredOutput]
 }

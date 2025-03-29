@@ -1,3 +1,4 @@
+import { addIdentifierListToIndex } from '../../addIdentifierListToIndex/index.js'
 import { addIdentifierToIndex } from '../../addIdentifierToIndex/index.js'
 import { characterIsA } from '../../characterIsA/index.js'
 import { characterIsD } from '../../characterIsD/index.js'
@@ -106,24 +107,23 @@ export const tryParseEmote = (parserState: ParserState, indexOfLastNonWhiteSpace
               }
             }
 
+            const charactersAndIdentifiers = tryParseAndIdentifierList(parserState, 0, characterToColumn)
+
+            if (charactersAndIdentifiers === null) {
+              return false
+            }
+
             const emote = tryParseIdentifier(parserState, emoteFromColumn, emoteToColumn)
 
             if (emote === null) {
               return false
             }
 
-            // TODO: Avoid side effects if unreachable, but still check whether parsable!
-
-            const characters = tryParseAndIdentifierList(parserState, 0, characterToColumn, 'character')
-
-            if (characters === null) {
-              return false
-            }
-
+            addIdentifierListToIndex(parserState, charactersAndIdentifiers[1], 'character', 'implicitDeclaration')
             addIdentifierToIndex(parserState, emote, 'emote', 'implicitDeclaration')
 
             if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
-              for (const character of characters) {
+              for (const character of charactersAndIdentifiers[0]) {
                 checkIdentifierConsistency(parserState, 'character', character)
 
                 parserState.instructions.push({

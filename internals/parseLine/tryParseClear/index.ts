@@ -1,3 +1,4 @@
+import { addIdentifierListToIndex } from '../../addIdentifierListToIndex/index.js'
 import { characterIsA } from '../../characterIsA/index.js'
 import { characterIsC } from '../../characterIsC/index.js'
 import { characterIsE } from '../../characterIsE/index.js'
@@ -40,14 +41,16 @@ export const tryParseClear = (parserState: ParserState, indexOfLastNonWhiteSpace
     return false
   }
 
-  const flags = tryParseAndIdentifierList(parserState, 6, indexOfLastNonWhiteSpaceCharacter - 1, 'flag')
+  const flagsAndIdentifiers = tryParseAndIdentifierList(parserState, 6, indexOfLastNonWhiteSpaceCharacter - 1)
 
-  if (flags === null) {
+  if (flagsAndIdentifiers === null) {
     return false
   }
 
+  addIdentifierListToIndex(parserState, flagsAndIdentifiers[1], 'flag', 'implicitDeclaration')
+
   if (checkReachable(parserState, indexOfLastNonWhiteSpaceCharacter)) {
-    for (const flag of flags) {
+    for (const flag of flagsAndIdentifiers[0]) {
       parserState.instructions.push({
         type: 'clear',
         line: parserState.line,
