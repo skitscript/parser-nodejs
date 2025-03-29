@@ -13,7 +13,7 @@ import { characterIsT } from '../../characterIsT/index.js'
 import { characterIsU } from '../../characterIsU/index.js'
 import { characterIsW } from '../../characterIsW/index.js'
 import { characterIsWhitespace } from '../../characterIsWhitespace/index.js'
-import { checkConsistencyOfFlagIdentifiersInCondition } from '../../checkConsistencyOfFlagIdentifiersInCondition/index.js'
+import { checkConditionConsistency } from '../../checkConditionConsistency/index.js'
 import { checkIdentifierConsistency } from '../../checkIdentifierConsistency/index.js'
 import type { ParserState } from '../../ParserState'
 import { tryParseIdentifier } from '../../tryParseIdentifier/index.js'
@@ -191,7 +191,7 @@ export const tryParseJump = (parserState: ParserState): boolean => {
     if (conditionAndIdentifiers === null) {
       parserState.reachability = 'firstUnreachable'
     } else {
-      checkConsistencyOfFlagIdentifiersInCondition(parserState, conditionAndIdentifiers[0])
+      checkConditionConsistency(parserState, conditionAndIdentifiers[0])
     }
   }
 
