@@ -178,5 +178,5 @@ export const tryParseOrIdentifierList = (
     }
   }
 
-  return [output, filteredOutput]
+  return [filteredOutput, output]
 }
