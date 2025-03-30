@@ -12,6 +12,9 @@ import { tryParseExitAnimation } from './tryParseExitAnimation/index.js'
 import { parseFormatted } from '../parseFormatted/index.js'
 import { checkReachable } from './checkReachable/index.js'
 import { characterIsPeriod } from '../characterIsPeriod/index.js'
+import type { Warning } from '../../Warning'
+import type { IdentifierType } from '../../IdentifierType'
+import type { LocalIdentifierInstance } from '../LocalIdentifierInstance'
 
 export const parseLine = (parserState: ParserState): void => {
   parserState.line++
@@ -42,7 +45,18 @@ export const parseLine = (parserState: ParserState): void => {
     } else {
       const content = parseFormatted(parserState, parserState.indexOfFirstNonWhiteSpaceCharacter, parserState.indexOfLastNonWhiteSpaceCharacter)
 
-      if (content !== null && checkReachable(parserState)) {
+      const newWarnings: Warning[] = []
+      const newIdentifiers: { readonly [TIdentifierType in IdentifierType]: Record<string, LocalIdentifierInstance>; } = {
+        character: {},
+        emote: {},
+        entryAnimation: {},
+        exitAnimation: {},
+        label: {},
+        flag: {},
+        background: {}
+      }
+
+      if (content !== null && checkReachable(parserState, newWarnings, newIdentifiers)) {
         parserState.instructions.push({
           type: 'line',
           line: parserState.line,

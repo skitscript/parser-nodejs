@@ -1,8 +1,13 @@
 import type { Identifier } from '../../Identifier'
+import type { IdentifierContext } from '../../IdentifierContext'
+import type { IdentifierInstance } from '../../IdentifierInstance'
+import type { IdentifierType } from '../../IdentifierType'
+import type { Warning } from '../../Warning'
 import { characterIsComma } from '../characterIsComma/index.js'
 import { characterIsO } from '../characterIsO/index.js'
 import { characterIsR } from '../characterIsR/index.js'
 import { characterIsWhitespace } from '../characterIsWhitespace/index.js'
+import type { LocalIdentifierInstance } from '../LocalIdentifierInstance'
 import type { ParserState } from '../ParserState'
 import { tryParseIdentifier } from '../tryParseIdentifier/index.js'
 
@@ -25,8 +30,13 @@ const isOr = (parserState: ParserState, separatorFromColumn: number): boolean =>
 export const tryParseOrIdentifierList = (
   parserState: ParserState,
   fromColumn: number,
-  toColumn: number
-): null | readonly [readonly Identifier[], readonly Identifier[]] => {
+  toColumn: number,
+  type: IdentifierType,
+  context: IdentifierContext,
+  newIdentifierInstances: IdentifierInstance[],
+  newWarnings: Warning[],
+  newIdentifiers: { readonly [TIdentifierType in IdentifierType]: Record<string, LocalIdentifierInstance> }
+): null | readonly Identifier[] => {
   const lastPossibleSeparatorFromColumn = toColumn - 4
   let separatorFromColumn = fromColumn + 1
   let identifierFromColumn: number = characterIsWhitespace(parserState.lineAccumulator.charAt(fromColumn)) ? -1 : fromColumn
@@ -50,13 +60,13 @@ export const tryParseOrIdentifierList = (
         return null
       }
 
-      const sole = tryParseIdentifier(parserState, identifierFromColumn, identifierToColumn)
+      const sole = tryParseIdentifier(parserState, identifierFromColumn, identifierToColumn, type, context, newIdentifierInstances, newWarnings, newIdentifiers)
 
       if (sole === null) {
         return null
       }
 
-      return [[sole], [sole]]
+      return [sole]
     }
 
     if (characterIsWhitespace(parserState.lineAccumulator.charAt(separatorFromColumn))) {
@@ -86,7 +96,7 @@ export const tryParseOrIdentifierList = (
       if (identifierFromColumn === -1) {
         return null
       } else {
-        const next = tryParseIdentifier(parserState, identifierFromColumn, identifierToColumn)
+        const next = tryParseIdentifier(parserState, identifierFromColumn, identifierToColumn, type, context, newIdentifierInstances, newWarnings, newIdentifiers)
 
         if (next === null) {
           return null
@@ -110,7 +120,7 @@ export const tryParseOrIdentifierList = (
     return null
   }
 
-  const lastBeforeKeyword = tryParseIdentifier(parserState, identifierFromColumn, identifierToColumn)
+  const lastBeforeKeyword = tryParseIdentifier(parserState, identifierFromColumn, identifierToColumn, type, context, newIdentifierInstances, newWarnings, newIdentifiers)
 
   if (lastBeforeKeyword === null) {
     return null
@@ -135,7 +145,7 @@ export const tryParseOrIdentifierList = (
     return null
   }
 
-  const afterKeyword = tryParseIdentifier(parserState, identifierFromColumn, identifierToColumn)
+  const afterKeyword = tryParseIdentifier(parserState, identifierFromColumn, identifierToColumn, type, context, newIdentifierInstances, newWarnings, newIdentifiers)
 
   if (afterKeyword === null) {
     return null
@@ -168,15 +178,29 @@ export const tryParseOrIdentifierList = (
       filteredOutput.push(second)
     } else if (emitWarnings) {
       if (parserState.reachability === 'reachable') {
-        parserState.warnings.push({
+        newWarnings.push({
           type: 'duplicateIdentifierInList',
           line: parserState.line,
           first,
           second
         })
+
+        for (let index = 0; index < newWarnings.length;) {
+          const warning = newWarnings[index] as Warning
+
+          if (warning.type === 'inconsistentIdentifier') {
+            if (warning.second.fromColumn === second.fromColumn) {
+              newWarnings.splice(index, 1)
+            } else {
+              index++
+            }
+          } else {
+            index++
+          }
+        }
       }
     }
   }
 
-  return [filteredOutput, output]
+  return filteredOutput
 }

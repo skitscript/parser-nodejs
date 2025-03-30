@@ -1,5 +1,6 @@
-import { addIdentifierListToIndex } from '../../addIdentifierListToIndex/index.js'
-import { addIdentifierToIndex } from '../../addIdentifierToIndex/index.js'
+import type { IdentifierInstance } from '../../../IdentifierInstance/index.js'
+import type { IdentifierType } from '../../../IdentifierType/index.js'
+import type { Warning } from '../../../Warning/index.js'
 import { characterIsA } from '../../characterIsA/index.js'
 import { characterIsD } from '../../characterIsD/index.js'
 import { characterIsE } from '../../characterIsE/index.js'
@@ -8,7 +9,7 @@ import { characterIsN } from '../../characterIsN/index.js'
 import { characterIsR } from '../../characterIsR/index.js'
 import { characterIsS } from '../../characterIsS/index.js'
 import { characterIsWhitespace } from '../../characterIsWhitespace/index.js'
-import { checkIdentifierConsistency } from '../../checkIdentifierConsistency/index.js'
+import type { LocalIdentifierInstance } from '../../LocalIdentifierInstance/index.js'
 import type { ParserState } from '../../ParserState'
 import { tryParseAndIdentifierList } from '../../tryParseAndIdentifierList/index.js'
 import { tryParseIdentifier } from '../../tryParseIdentifier/index.js'
@@ -107,25 +108,34 @@ export const tryParseEmote = (parserState: ParserState): boolean => {
               }
             }
 
-            const charactersAndIdentifiers = tryParseAndIdentifierList(parserState, 0, characterToColumn)
+            const newIdentifierInstances: IdentifierInstance[] = []
+            const newWarnings: Warning[] = []
+            const newIdentifiers: { readonly [TIdentifierType in IdentifierType]: Record<string, LocalIdentifierInstance>; } = {
+              character: {},
+              emote: {},
+              entryAnimation: {},
+              exitAnimation: {},
+              label: {},
+              flag: {},
+              background: {}
+            }
 
-            if (charactersAndIdentifiers === null) {
+            const characters = tryParseAndIdentifierList(parserState, 0, characterToColumn, 'character', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
+
+            if (characters === null) {
               return false
             }
 
-            const emote = tryParseIdentifier(parserState, emoteFromColumn, emoteToColumn)
+            const emote = tryParseIdentifier(parserState, emoteFromColumn, emoteToColumn, 'emote', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
             if (emote === null) {
               return false
             }
 
-            addIdentifierListToIndex(parserState, charactersAndIdentifiers[1], 'character', 'implicitDeclaration')
-            addIdentifierToIndex(parserState, emote, 'emote', 'implicitDeclaration')
+            parserState.identifierInstances.push(...newIdentifierInstances)
 
-            if (checkReachable(parserState)) {
-              for (const character of charactersAndIdentifiers[0]) {
-                checkIdentifierConsistency(parserState, 'character', character)
-
+            if (checkReachable(parserState, newWarnings, newIdentifiers)) {
+              for (const character of characters) {
                 parserState.instructions.push({
                   type: 'emote',
                   line: parserState.line,
@@ -133,8 +143,6 @@ export const tryParseEmote = (parserState: ParserState): boolean => {
                   emote
                 })
               }
-
-              checkIdentifierConsistency(parserState, 'emote', emote)
             }
 
             return true
@@ -165,7 +173,19 @@ export const tryParseEmote = (parserState: ParserState): boolean => {
           emoteFromColumn++
         }
 
-        const character = tryParseIdentifier(parserState, 0, characterToColumn)
+        const newIdentifierInstances: IdentifierInstance[] = []
+        const newWarnings: Warning[] = []
+        const newIdentifiers: { readonly [TIdentifierType in IdentifierType]: Record<string, LocalIdentifierInstance>; } = {
+          character: {},
+          emote: {},
+          entryAnimation: {},
+          exitAnimation: {},
+          label: {},
+          flag: {},
+          background: {}
+        }
+
+        const character = tryParseIdentifier(parserState, 0, characterToColumn, 'character', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
         if (character === null) {
           return false
@@ -179,19 +199,15 @@ export const tryParseEmote = (parserState: ParserState): boolean => {
           }
         }
 
-        const emote = tryParseIdentifier(parserState, emoteFromColumn, emoteToColumn)
+        const emote = tryParseIdentifier(parserState, emoteFromColumn, emoteToColumn, 'emote', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
         if (emote === null) {
           return false
         }
 
-        addIdentifierToIndex(parserState, character, 'character', 'implicitDeclaration')
-        addIdentifierToIndex(parserState, emote, 'emote', 'implicitDeclaration')
+        parserState.identifierInstances.push(...newIdentifierInstances)
 
-        if (checkReachable(parserState)) {
-          checkIdentifierConsistency(parserState, 'character', character)
-          checkIdentifierConsistency(parserState, 'emote', emote)
-
+        if (checkReachable(parserState, newWarnings, newIdentifiers)) {
           parserState.instructions.push({
             type: 'emote',
             line: parserState.line,

@@ -1,5 +1,6 @@
-import { addIdentifierListToIndex } from '../../addIdentifierListToIndex/index.js'
-import { addIdentifierToIndex } from '../../addIdentifierToIndex/index.js'
+import type { IdentifierInstance } from '../../../IdentifierInstance/index.js'
+import type { IdentifierType } from '../../../IdentifierType/index.js'
+import type { Warning } from '../../../Warning/index.js'
 import { characterIsA } from '../../characterIsA/index.js'
 import { characterIsComma } from '../../characterIsComma/index.js'
 import { characterIsD } from '../../characterIsD/index.js'
@@ -9,7 +10,7 @@ import { characterIsR } from '../../characterIsR/index.js'
 import { characterIsS } from '../../characterIsS/index.js'
 import { characterIsT } from '../../characterIsT/index.js'
 import { characterIsWhitespace } from '../../characterIsWhitespace/index.js'
-import { checkIdentifierConsistency } from '../../checkIdentifierConsistency/index.js'
+import type { LocalIdentifierInstance } from '../../LocalIdentifierInstance/index.js'
 import type { ParserState } from '../../ParserState'
 import { tryParseAndIdentifierList } from '../../tryParseAndIdentifierList/index.js'
 import { tryParseIdentifier } from '../../tryParseIdentifier/index.js'
@@ -137,38 +138,44 @@ export const tryParseEntryAnimation = (parserState: ParserState): boolean => {
             }
           }
 
+          const newIdentifierInstances: IdentifierInstance[] = []
+          const newWarnings: Warning[] = []
+          const newIdentifiers: { readonly [TIdentifierType in IdentifierType]: Record<string, LocalIdentifierInstance>; } = {
+            character: {},
+            emote: {},
+            entryAnimation: {},
+            exitAnimation: {},
+            label: {},
+            flag: {},
+            background: {}
+          }
+
           if (foundComma) {
             if (emoteFrom === -1) {
               return false
             }
 
-            const character = tryParseIdentifier(parserState, 0, characterToColumn)
+            const character = tryParseIdentifier(parserState, 0, characterToColumn, 'character', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
             if (character === null) {
               return false
             }
 
-            const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn)
+            const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn, 'entryAnimation', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
             if (animation === null) {
               return false
             }
 
-            const emote = tryParseIdentifier(parserState, emoteFrom, emoteTo)
+            const emote = tryParseIdentifier(parserState, emoteFrom, emoteTo, 'emote', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
             if (emote === null) {
               return false
             }
 
-            addIdentifierToIndex(parserState, character, 'character', 'implicitDeclaration')
-            addIdentifierToIndex(parserState, animation, 'entryAnimation', 'implicitDeclaration')
-            addIdentifierToIndex(parserState, emote, 'emote', 'implicitDeclaration')
+            parserState.identifierInstances.push(...newIdentifierInstances)
 
-            if (checkReachable(parserState)) {
-              checkIdentifierConsistency(parserState, 'character', character)
-              checkIdentifierConsistency(parserState, 'entryAnimation', animation)
-              checkIdentifierConsistency(parserState, 'emote', emote)
-
+            if (checkReachable(parserState, newWarnings, newIdentifiers)) {
               parserState.instructions.push({
                 type: 'entryAnimation',
                 line: parserState.line,
@@ -186,25 +193,21 @@ export const tryParseEntryAnimation = (parserState: ParserState): boolean => {
               return false
             }
 
-            const character = tryParseIdentifier(parserState, 0, characterToColumn)
+            const character = tryParseIdentifier(parserState, 0, characterToColumn, 'character', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
             if (character === null) {
               return false
             }
 
-            const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn)
+            const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn, 'entryAnimation', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
             if (animation === null) {
               return false
             }
 
-            addIdentifierToIndex(parserState, character, 'character', 'implicitDeclaration')
-            addIdentifierToIndex(parserState, animation, 'entryAnimation', 'implicitDeclaration')
+            parserState.identifierInstances.push(...newIdentifierInstances)
 
-            if (checkReachable(parserState)) {
-              checkIdentifierConsistency(parserState, 'character', character)
-              checkIdentifierConsistency(parserState, 'entryAnimation', animation)
-
+            if (checkReachable(parserState, newWarnings, newIdentifiers)) {
               parserState.instructions.push({
                 type: 'entryAnimation',
                 line: parserState.line,
@@ -258,42 +261,45 @@ export const tryParseEntryAnimation = (parserState: ParserState): boolean => {
             }
           }
 
+          const newIdentifierInstances: IdentifierInstance[] = []
+          const newWarnings: Warning[] = []
+          const newIdentifiers: { readonly [TIdentifierType in IdentifierType]: Record<string, LocalIdentifierInstance>; } = {
+            character: {},
+            emote: {},
+            entryAnimation: {},
+            exitAnimation: {},
+            label: {},
+            flag: {},
+            background: {}
+          }
+
           if (foundComma) {
             if (emoteFrom === -1) {
               return false
             }
 
-            const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn)
+            const characters = tryParseAndIdentifierList(parserState, 0, characterToColumn, 'character', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
+
+            if (characters === null) {
+              return false
+            }
+
+            const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn, 'entryAnimation', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
             if (animation === null) {
               return false
             }
 
-            const emote = tryParseIdentifier(parserState, emoteFrom, emoteTo)
+            const emote = tryParseIdentifier(parserState, emoteFrom, emoteTo, 'emote', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
             if (emote === null) {
               return false
             }
 
-            const charactersAndIdentifiers = tryParseAndIdentifierList(parserState, 0, characterToColumn)
+            parserState.identifierInstances.push(...newIdentifierInstances)
 
-            if (charactersAndIdentifiers === null) {
-              return false
-            }
-
-            addIdentifierListToIndex(parserState, charactersAndIdentifiers[1], 'character', 'implicitDeclaration')
-            addIdentifierToIndex(parserState, animation, 'entryAnimation', 'implicitDeclaration')
-            addIdentifierToIndex(parserState, emote, 'emote', 'implicitDeclaration')
-
-            if (checkReachable(parserState)) {
-              for (const character of charactersAndIdentifiers[0]) {
-                checkIdentifierConsistency(parserState, 'character', character)
-              }
-
-              checkIdentifierConsistency(parserState, 'entryAnimation', animation)
-              checkIdentifierConsistency(parserState, 'emote', emote)
-
-              for (const character of charactersAndIdentifiers[0]) {
+            if (checkReachable(parserState, newWarnings, newIdentifiers)) {
+              for (const character of characters) {
                 parserState.instructions.push({
                   type: 'entryAnimation',
                   line: parserState.line,
@@ -302,7 +308,7 @@ export const tryParseEntryAnimation = (parserState: ParserState): boolean => {
                 })
               }
 
-              for (const character of charactersAndIdentifiers[0]) {
+              for (const character of characters) {
                 parserState.instructions.push({
                   type: 'emote',
                   line: parserState.line,
@@ -316,34 +322,29 @@ export const tryParseEntryAnimation = (parserState: ParserState): boolean => {
               return false
             }
 
-            const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn)
+            const characters = tryParseAndIdentifierList(parserState, 0, characterToColumn, 'character', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
+
+            if (characters === null) {
+              return false
+            }
+
+            const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn, 'entryAnimation', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
             if (animation === null) {
               return false
             }
 
-            const charactersAndIdentifiers = tryParseAndIdentifierList(parserState, 0, characterToColumn)
+            parserState.identifierInstances.push(...newIdentifierInstances)
 
-            if (charactersAndIdentifiers === null) {
-              return false
-            }
-
-            addIdentifierListToIndex(parserState, charactersAndIdentifiers[1], 'character', 'implicitDeclaration')
-            addIdentifierToIndex(parserState, animation, 'entryAnimation', 'implicitDeclaration')
-
-            if (checkReachable(parserState)) {
-              for (const character of charactersAndIdentifiers[0]) {
+            if (checkReachable(parserState, newWarnings, newIdentifiers)) {
+              for (const character of characters) {
                 parserState.instructions.push({
                   type: 'entryAnimation',
                   line: parserState.line,
                   character,
                   animation
                 })
-
-                checkIdentifierConsistency(parserState, 'character', character)
               }
-
-              checkIdentifierConsistency(parserState, 'entryAnimation', animation)
             }
           }
 

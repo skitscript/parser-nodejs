@@ -1,9 +1,11 @@
-import { addIdentifierListToIndex } from '../../addIdentifierListToIndex/index.js'
+import type { IdentifierInstance } from '../../../IdentifierInstance/index.js'
+import type { IdentifierType } from '../../../IdentifierType/index.js'
+import type { Warning } from '../../../Warning/index.js'
 import { characterIsE } from '../../characterIsE/index.js'
 import { characterIsS } from '../../characterIsS/index.js'
 import { characterIsT } from '../../characterIsT/index.js'
 import { characterIsWhitespace } from '../../characterIsWhitespace/index.js'
-import { checkIdentifierConsistency } from '../../checkIdentifierConsistency/index.js'
+import type { LocalIdentifierInstance } from '../../LocalIdentifierInstance/index.js'
 import type { ParserState } from '../../ParserState'
 import { tryParseAndIdentifierList } from '../../tryParseAndIdentifierList/index.js'
 import { checkReachable } from '../checkReachable/index.js'
@@ -29,23 +31,33 @@ export const tryParseSet = (parserState: ParserState): boolean => {
     return false
   }
 
-  const flagsAndIdentifiers = tryParseAndIdentifierList(parserState, 4, parserState.indexOfLastNonWhiteSpaceCharacter - 1)
+  const newIdentifierInstances: IdentifierInstance[] = []
+  const newWarnings: Warning[] = []
+  const newIdentifiers: { readonly [TIdentifierType in IdentifierType]: Record<string, LocalIdentifierInstance>; } = {
+    character: {},
+    emote: {},
+    entryAnimation: {},
+    exitAnimation: {},
+    label: {},
+    flag: {},
+    background: {}
+  }
 
-  if (flagsAndIdentifiers === null) {
+  const flags = tryParseAndIdentifierList(parserState, 4, parserState.indexOfLastNonWhiteSpaceCharacter - 1, 'flag', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
+
+  if (flags === null) {
     return false
   }
 
-  addIdentifierListToIndex(parserState, flagsAndIdentifiers[1], 'flag', 'implicitDeclaration')
+  parserState.identifierInstances.push(...newIdentifierInstances)
 
-  if (checkReachable(parserState)) {
-    for (const flag of flagsAndIdentifiers[0]) {
+  if (checkReachable(parserState, newWarnings, newIdentifiers)) {
+    for (const flag of flags) {
       parserState.instructions.push({
         type: 'set',
         line: parserState.line,
         flag
       })
-
-      checkIdentifierConsistency(parserState, 'flag', flag)
     }
   }
 

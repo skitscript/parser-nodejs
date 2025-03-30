@@ -1,4 +1,6 @@
-import { addIdentifierToIndex } from '../../addIdentifierToIndex/index.js'
+import type { IdentifierInstance } from '../../../IdentifierInstance/index.js'
+import type { IdentifierType } from '../../../IdentifierType/index.js'
+import type { Warning } from '../../../Warning/index.js'
 import { characterIsA } from '../../characterIsA/index.js'
 import { characterIsC } from '../../characterIsC/index.js'
 import { characterIsColon } from '../../characterIsColon/index.js'
@@ -8,7 +10,7 @@ import { characterIsN } from '../../characterIsN/index.js'
 import { characterIsO } from '../../characterIsO/index.js'
 import { characterIsT } from '../../characterIsT/index.js'
 import { characterIsWhitespace } from '../../characterIsWhitespace/index.js'
-import { checkIdentifierConsistency } from '../../checkIdentifierConsistency/index.js'
+import type { LocalIdentifierInstance } from '../../LocalIdentifierInstance/index.js'
 import type { ParserState } from '../../ParserState'
 import { tryParseIdentifier } from '../../tryParseIdentifier/index.js'
 import { checkReachable } from '../checkReachable/index.js'
@@ -88,22 +90,34 @@ export const tryParseLocation = (parserState: ParserState): boolean => {
     toColumn--
   }
 
-  const background = tryParseIdentifier(parserState, fromColumn, toColumn)
+  // TODO: background -> location
+
+  const newIdentifierInstances: IdentifierInstance[] = []
+  const newWarnings: Warning[] = []
+  const newIdentifiers: { readonly [TIdentifierType in IdentifierType]: Record<string, LocalIdentifierInstance>; } = {
+    character: {},
+    emote: {},
+    entryAnimation: {},
+    exitAnimation: {},
+    label: {},
+    flag: {},
+    background: {}
+  }
+
+  const background = tryParseIdentifier(parserState, fromColumn, toColumn, 'background', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
   if (background === null) {
     return false
   }
 
-  addIdentifierToIndex(parserState, background, 'background', 'implicitDeclaration')
+  parserState.identifierInstances.push(...newIdentifierInstances)
 
-  if (checkReachable(parserState)) {
+  if (checkReachable(parserState, newWarnings, newIdentifiers)) {
     parserState.instructions.push({
       type: 'location',
       line: parserState.line,
       background
     })
-
-    checkIdentifierConsistency(parserState, 'background', background)
   }
 
   return true

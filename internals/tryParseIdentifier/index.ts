@@ -1,6 +1,11 @@
 import type { Identifier } from '../../Identifier'
+import type { IdentifierContext } from '../../IdentifierContext'
+import type { IdentifierInstance } from '../../IdentifierInstance'
+import type { IdentifierType } from '../../IdentifierType'
+import type { Warning } from '../../Warning'
 import { characterIsExcludedFromIdentifiers } from '../characterIsExcludedFromIdentifiers/index.js'
 import { characterIsInvalidInIdentifiers } from '../characterIsInvalidInIdentifiers/index.js'
+import type { LocalIdentifierInstance } from '../LocalIdentifierInstance'
 import type { ParserState } from '../ParserState'
 import { transformCharacterToLowerCase } from '../transformCharacterToLowerCase/index.js'
 import { wordIsInvalidInIdentifiers } from '../wordIsInvalidInIdentifiers/index.js'
@@ -8,7 +13,12 @@ import { wordIsInvalidInIdentifiers } from '../wordIsInvalidInIdentifiers/index.
 export const tryParseIdentifier = (
   parserState: ParserState,
   fromColumn: number,
-  toColumn: number
+  toColumn: number,
+  type: IdentifierType,
+  context: IdentifierContext,
+  newIdentifierInstances: IdentifierInstance[],
+  newWarnings: Warning[],
+  newIdentifiers: { readonly [TIdentifierType in IdentifierType]: Record<string, LocalIdentifierInstance> }
 ): null | Identifier => {
   let includedFromColumn = fromColumn
 
@@ -95,6 +105,56 @@ export const tryParseIdentifier = (
     fromColumn: fromColumn + 1,
     toColumn: toColumn + 1
   }
+
+  const identifiersByType = parserState.identifiers[type]
+  const newIdentifiersByType = newIdentifiers[type]
+
+  const existing = Object.prototype.hasOwnProperty.call(
+    identifiersByType,
+    identifier.normalized
+  )
+    ? identifiersByType[identifier.normalized] as LocalIdentifierInstance
+    : (
+        Object.prototype.hasOwnProperty.call(
+          newIdentifiersByType,
+          identifier.normalized
+        )
+          ? newIdentifiersByType[identifier.normalized] as LocalIdentifierInstance
+          : null
+      )
+
+  const identifierReference = {
+    ...identifier,
+    line: parserState.line
+  }
+
+  if (existing === null) {
+    newIdentifiersByType[identifier.normalized] = {
+      first: identifierReference,
+      reportedInconsistent: false
+    }
+  } else {
+    if (
+      !existing.reportedInconsistent &&
+      existing.first.verbatim !== identifier.verbatim &&
+      existing.first.line !== parserState.line
+    ) {
+      newWarnings.push({
+        type: 'inconsistentIdentifier',
+        first: existing.first,
+        second: identifierReference
+      })
+
+      existing.reportedInconsistent = true
+    }
+  }
+
+  newIdentifierInstances.push({
+    ...identifier,
+    type,
+    context,
+    line: parserState.line
+  })
 
   return identifier
 }

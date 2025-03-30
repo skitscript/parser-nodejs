@@ -1,7 +1,7 @@
 import type { Condition } from '../../../Condition'
-import type { Identifier } from '../../../Identifier'
-import { addIdentifierListToIndex } from '../../addIdentifierListToIndex/index.js'
-import { addIdentifierToIndex } from '../../addIdentifierToIndex/index.js'
+import type { IdentifierInstance } from '../../../IdentifierInstance'
+import type { IdentifierType } from '../../../IdentifierType'
+import type { Warning } from '../../../Warning'
 import { characterIsE } from '../../characterIsE/index.js'
 import { characterIsH } from '../../characterIsH/index.js'
 import { characterIsJ } from '../../characterIsJ/index.js'
@@ -13,8 +13,7 @@ import { characterIsT } from '../../characterIsT/index.js'
 import { characterIsU } from '../../characterIsU/index.js'
 import { characterIsW } from '../../characterIsW/index.js'
 import { characterIsWhitespace } from '../../characterIsWhitespace/index.js'
-import { checkConditionConsistency } from '../../checkConditionConsistency/index.js'
-import { checkIdentifierConsistency } from '../../checkIdentifierConsistency/index.js'
+import type { LocalIdentifierInstance } from '../../LocalIdentifierInstance'
 import type { ParserState } from '../../ParserState'
 import { tryParseIdentifier } from '../../tryParseIdentifier/index.js'
 import { checkReachable } from '../checkReachable/index.js'
@@ -136,31 +135,39 @@ export const tryParseJump = (parserState: ParserState): boolean => {
     return false
   }
 
-  const label = tryParseIdentifier(parserState, labelFromColumn, labelToColumn)
+  const newIdentifierInstances: IdentifierInstance[] = []
+  const newWarnings: Warning[] = []
+  const newIdentifiers: { readonly [TIdentifierType in IdentifierType]: Record<string, LocalIdentifierInstance>; } = {
+    character: {},
+    emote: {},
+    entryAnimation: {},
+    exitAnimation: {},
+    label: {},
+    flag: {},
+    background: {}
+  }
+
+  const label = tryParseIdentifier(parserState, labelFromColumn, labelToColumn, 'label', 'reference', newIdentifierInstances, newWarnings, newIdentifiers)
 
   if (label === null) {
     return false
   }
 
-  let conditionAndIdentifiers: null | readonly [Condition, readonly Identifier[]] = null
+  let condition: null | Condition = null
 
   if (foundWhen) {
     // TODO: Is this ok (might have excess spaces at end)?  Should we be looking for last non white space ourselves?
 
-    conditionAndIdentifiers = tryParseCondition(parserState, conditionFromColumn)
+    condition = tryParseCondition(parserState, conditionFromColumn, newIdentifierInstances, newWarnings, newIdentifiers)
 
-    if (conditionAndIdentifiers === null) {
+    if (condition === null) {
       return false
     }
   }
 
-  addIdentifierToIndex(parserState, label, 'label', 'reference')
+  parserState.identifierInstances.push(...newIdentifierInstances)
 
-  if (conditionAndIdentifiers !== null) {
-    addIdentifierListToIndex(parserState, conditionAndIdentifiers[1], 'flag', 'implicitDeclaration')
-  }
-
-  if (checkReachable(parserState)) {
+  if (checkReachable(parserState, newWarnings, newIdentifiers)) {
     const previousInstruction =
     parserState.instructions.length > 0
       ? parserState.instructions[parserState.instructions.length - 1]
@@ -169,7 +176,7 @@ export const tryParseJump = (parserState: ParserState): boolean => {
     if (
       previousInstruction !== undefined &&
       previousInstruction.type === 'label' &&
-      conditionAndIdentifiers === null
+      condition === null
     ) {
       parserState.warnings.push({
         type: 'emptyLabel',
@@ -178,20 +185,16 @@ export const tryParseJump = (parserState: ParserState): boolean => {
       })
     }
 
-    checkIdentifierConsistency(parserState, 'label', label)
-
     parserState.instructions.push({
       type: 'jump',
       line: parserState.line,
       label,
       instructionIndex: -1,
-      condition: conditionAndIdentifiers === null ? null : conditionAndIdentifiers[0]
+      condition
     })
 
-    if (conditionAndIdentifiers === null) {
+    if (condition === null) {
       parserState.reachability = 'firstUnreachable'
-    } else {
-      checkConditionConsistency(parserState, conditionAndIdentifiers[0])
     }
   }
 

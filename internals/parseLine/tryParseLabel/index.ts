@@ -1,7 +1,5 @@
-import { addIdentifierToIndex } from '../../addIdentifierToIndex/index.js'
 import { characterIsTilde } from '../../characterIsTilde/index.js'
 import { characterIsWhitespace } from '../../characterIsWhitespace/index.js'
-import { checkIdentifierConsistency } from '../../checkIdentifierConsistency/index.js'
 import type { ParserState } from '../../ParserState'
 import { tryParseIdentifier } from '../../tryParseIdentifier/index.js'
 
@@ -37,13 +35,11 @@ export const tryParseLabel = (parserState: ParserState): boolean => {
     toColumn--
   }
 
-  const name = tryParseIdentifier(parserState, fromColumn, toColumn)
+  const name = tryParseIdentifier(parserState, fromColumn, toColumn, 'label', 'declaration', parserState.identifierInstances, parserState.warnings, parserState.identifiers)
 
   if (name === null) {
     return false
   }
-
-  addIdentifierToIndex(parserState, name, 'label', 'declaration')
 
   for (const previousInstruction of parserState.instructions) {
     if (
@@ -71,8 +67,6 @@ export const tryParseLabel = (parserState: ParserState): boolean => {
     line: parserState.line,
     label: name
   })
-
-  checkIdentifierConsistency(parserState, 'label', name)
 
   parserState.reachability = 'reachable'
 

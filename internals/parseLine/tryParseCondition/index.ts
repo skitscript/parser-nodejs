@@ -1,5 +1,8 @@
 import type { Condition } from '../../../Condition'
 import type { Identifier } from '../../../Identifier'
+import type { IdentifierInstance } from '../../../IdentifierInstance'
+import type { IdentifierType } from '../../../IdentifierType'
+import type { Warning } from '../../../Warning'
 import { characterIsA } from '../../characterIsA/index.js'
 import { characterIsD } from '../../characterIsD/index.js'
 import { characterIsN } from '../../characterIsN/index.js'
@@ -7,6 +10,7 @@ import { characterIsO } from '../../characterIsO/index.js'
 import { characterIsR } from '../../characterIsR/index.js'
 import { characterIsT } from '../../characterIsT/index.js'
 import { characterIsWhitespace } from '../../characterIsWhitespace/index.js'
+import type { LocalIdentifierInstance } from '../../LocalIdentifierInstance'
 import type { ParserState } from '../../ParserState'
 import { tryParseAndIdentifierList } from '../../tryParseAndIdentifierList/index.js'
 import { tryParseIdentifier } from '../../tryParseIdentifier/index.js'
@@ -70,8 +74,11 @@ const isAnd = (parserState: ParserState, index: number): boolean => {
 
 export const tryParseCondition = (
   parserState: ParserState,
-  fromColumn: number
-): null | readonly [Condition, readonly Identifier[]] => {
+  fromColumn: number,
+  newIdentifierInstances: IdentifierInstance[],
+  newWarnings: Warning[],
+  newIdentifiers: { readonly [TIdentifierType in IdentifierType]: Record<string, LocalIdentifierInstance>; }
+): null | Condition => {
   let foundNot = false
   let foundOr = false
   let foundAnd = false
@@ -146,91 +153,91 @@ export const tryParseCondition = (
 
   if (foundNot) {
     if (foundAnd) {
-      const flagsAndIdentifiers = tryParseAndIdentifierList(parserState, listStarts, listEnds)
+      const flags = tryParseAndIdentifierList(parserState, listStarts, listEnds, 'flag', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
-      if (flagsAndIdentifiers === null) {
+      if (flags === null) {
         return null
-      } else if (flagsAndIdentifiers[0].length === 1) {
-        return [{
+      } else if (flags.length === 1) {
+        return {
           type: 'flagClear',
-          flag: flagsAndIdentifiers[0][0] as Identifier
-        }, flagsAndIdentifiers[1]]
+          flag: flags[0] as Identifier
+        }
       } else {
-        return [{
+        return {
           type: 'someFlagsClear',
-          flags: flagsAndIdentifiers[0]
-        }, flagsAndIdentifiers[1]]
+          flags
+        }
       }
     } else if (foundOr) {
-      const flagsAndIdentifiers = tryParseOrIdentifierList(parserState, listStarts, listEnds)
+      const flags = tryParseOrIdentifierList(parserState, listStarts, listEnds, 'flag', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
-      if (flagsAndIdentifiers === null) {
+      if (flags === null) {
         return null
-      } else if (flagsAndIdentifiers[0].length === 1) {
-        return [{
+      } else if (flags.length === 1) {
+        return {
           type: 'flagClear',
-          flag: flagsAndIdentifiers[0][0] as Identifier
-        }, flagsAndIdentifiers[1]]
+          flag: flags[0] as Identifier
+        }
       } else {
-        return [{
+        return {
           type: 'everyFlagClear',
-          flags: flagsAndIdentifiers[0]
-        }, flagsAndIdentifiers[1]]
+          flags
+        }
       }
     } else {
-      const flag = tryParseIdentifier(parserState, listStarts, listEnds)
+      const flag = tryParseIdentifier(parserState, listStarts, listEnds, 'flag', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
       if (flag === null) {
         return null
       } else {
-        return [{
+        return {
           type: 'flagClear',
           flag
-        }, [flag]]
+        }
       }
     }
   } else if (foundAnd) {
-    const flagsAndIdentifiers = tryParseAndIdentifierList(parserState, listStarts, listEnds)
+    const flags = tryParseAndIdentifierList(parserState, listStarts, listEnds, 'flag', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
-    if (flagsAndIdentifiers === null) {
+    if (flags === null) {
       return null
-    } else if (flagsAndIdentifiers[0].length === 1) {
-      return [{
+    } else if (flags.length === 1) {
+      return {
         type: 'flagSet',
-        flag: flagsAndIdentifiers[0][0] as Identifier
-      }, flagsAndIdentifiers[1]]
+        flag: flags[0] as Identifier
+      }
     } else {
-      return [{
+      return {
         type: 'everyFlagSet',
-        flags: flagsAndIdentifiers[0]
-      }, flagsAndIdentifiers[1]]
+        flags
+      }
     }
   } else if (foundOr) {
-    const flagsAndIdentifiers = tryParseOrIdentifierList(parserState, listStarts, listEnds)
+    const flags = tryParseOrIdentifierList(parserState, listStarts, listEnds, 'flag', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
-    if (flagsAndIdentifiers === null) {
+    if (flags === null) {
       return null
-    } else if (flagsAndIdentifiers[0].length === 1) {
-      return [{
+    } else if (flags.length === 1) {
+      return {
         type: 'flagSet',
-        flag: flagsAndIdentifiers[0][0] as Identifier
-      }, flagsAndIdentifiers[1]]
+        flag: flags[0] as Identifier
+      }
     } else {
-      return [{
+      return {
         type: 'someFlagsSet',
-        flags: flagsAndIdentifiers[0]
-      }, flagsAndIdentifiers[1]]
+        flags
+      }
     }
   } else {
-    const flag = tryParseIdentifier(parserState, listStarts, listEnds)
+    const flag = tryParseIdentifier(parserState, listStarts, listEnds, 'flag', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
     if (flag === null) {
       return null
     } else {
-      return [{
+      return {
         type: 'flagSet',
         flag
-      }, [flag]]
+      }
     }
   }
 }

@@ -1,7 +1,7 @@
 import type { Condition } from '../../../Condition'
-import type { Identifier } from '../../../Identifier'
-import { addIdentifierListToIndex } from '../../addIdentifierListToIndex/index.js'
-import { addIdentifierToIndex } from '../../addIdentifierToIndex/index.js'
+import type { IdentifierInstance } from '../../../IdentifierInstance'
+import type { IdentifierType } from '../../../IdentifierType'
+import type { Warning } from '../../../Warning'
 import { characterIsA } from '../../characterIsA/index.js'
 import { characterIsD } from '../../characterIsD/index.js'
 import { characterIsE } from '../../characterIsE/index.js'
@@ -14,12 +14,14 @@ import { characterIsS } from '../../characterIsS/index.js'
 import { characterIsT } from '../../characterIsT/index.js'
 import { characterIsW } from '../../characterIsW/index.js'
 import { characterIsWhitespace } from '../../characterIsWhitespace/index.js'
-import { checkConditionConsistency } from '../../checkConditionConsistency/index.js'
-import { checkIdentifierConsistency } from '../../checkIdentifierConsistency/index.js'
+import type { LocalIdentifierInstance } from '../../LocalIdentifierInstance'
 import { parseFormatted } from '../../parseFormatted/index.js'
 import type { ParserState } from '../../ParserState'
 import { tryParseIdentifier } from '../../tryParseIdentifier/index.js'
 import { tryParseCondition } from '../tryParseCondition/index.js'
+
+// TODO: Valid with excess space
+// TODO: Valid with minimal space
 
 const isLeads = (parserState: ParserState, index: number): boolean => {
   if (index >= 8) {
@@ -194,22 +196,34 @@ export const tryParseMenuOption = (parserState: ParserState): boolean => {
     return false
   }
 
-  let conditionAndIdentifiers: null | readonly [Condition, readonly Identifier[]]
-
-  if (conditionFrom === -1) {
-    conditionAndIdentifiers = null
-  } else {
-    conditionAndIdentifiers = tryParseCondition(parserState, conditionFrom)
-
-    if (conditionAndIdentifiers === null) {
-      return false
-    }
+  const newIdentifierInstances: IdentifierInstance[] = []
+  const newWarnings: Warning[] = []
+  const newIdentifiers: { readonly [TIdentifierType in IdentifierType]: Record<string, LocalIdentifierInstance>; } = {
+    character: {},
+    emote: {},
+    entryAnimation: {},
+    exitAnimation: {},
+    label: {},
+    flag: {},
+    background: {}
   }
 
-  const label = tryParseIdentifier(parserState, labelFrom, labelTo)
+  const label = tryParseIdentifier(parserState, labelFrom, labelTo, 'label', 'reference', newIdentifierInstances, newWarnings, newIdentifiers)
 
   if (label === null) {
     return false
+  }
+
+  let condition: null | Condition
+
+  if (conditionFrom === -1) {
+    condition = null
+  } else {
+    condition = tryParseCondition(parserState, conditionFrom, newIdentifierInstances, newWarnings, newIdentifiers)
+
+    if (condition === null) {
+      return false
+    }
   }
 
   const content = parseFormatted(parserState, contentFrom, contentTo)
@@ -218,13 +232,20 @@ export const tryParseMenuOption = (parserState: ParserState): boolean => {
     return false
   }
 
-  addIdentifierToIndex(parserState, label, 'label', 'reference')
-
-  if (conditionAndIdentifiers !== null) {
-    addIdentifierListToIndex(parserState, conditionAndIdentifiers[1], 'flag', 'implicitDeclaration')
-  }
+  parserState.identifierInstances.push(...newIdentifierInstances)
 
   if (parserState.reachability !== 'unreachable') {
+    parserState.warnings.push(...newWarnings)
+
+    for (const identifierType in newIdentifiers) {
+      const identifiersOfType = parserState.identifiers[identifierType as IdentifierType]
+      const newIdentifiersOfType = newIdentifiers[identifierType as IdentifierType]
+
+      for (const key in newIdentifiersOfType) {
+        identifiersOfType[key] = newIdentifiersOfType[key] as LocalIdentifierInstance
+      }
+    }
+
     parserState.instructions.push(
       {
         type: 'menuOption',
@@ -232,15 +253,11 @@ export const tryParseMenuOption = (parserState: ParserState): boolean => {
         content,
         label,
         instructionIndex: -1,
-        condition: conditionAndIdentifiers === null ? null : conditionAndIdentifiers[0]
+        condition
       }
     )
 
-    checkIdentifierConsistency(parserState, 'label', label)
-
-    checkConditionConsistency(parserState, conditionAndIdentifiers === null ? null : conditionAndIdentifiers[0])
-
-    if (conditionAndIdentifiers === null) {
+    if (condition === null) {
       parserState.reachability = 'willBecomeUnreachableAtEndOfCurrentMenu'
     }
   }
