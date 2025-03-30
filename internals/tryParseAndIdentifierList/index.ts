@@ -9,6 +9,7 @@ import { characterIsD } from '../characterIsD/index.js'
 import { characterIsN } from '../characterIsN/index.js'
 import { characterIsWhitespace } from '../characterIsWhitespace/index.js'
 import type { LocalIdentifierInstance } from '../LocalIdentifierInstance'
+import { filterDuplicatesFromIdentifierList } from '../parseLine/filterDuplicatesFromIdentifierList/index.js'
 import type { ParserState } from '../ParserState'
 import { tryParseIdentifier } from '../tryParseIdentifier/index.js'
 
@@ -158,55 +159,5 @@ export const tryParseAndIdentifierList = (
 
   output.push(afterKeyword)
 
-  // TODO: Below could be refactored between this and or.
-  const filteredOutput: Identifier[] = []
-
-  for (let index = 0; index < output.length; index++) {
-    const second = output[index] as Identifier
-
-    let first: null | Identifier = null
-    let emitWarnings = true
-
-    for (let previousIndex = 0; previousIndex < index; previousIndex++) {
-      const candidate = output[previousIndex] as Identifier
-
-      if (candidate.normalized === second.normalized) {
-        if (first === null) {
-          first = candidate
-        } else {
-          emitWarnings = false
-          previousIndex = index
-        }
-      }
-    }
-
-    if (first === null) {
-      filteredOutput.push(second)
-    } else if (emitWarnings) {
-      if (parserState.reachability === 'reachable') {
-        newWarnings.push({
-          type: 'duplicateIdentifierInList',
-          line: parserState.line,
-          first,
-          second
-        })
-
-        for (let index = 0; index < newWarnings.length;) {
-          const warning = newWarnings[index] as Warning
-
-          if (warning.type === 'inconsistentIdentifier') {
-            if (warning.second.fromColumn === second.fromColumn) {
-              newWarnings.splice(index, 1)
-            } else {
-              index++
-            }
-          } else {
-            index++
-          }
-        }
-      }
-    }
-  }
-
-  return filteredOutput
+  return filterDuplicatesFromIdentifierList(parserState, newWarnings, output)
 }
