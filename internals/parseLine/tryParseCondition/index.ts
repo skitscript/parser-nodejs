@@ -144,10 +144,6 @@ export const tryParseCondition = (
     }
   }
 
-  if (listStarts === -1) {
-    return null
-  }
-
   if (foundNot) {
     if (foundAnd) {
       const flagsAndIdentifiers = tryParseAndIdentifierList(parserState, listStarts, listEnds)
