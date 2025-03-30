@@ -104,11 +104,7 @@ export const tryParseCondition = (
           }
         } else if (index < parserState.indexOfLastNonWhiteSpaceCharacter - 4) {
           if (isNot(parserState, index)) {
-            if (foundOr) {
-              return null
-            } else if (foundAnd) {
-              return null
-            } else if (listStarts !== -1) {
+            if (listStarts !== -1) {
               return null
             } else {
               foundNot = true
