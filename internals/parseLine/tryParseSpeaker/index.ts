@@ -95,7 +95,7 @@ export const tryParseSpeaker = (parserState: ParserState): boolean => {
     exitAnimation: {},
     label: {},
     flag: {},
-    background: {}
+    location: {}
   }
 
   const characters = tryParseAndIdentifierList(parserState, 0, charactersToColumn, 'character', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)

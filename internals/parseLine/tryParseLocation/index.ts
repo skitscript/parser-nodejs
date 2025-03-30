@@ -90,8 +90,6 @@ export const tryParseLocation = (parserState: ParserState): boolean => {
     toColumn--
   }
 
-  // TODO: background -> location
-
   const newIdentifierInstances: IdentifierInstance[] = []
   const newWarnings: Warning[] = []
   const newIdentifiers: { readonly [TIdentifierType in IdentifierType]: Record<string, LocalIdentifierInstance>; } = {
@@ -101,12 +99,12 @@ export const tryParseLocation = (parserState: ParserState): boolean => {
     exitAnimation: {},
     label: {},
     flag: {},
-    background: {}
+    location: {}
   }
 
-  const background = tryParseIdentifier(parserState, fromColumn, toColumn, 'background', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
+  const location = tryParseIdentifier(parserState, fromColumn, toColumn, 'location', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
-  if (background === null) {
+  if (location === null) {
     return false
   }
 
@@ -116,7 +114,7 @@ export const tryParseLocation = (parserState: ParserState): boolean => {
     parserState.instructions.push({
       type: 'location',
       line: parserState.line,
-      background
+      location
     })
   }
 

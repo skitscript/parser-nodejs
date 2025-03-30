@@ -205,7 +205,7 @@ export const tryParseMenuOption = (parserState: ParserState): boolean => {
     exitAnimation: {},
     label: {},
     flag: {},
-    background: {}
+    location: {}
   }
 
   const label = tryParseIdentifier(parserState, labelFrom, labelTo, 'label', 'reference', newIdentifierInstances, newWarnings, newIdentifiers)

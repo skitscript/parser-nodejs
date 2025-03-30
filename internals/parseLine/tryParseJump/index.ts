@@ -144,7 +144,7 @@ export const tryParseJump = (parserState: ParserState): boolean => {
     exitAnimation: {},
     label: {},
     flag: {},
-    background: {}
+    location: {}
   }
 
   const label = tryParseIdentifier(parserState, labelFromColumn, labelToColumn, 'label', 'reference', newIdentifierInstances, newWarnings, newIdentifiers)

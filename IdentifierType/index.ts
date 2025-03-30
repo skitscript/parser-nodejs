@@ -6,7 +6,7 @@ export type IdentifierType =
   | 'entryAnimation'
   | 'exitAnimation'
   | 'emote'
-  | 'background'
+  | 'location'
   | 'label'
   | 'flag'
 

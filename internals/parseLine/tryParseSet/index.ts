@@ -40,7 +40,7 @@ export const tryParseSet = (parserState: ParserState): boolean => {
     exitAnimation: {},
     label: {},
     flag: {},
-    background: {}
+    location: {}
   }
 
   const flags = tryParseAndIdentifierList(parserState, 4, parserState.indexOfLastNonWhiteSpaceCharacter - 1, 'flag', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)

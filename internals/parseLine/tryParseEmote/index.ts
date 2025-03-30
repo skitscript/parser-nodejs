@@ -117,7 +117,7 @@ export const tryParseEmote = (parserState: ParserState): boolean => {
               exitAnimation: {},
               label: {},
               flag: {},
-              background: {}
+              location: {}
             }
 
             const characters = tryParseAndIdentifierList(parserState, 0, characterToColumn, 'character', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
@@ -182,7 +182,7 @@ export const tryParseEmote = (parserState: ParserState): boolean => {
           exitAnimation: {},
           label: {},
           flag: {},
-          background: {}
+          location: {}
         }
 
         const character = tryParseIdentifier(parserState, 0, characterToColumn, 'character', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)

@@ -12,7 +12,7 @@ export const start = (): ParserState => ({
     exitAnimation: {},
     label: {},
     flag: {},
-    background: {}
+    location: {}
   },
   line: 0,
   reachability: 'reachable',

@@ -53,7 +53,7 @@ export const parseLine = (parserState: ParserState): void => {
         exitAnimation: {},
         label: {},
         flag: {},
-        background: {}
+        location: {}
       }
 
       if (content !== null && checkReachable(parserState, newWarnings, newIdentifiers)) {

@@ -143,7 +143,7 @@ export const tryParseExitAnimation = (parserState: ParserState): boolean => {
             exitAnimation: {},
             label: {},
             flag: {},
-            background: {}
+            location: {}
           }
 
           if (foundComma) {
@@ -266,7 +266,7 @@ export const tryParseExitAnimation = (parserState: ParserState): boolean => {
             exitAnimation: {},
             label: {},
             flag: {},
-            background: {}
+            location: {}
           }
 
           if (foundComma) {

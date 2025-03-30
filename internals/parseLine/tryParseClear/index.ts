@@ -52,7 +52,7 @@ export const tryParseClear = (parserState: ParserState): boolean => {
     exitAnimation: {},
     label: {},
     flag: {},
-    background: {}
+    location: {}
   }
 
   const flags = tryParseAndIdentifierList(parserState, 6, parserState.indexOfLastNonWhiteSpaceCharacter - 1, 'flag', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
