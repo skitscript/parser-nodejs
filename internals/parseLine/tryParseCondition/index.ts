@@ -148,14 +148,17 @@ export const tryParseCondition = (
     return null
   }
 
-  // TODO: What if the list is entirely duplicates?  Should that merge down?
-
   if (foundNot) {
     if (foundAnd) {
       const flagsAndIdentifiers = tryParseAndIdentifierList(parserState, listStarts, listEnds)
 
       if (flagsAndIdentifiers === null) {
         return null
+      } else if (flagsAndIdentifiers[0].length === 1) {
+        return [{
+          type: 'flagClear',
+          flag: flagsAndIdentifiers[0][0] as Identifier
+        }, flagsAndIdentifiers[1]]
       } else {
         return [{
           type: 'someFlagsClear',
@@ -167,6 +170,11 @@ export const tryParseCondition = (
 
       if (flagsAndIdentifiers === null) {
         return null
+      } else if (flagsAndIdentifiers[0].length === 1) {
+        return [{
+          type: 'flagClear',
+          flag: flagsAndIdentifiers[0][0] as Identifier
+        }, flagsAndIdentifiers[1]]
       } else {
         return [{
           type: 'everyFlagClear',
@@ -190,6 +198,11 @@ export const tryParseCondition = (
 
     if (flagsAndIdentifiers === null) {
       return null
+    } else if (flagsAndIdentifiers[0].length === 1) {
+      return [{
+        type: 'flagSet',
+        flag: flagsAndIdentifiers[0][0] as Identifier
+      }, flagsAndIdentifiers[1]]
     } else {
       return [{
         type: 'everyFlagSet',
@@ -201,6 +214,11 @@ export const tryParseCondition = (
 
     if (flagsAndIdentifiers === null) {
       return null
+    } else if (flagsAndIdentifiers[0].length === 1) {
+      return [{
+        type: 'flagSet',
+        flag: flagsAndIdentifiers[0][0] as Identifier
+      }, flagsAndIdentifiers[1]]
     } else {
       return [{
         type: 'someFlagsSet',
