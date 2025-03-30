@@ -99,7 +99,7 @@ export const tryParseCondition = (
             return null
           } else {
             foundOr = true
-            index += 4
+            index += 3
             continue
           }
         } else if (index < parserState.indexOfLastNonWhiteSpaceCharacter - 4) {
