@@ -100,6 +100,8 @@ const isWhen = (parserState: ParserState, index: number): boolean => {
   }
 }
 
+// TODO: Slight rethink for these parsers, track whether we're following a word boundary instead.
+
 export const tryParseMenuOption = (parserState: ParserState): boolean => {
   if (!characterIsGreaterThan(parserState.lineAccumulator.charAt(0))) {
     return false
