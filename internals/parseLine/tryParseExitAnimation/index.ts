@@ -347,9 +347,9 @@ export const tryParseExitAnimation = (parserState: ParserState): boolean => {
           return true
         }
       }
+    } else {
+      characterToColumn = separatorColumn
     }
-
-    characterToColumn = separatorColumn
 
     if (separatorColumn === parserState.indexOfLastNonWhiteSpaceCharacter - 6) {
       return false

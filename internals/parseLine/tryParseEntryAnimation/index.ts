@@ -351,9 +351,9 @@ export const tryParseEntryAnimation = (parserState: ParserState): boolean => {
           return true
         }
       }
+    } else {
+      characterToColumn = separatorColumn
     }
-
-    characterToColumn = separatorColumn
 
     if (separatorColumn === parserState.indexOfLastNonWhiteSpaceCharacter - 7) {
       return false
