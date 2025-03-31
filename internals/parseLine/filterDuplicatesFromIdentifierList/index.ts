@@ -42,12 +42,8 @@ export const filterDuplicatesFromIdentifierList = (
         for (let index = 0; index < newWarnings.length;) {
           const warning = newWarnings[index] as Warning
 
-          if (warning.type === 'inconsistentIdentifier') {
-            if (warning.second.fromColumn === second.fromColumn) {
-              newWarnings.splice(index, 1)
-            } else {
-              index++
-            }
+          if (warning.type === 'inconsistentIdentifier' && warning.second.fromColumn === second.fromColumn) {
+            newWarnings.splice(index, 1)
           } else {
             index++
           }
