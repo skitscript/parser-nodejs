@@ -21,7 +21,7 @@ import { tryParseIdentifier } from '../../tryParseIdentifier/index.js'
 import { tryParseCondition } from '../tryParseCondition/index.js'
 
 const isLeads = (parserState: ParserState, index: number): boolean => {
-  if (index >= 8) {
+  if (index >= 7) {
     if (characterIsS(parserState.lineAccumulator.charAt(index - 1))) {
       if (characterIsD(parserState.lineAccumulator.charAt(index - 2))) {
         if (characterIsA(parserState.lineAccumulator.charAt(index - 3))) {
