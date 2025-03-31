@@ -20,9 +20,6 @@ import type { ParserState } from '../../ParserState'
 import { tryParseIdentifier } from '../../tryParseIdentifier/index.js'
 import { tryParseCondition } from '../tryParseCondition/index.js'
 
-// TODO: Valid with excess space
-// TODO: Valid with minimal space
-
 const isLeads = (parserState: ParserState, index: number): boolean => {
   if (index >= 8) {
     if (characterIsS(parserState.lineAccumulator.charAt(index - 1))) {
