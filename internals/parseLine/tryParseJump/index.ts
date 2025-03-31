@@ -55,15 +55,15 @@ export const tryParseJump = (parserState: ParserState): boolean => {
     }
 
     if (!characterIsT(character)) {
-      continue
+      return false
     }
 
     if (!characterIsO(parserState.lineAccumulator.charAt(index + 1))) {
-      continue
+      return false
     }
 
     if (!characterIsWhitespace(parserState.lineAccumulator.charAt(index + 2))) {
-      continue
+      return false
     }
 
     foundTo = true
