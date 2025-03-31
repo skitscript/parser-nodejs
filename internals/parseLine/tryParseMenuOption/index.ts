@@ -228,7 +228,7 @@ export const tryParseMenuOption = (parserState: ParserState): boolean => {
   const content = parseFormatted(parserState, contentFrom, contentTo)
 
   if (content === null) {
-    return false
+    return true
   }
 
   parserState.identifierInstances.push(...newIdentifierInstances)
