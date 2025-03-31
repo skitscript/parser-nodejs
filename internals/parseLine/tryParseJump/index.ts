@@ -156,8 +156,6 @@ export const tryParseJump = (parserState: ParserState): boolean => {
   let condition: null | Condition = null
 
   if (foundWhen) {
-    // TODO: Is this ok (might have excess spaces at end)?  Should we be looking for last non white space ourselves?
-
     condition = tryParseCondition(parserState, conditionFromColumn, newIdentifierInstances, newWarnings, newIdentifiers)
 
     if (condition === null) {
