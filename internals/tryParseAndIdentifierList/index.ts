@@ -4,21 +4,24 @@ import type { IdentifierInstance } from '../../IdentifierInstance'
 import type { IdentifierType } from '../../IdentifierType'
 import type { Warning } from '../../Warning'
 import { characterIsA } from '../characterIsA/index.js'
-import { characterIsComma } from '../characterIsComma/index.js'
 import { characterIsD } from '../characterIsD/index.js'
 import { characterIsN } from '../characterIsN/index.js'
 import { characterIsWhitespace } from '../characterIsWhitespace/index.js'
 import type { LocalIdentifierInstance } from '../LocalIdentifierInstance'
-import { filterDuplicatesFromIdentifierList } from '../parseLine/filterDuplicatesFromIdentifierList/index.js'
 import type { ParserState } from '../ParserState'
 import { tryParseIdentifier } from '../tryParseIdentifier/index.js'
+import { tryParseIdentifierList } from '../tryParseIdentifierList/index.js'
 
-const isAnd = (parserState: ParserState, separatorFromColumn: number): boolean => {
-  if (characterIsA(parserState.lineAccumulator.charAt(separatorFromColumn + 1))) {
-    if (characterIsN(parserState.lineAccumulator.charAt(separatorFromColumn + 2))) {
-      if (characterIsD(parserState.lineAccumulator.charAt(separatorFromColumn + 3))) {
-        if (characterIsWhitespace(parserState.lineAccumulator.charAt(separatorFromColumn + 4))) {
-          return true
+const isAnd = (parserState: ParserState, index: number): boolean => {
+  if (characterIsWhitespace(parserState.lineAccumulator.charAt(index))) {
+    if (characterIsA(parserState.lineAccumulator.charAt(index + 1))) {
+      if (characterIsN(parserState.lineAccumulator.charAt(index + 2))) {
+        if (characterIsD(parserState.lineAccumulator.charAt(index + 3))) {
+          if (characterIsWhitespace(parserState.lineAccumulator.charAt(index + 4))) {
+            return true
+          } else {
+            return false
+          }
         } else {
           return false
         }
@@ -43,121 +46,44 @@ export const tryParseAndIdentifierList = (
   newWarnings: Warning[],
   newIdentifiers: { readonly [TIdentifierType in IdentifierType]: Record<string, LocalIdentifierInstance> }
 ): null | readonly Identifier[] => {
-  const lastPossibleSeparatorFromColumn = toColumn - 5
-  let separatorFromColumn = fromColumn + 1
-  let identifierFromColumn: number = characterIsWhitespace(parserState.lineAccumulator.charAt(fromColumn)) ? -1 : fromColumn
-  let identifierToColumn: number = identifierFromColumn
-
   while (true) {
-    if (separatorFromColumn > lastPossibleSeparatorFromColumn) {
-      while (separatorFromColumn <= toColumn) {
-        if (!characterIsWhitespace(parserState.lineAccumulator.charAt(separatorFromColumn))) {
-          if (identifierFromColumn === -1) {
-            identifierFromColumn = separatorFromColumn
-          }
-
-          identifierToColumn = separatorFromColumn
-        }
-
-        separatorFromColumn++
-      }
-
-      if (identifierFromColumn === -1) {
-        return null
-      }
-
-      const sole = tryParseIdentifier(parserState, identifierFromColumn, identifierToColumn, type, context, newIdentifierInstances, newWarnings, newIdentifiers)
-
-      if (sole === null) {
-        return null
-      }
-
-      return [sole]
-    }
-
-    if (characterIsWhitespace(parserState.lineAccumulator.charAt(separatorFromColumn))) {
-      if (isAnd(parserState, separatorFromColumn)) {
-        break
-      }
+    if (fromColumn === parserState.indexOfLastNonWhiteSpaceCharacter) {
+      return null
+    } else if (characterIsWhitespace(parserState.lineAccumulator.charAt(fromColumn))) {
+      fromColumn++
     } else {
-      if (identifierFromColumn === -1) {
-        identifierFromColumn = separatorFromColumn
-      }
-
-      identifierToColumn = separatorFromColumn
-    }
-
-    separatorFromColumn++
-  }
-
-  identifierFromColumn = -1
-  identifierToColumn = -1
-
-  const output: Identifier[] = []
-
-  for (let index = fromColumn; index < separatorFromColumn; index++) {
-    const character = parserState.lineAccumulator.charAt(index)
-
-    if (characterIsComma(character)) {
-      if (identifierFromColumn === -1) {
-        return null
-      } else {
-        const next = tryParseIdentifier(parserState, identifierFromColumn, identifierToColumn, type, context, newIdentifierInstances, newWarnings, newIdentifiers)
-
-        if (next === null) {
-          return null
-        }
-
-        output.push(next)
-
-        identifierFromColumn = -1
-        identifierToColumn = -1
-      }
-    } else if (!characterIsWhitespace(character)) {
-      if (identifierFromColumn === -1) {
-        identifierFromColumn = index
-      }
-
-      identifierToColumn = index
+      break
     }
   }
 
-  if (identifierFromColumn === -1) {
-    return null
+  while (characterIsWhitespace(parserState.lineAccumulator.charAt(toColumn))) {
+    toColumn--
   }
 
-  const lastBeforeKeyword = tryParseIdentifier(parserState, identifierFromColumn, identifierToColumn, type, context, newIdentifierInstances, newWarnings, newIdentifiers)
+  const quitLoopAt = toColumn - 4
 
-  if (lastBeforeKeyword === null) {
-    return null
-  }
-
-  output.push(lastBeforeKeyword)
-
-  identifierFromColumn = -1
-  identifierToColumn = -1
-
-  for (let index = separatorFromColumn + 5; index <= toColumn; index++) {
-    if (!characterIsWhitespace(parserState.lineAccumulator.charAt(index))) {
-      if (identifierFromColumn === -1) {
-        identifierFromColumn = index
-      }
-
-      identifierToColumn = index
+  for (let index = fromColumn; index < quitLoopAt; index++) {
+    if (isAnd(parserState, index)) {
+      return tryParseIdentifierList(
+        parserState,
+        fromColumn,
+        index,
+        index + 4,
+        toColumn,
+        type,
+        context,
+        newIdentifierInstances,
+        newWarnings,
+        newIdentifiers
+      )
     }
   }
 
-  if (identifierFromColumn === -1) {
+  const identifier = tryParseIdentifier(parserState, fromColumn, toColumn, type, context, newIdentifierInstances, newWarnings, newIdentifiers)
+
+  if (identifier === null) {
     return null
+  } else {
+    return [identifier]
   }
-
-  const afterKeyword = tryParseIdentifier(parserState, identifierFromColumn, identifierToColumn, type, context, newIdentifierInstances, newWarnings, newIdentifiers)
-
-  if (afterKeyword === null) {
-    return null
-  }
-
-  output.push(afterKeyword)
-
-  return filterDuplicatesFromIdentifierList(parserState, newWarnings, output)
 }

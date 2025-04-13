@@ -12,9 +12,8 @@ import { characterIsT } from '../../characterIsT/index.js'
 import { characterIsWhitespace } from '../../characterIsWhitespace/index.js'
 import type { LocalIdentifierInstance } from '../../LocalIdentifierInstance'
 import type { ParserState } from '../../ParserState'
-import { tryParseAndIdentifierList } from '../../tryParseAndIdentifierList/index.js'
 import { tryParseIdentifier } from '../../tryParseIdentifier/index.js'
-import { tryParseOrIdentifierList } from '../../tryParseOrIdentifierList/index.js'
+import { tryParseIdentifierList } from '../../tryParseIdentifierList/index.js'
 
 const isOr = (parserState: ParserState, index: number): boolean => {
   if (characterIsO(parserState.lineAccumulator.charAt(index + 1))) {
@@ -33,10 +32,10 @@ const isOr = (parserState: ParserState, index: number): boolean => {
 }
 
 const isNot = (parserState: ParserState, index: number): boolean => {
-  if (characterIsN(parserState.lineAccumulator.charAt(index + 1))) {
-    if (characterIsO(parserState.lineAccumulator.charAt(index + 2))) {
-      if (characterIsT(parserState.lineAccumulator.charAt(index + 3))) {
-        if (characterIsWhitespace(parserState.lineAccumulator.charAt(index + 4))) {
+  if (characterIsN(parserState.lineAccumulator.charAt(index))) {
+    if (characterIsO(parserState.lineAccumulator.charAt(index + 1))) {
+      if (characterIsT(parserState.lineAccumulator.charAt(index + 2))) {
+        if (characterIsWhitespace(parserState.lineAccumulator.charAt(index + 3))) {
           return true
         } else {
           return false
@@ -79,161 +78,111 @@ export const tryParseCondition = (
   newWarnings: Warning[],
   newIdentifiers: { readonly [TIdentifierType in IdentifierType]: Record<string, LocalIdentifierInstance>; }
 ): null | Condition => {
-  let foundNot = false
-  let foundOr = false
-  let foundAnd = false
-  let listStarts = -1
-  let listEnds = -1
+  const not = fromColumn < parserState.indexOfLastNonWhiteSpaceCharacter - 3 && isNot(parserState, fromColumn)
 
-  for (let index = fromColumn - 1; index < parserState.indexOfLastNonWhiteSpaceCharacter;) {
-    const character = parserState.lineAccumulator.charAt(index)
+  if (not) {
+    fromColumn += 4
+  }
 
-    if (characterIsWhitespace(character)) {
-      if (index < parserState.indexOfLastNonWhiteSpaceCharacter - 3) {
-        if (isOr(parserState, index)) {
-          if (foundOr) {
-            return null
-          } else if (foundAnd) {
-            return null
-          } else if (listStarts === -1) {
-            return null
-          } else {
-            foundOr = true
-            index += 3
-            continue
-          }
-        } else if (index < parserState.indexOfLastNonWhiteSpaceCharacter - 4) {
-          if (isNot(parserState, index)) {
-            if (listStarts !== -1) {
-              return null
-            } else {
-              foundNot = true
-              index += 4
-              continue
-            }
-          } else if (isAnd(parserState, index)) {
-            if (foundOr) {
-              return null
-            } else if (foundAnd) {
-              return null
-            } else if (listStarts === -1) {
-              return null
-            } else {
-              foundAnd = true
-              index += 4
-              continue
-            }
-          } else {
-            index++
-            continue
-          }
-        } else {
-          index++
-          continue
-        }
-      } else {
-        index++
-        continue
-      }
+  while (true) {
+    if (fromColumn === parserState.indexOfLastNonWhiteSpaceCharacter) {
+      return null
+    } else if (characterIsWhitespace(parserState.lineAccumulator.charAt(fromColumn))) {
+      fromColumn++
     } else {
-      if (listStarts === -1) {
-        listStarts = index
-      }
-
-      listEnds = index
-
-      index++
-      continue
+      break
     }
   }
 
-  if (foundNot) {
-    if (foundAnd) {
-      const flags = tryParseAndIdentifierList(parserState, listStarts, listEnds, 'flag', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
+  let toColumn = parserState.indexOfLastNonWhiteSpaceCharacter - 1
 
-      if (flags === null) {
-        return null
-      } else if (flags.length === 1) {
-        return {
-          type: 'flagClear',
-          flag: flags[0] as Identifier
+  while (characterIsWhitespace(parserState.lineAccumulator.charAt(toColumn))) {
+    toColumn--
+  }
+
+  const quitLoopAt = toColumn - 3
+
+  for (let index = fromColumn; index < quitLoopAt; index++) {
+    if (characterIsWhitespace(parserState.lineAccumulator.charAt(index))) {
+      if (isOr(parserState, index)) {
+        const flags = tryParseIdentifierList(
+          parserState,
+          fromColumn,
+          index,
+          index + 3,
+          toColumn,
+          'flag',
+          'implicitDeclaration',
+          newIdentifierInstances,
+          newWarnings,
+          newIdentifiers
+        )
+
+        if (flags === null) {
+          return null
+        } else if (flags.length === 1) {
+          return {
+            type: not ? 'flagClear' : 'flagSet',
+            flag: flags[0] as Identifier
+          }
+        } else {
+          return {
+            type: not ? 'everyFlagClear' : 'someFlagsSet',
+            flags
+          }
         }
       } else {
-        return {
-          type: 'someFlagsClear',
-          flags
-        }
-      }
-    } else if (foundOr) {
-      const flags = tryParseOrIdentifierList(parserState, listStarts, listEnds, 'flag', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
+        if (index < parserState.indexOfLastNonWhiteSpaceCharacter - 4) {
+          if (isAnd(parserState, index)) {
+            const flags = tryParseIdentifierList(
+              parserState,
+              fromColumn,
+              index,
+              index + 4,
+              toColumn,
+              'flag',
+              'implicitDeclaration',
+              newIdentifierInstances,
+              newWarnings,
+              newIdentifiers
+            )
 
-      if (flags === null) {
-        return null
-      } else if (flags.length === 1) {
-        return {
-          type: 'flagClear',
-          flag: flags[0] as Identifier
-        }
-      } else {
-        return {
-          type: 'everyFlagClear',
-          flags
-        }
-      }
-    } else {
-      const flag = tryParseIdentifier(parserState, listStarts, listEnds, 'flag', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
-
-      if (flag === null) {
-        return null
-      } else {
-        return {
-          type: 'flagClear',
-          flag
+            if (flags === null) {
+              return null
+            } else if (flags.length === 1) {
+              return {
+                type: not ? 'flagClear' : 'flagSet',
+                flag: flags[0] as Identifier
+              }
+            } else {
+              return {
+                type: not ? 'someFlagsClear' : 'everyFlagSet',
+                flags
+              }
+            }
+          }
         }
       }
     }
-  } else if (foundAnd) {
-    const flags = tryParseAndIdentifierList(parserState, listStarts, listEnds, 'flag', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
+  }
 
-    if (flags === null) {
-      return null
-    } else if (flags.length === 1) {
-      return {
-        type: 'flagSet',
-        flag: flags[0] as Identifier
-      }
-    } else {
-      return {
-        type: 'everyFlagSet',
-        flags
-      }
-    }
-  } else if (foundOr) {
-    const flags = tryParseOrIdentifierList(parserState, listStarts, listEnds, 'flag', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
+  const flag = tryParseIdentifier(
+    parserState,
+    fromColumn,
+    toColumn,
+    'flag',
+    'implicitDeclaration',
+    newIdentifierInstances,
+    newWarnings,
+    newIdentifiers
+  )
 
-    if (flags === null) {
-      return null
-    } else if (flags.length === 1) {
-      return {
-        type: 'flagSet',
-        flag: flags[0] as Identifier
-      }
-    } else {
-      return {
-        type: 'someFlagsSet',
-        flags
-      }
-    }
+  if (flag === null) {
+    return null
   } else {
-    const flag = tryParseIdentifier(parserState, listStarts, listEnds, 'flag', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
-
-    if (flag === null) {
-      return null
-    } else {
-      return {
-        type: 'flagSet',
-        flag
-      }
+    return {
+      type: not ? 'flagClear' : 'flagSet',
+      flag
     }
   }
 }
