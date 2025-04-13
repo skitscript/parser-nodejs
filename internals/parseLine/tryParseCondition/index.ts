@@ -82,15 +82,15 @@ export const tryParseCondition = (
 
   if (not) {
     fromColumn += 4
-  }
 
-  while (true) {
-    if (fromColumn === parserState.indexOfLastNonWhiteSpaceCharacter) {
-      return null
-    } else if (characterIsWhitespace(parserState.lineAccumulator.charAt(fromColumn))) {
-      fromColumn++
-    } else {
-      break
+    while (true) {
+      if (fromColumn === parserState.indexOfLastNonWhiteSpaceCharacter) {
+        return null
+      } else if (characterIsWhitespace(parserState.lineAccumulator.charAt(fromColumn))) {
+        fromColumn++
+      } else {
+        break
+      }
     }
   }
 
