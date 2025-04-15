@@ -102,7 +102,7 @@ export const tryParseLocation = (parserState: ParserState): boolean => {
     location: {}
   }
 
-  const location = tryParseIdentifier(parserState, fromColumn, toColumn, 'location', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
+  const location = tryParseIdentifier(parserState, fromColumn, toColumn, 'location', 'implicit_declaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
   if (location === null) {
     return false

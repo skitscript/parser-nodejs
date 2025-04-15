@@ -155,19 +155,19 @@ export const tryParseEntryAnimation = (parserState: ParserState): boolean => {
               return false
             }
 
-            const character = tryParseIdentifier(parserState, 0, characterToColumn, 'character', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
+            const character = tryParseIdentifier(parserState, 0, characterToColumn, 'character', 'implicit_declaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
             if (character === null) {
               return false
             }
 
-            const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn, 'entryAnimation', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
+            const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn, 'entryAnimation', 'implicit_declaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
             if (animation === null) {
               return false
             }
 
-            const emote = tryParseIdentifier(parserState, emoteFrom, emoteTo, 'emote', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
+            const emote = tryParseIdentifier(parserState, emoteFrom, emoteTo, 'emote', 'implicit_declaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
             if (emote === null) {
               return false
@@ -193,13 +193,13 @@ export const tryParseEntryAnimation = (parserState: ParserState): boolean => {
               return false
             }
 
-            const character = tryParseIdentifier(parserState, 0, characterToColumn, 'character', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
+            const character = tryParseIdentifier(parserState, 0, characterToColumn, 'character', 'implicit_declaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
             if (character === null) {
               return false
             }
 
-            const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn, 'entryAnimation', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
+            const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn, 'entryAnimation', 'implicit_declaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
             if (animation === null) {
               return false
@@ -278,19 +278,19 @@ export const tryParseEntryAnimation = (parserState: ParserState): boolean => {
               return false
             }
 
-            const characters = tryParseAndIdentifierList(parserState, 0, characterToColumn, 'character', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
+            const characters = tryParseAndIdentifierList(parserState, 0, characterToColumn, 'character', 'implicit_declaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
             if (characters === null) {
               return false
             }
 
-            const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn, 'entryAnimation', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
+            const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn, 'entryAnimation', 'implicit_declaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
             if (animation === null) {
               return false
             }
 
-            const emote = tryParseIdentifier(parserState, emoteFrom, emoteTo, 'emote', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
+            const emote = tryParseIdentifier(parserState, emoteFrom, emoteTo, 'emote', 'implicit_declaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
             if (emote === null) {
               return false
@@ -322,13 +322,13 @@ export const tryParseEntryAnimation = (parserState: ParserState): boolean => {
               return false
             }
 
-            const characters = tryParseAndIdentifierList(parserState, 0, characterToColumn, 'character', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
+            const characters = tryParseAndIdentifierList(parserState, 0, characterToColumn, 'character', 'implicit_declaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
             if (characters === null) {
               return false
             }
 
-            const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn, 'entryAnimation', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
+            const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn, 'entryAnimation', 'implicit_declaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
             if (animation === null) {
               return false

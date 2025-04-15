@@ -112,7 +112,7 @@ export const tryParseCondition = (
           index + 3,
           toColumn,
           'flag',
-          'implicitDeclaration',
+          'implicit_declaration',
           newIdentifierInstances,
           newWarnings,
           newIdentifiers
@@ -141,7 +141,7 @@ export const tryParseCondition = (
               index + 4,
               toColumn,
               'flag',
-              'implicitDeclaration',
+              'implicit_declaration',
               newIdentifierInstances,
               newWarnings,
               newIdentifiers
@@ -171,7 +171,7 @@ export const tryParseCondition = (
     fromColumn,
     toColumn,
     'flag',
-    'implicitDeclaration',
+    'implicit_declaration',
     newIdentifierInstances,
     newWarnings,
     newIdentifiers

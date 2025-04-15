@@ -4,6 +4,6 @@
 export type IdentifierContext =
   | 'declaration'
   | 'reference'
-  | 'implicitDeclaration'
+  | 'implicit_declaration'
 
 /* c8 ignore next */

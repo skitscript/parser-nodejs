@@ -120,13 +120,13 @@ export const tryParseEmote = (parserState: ParserState): boolean => {
               location: {}
             }
 
-            const characters = tryParseAndIdentifierList(parserState, 0, characterToColumn, 'character', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
+            const characters = tryParseAndIdentifierList(parserState, 0, characterToColumn, 'character', 'implicit_declaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
             if (characters === null) {
               return false
             }
 
-            const emote = tryParseIdentifier(parserState, emoteFromColumn, emoteToColumn, 'emote', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
+            const emote = tryParseIdentifier(parserState, emoteFromColumn, emoteToColumn, 'emote', 'implicit_declaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
             if (emote === null) {
               return false
@@ -185,7 +185,7 @@ export const tryParseEmote = (parserState: ParserState): boolean => {
           location: {}
         }
 
-        const character = tryParseIdentifier(parserState, 0, characterToColumn, 'character', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
+        const character = tryParseIdentifier(parserState, 0, characterToColumn, 'character', 'implicit_declaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
         if (character === null) {
           return false
@@ -199,7 +199,7 @@ export const tryParseEmote = (parserState: ParserState): boolean => {
           }
         }
 
-        const emote = tryParseIdentifier(parserState, emoteFromColumn, emoteToColumn, 'emote', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
+        const emote = tryParseIdentifier(parserState, emoteFromColumn, emoteToColumn, 'emote', 'implicit_declaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
         if (emote === null) {
           return false

@@ -98,7 +98,7 @@ export const tryParseSpeaker = (parserState: ParserState): boolean => {
     location: {}
   }
 
-  const characters = tryParseAndIdentifierList(parserState, 0, charactersToColumn, 'character', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
+  const characters = tryParseAndIdentifierList(parserState, 0, charactersToColumn, 'character', 'implicit_declaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
   if (characters === null) {
     return false
@@ -107,7 +107,7 @@ export const tryParseSpeaker = (parserState: ParserState): boolean => {
   let emote: null | Identifier = null
 
   if (foundOpeningParenthesis) {
-    emote = tryParseIdentifier(parserState, emoteFromColumn, emoteToColumn, 'emote', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
+    emote = tryParseIdentifier(parserState, emoteFromColumn, emoteToColumn, 'emote', 'implicit_declaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
     if (emote === null) {
       return false

@@ -43,7 +43,7 @@ export const tryParseSet = (parserState: ParserState): boolean => {
     location: {}
   }
 
-  const flags = tryParseAndIdentifierList(parserState, 4, parserState.indexOfLastNonWhiteSpaceCharacter - 1, 'flag', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
+  const flags = tryParseAndIdentifierList(parserState, 4, parserState.indexOfLastNonWhiteSpaceCharacter - 1, 'flag', 'implicit_declaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
   if (flags === null) {
     return false
