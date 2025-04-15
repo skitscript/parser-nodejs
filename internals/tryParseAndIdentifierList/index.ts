@@ -46,20 +46,6 @@ export const tryParseAndIdentifierList = (
   newWarnings: Warning[],
   newIdentifiers: { readonly [TIdentifierType in IdentifierType]: Record<string, LocalIdentifierInstance> }
 ): null | readonly Identifier[] => {
-  while (true) {
-    if (fromColumn === parserState.indexOfLastNonWhiteSpaceCharacter) {
-      return null
-    } else if (characterIsWhitespace(parserState.lineAccumulator.charAt(fromColumn))) {
-      fromColumn++
-    } else {
-      break
-    }
-  }
-
-  while (characterIsWhitespace(parserState.lineAccumulator.charAt(toColumn))) {
-    toColumn--
-  }
-
   const quitLoopAt = toColumn - 4
 
   for (let index = fromColumn; index < quitLoopAt; index++) {
@@ -77,6 +63,20 @@ export const tryParseAndIdentifierList = (
         newIdentifiers
       )
     }
+  }
+
+  while (true) {
+    if (fromColumn === parserState.indexOfLastNonWhiteSpaceCharacter) {
+      return null
+    } else if (characterIsWhitespace(parserState.lineAccumulator.charAt(fromColumn))) {
+      fromColumn++
+    } else {
+      break
+    }
+  }
+
+  while (characterIsWhitespace(parserState.lineAccumulator.charAt(toColumn))) {
+    toColumn--
   }
 
   const identifier = tryParseIdentifier(parserState, fromColumn, toColumn, type, context, newIdentifierInstances, newWarnings, newIdentifiers)
