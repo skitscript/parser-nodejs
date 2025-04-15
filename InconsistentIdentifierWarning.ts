@@ -7,7 +7,7 @@ export interface InconsistentIdentifierWarning {
   /**
    * Identifies the type of warning.
    */
-  readonly type: 'inconsistentIdentifier'
+  readonly type: 'inconsistent_identifier'
 
   /**
    * The first occurrence of the identifier.

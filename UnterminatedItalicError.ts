@@ -6,7 +6,7 @@ export interface UnterminatedItalicError {
   /**
    * Identifies the type of error.
    */
-  readonly type: 'unterminatedItalic'
+  readonly type: 'unterminated_italic'
 
   /**
    * The line from which the error originates.

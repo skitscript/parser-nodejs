@@ -38,7 +38,7 @@ export const end = (parserState: ParserState): Document => {
 
         if (!referencedByAJump && !referencedByAMenuOption) {
           parserState.warnings.push({
-            type: 'unreferencedLabel',
+            type: 'unreferenced_label',
             line: statement.line,
             label: statement.label
           })
@@ -118,13 +118,13 @@ export const end = (parserState: ParserState): Document => {
       lastInstruction.type === 'label' &&
       !parserState.warnings.some(
         (flagNeverReferencedWarning) =>
-          flagNeverReferencedWarning.type === 'unreferencedLabel' &&
+          flagNeverReferencedWarning.type === 'unreferenced_label' &&
           flagNeverReferencedWarning.label.normalized ===
             lastInstruction.label.normalized
       )
     ) {
       parserState.warnings.push({
-        type: 'emptyLabel',
+        type: 'empty_label',
         line: lastInstruction.line,
         label: lastInstruction.label
       })
@@ -147,8 +147,8 @@ export const end = (parserState: ParserState): Document => {
     switch (instruction.type) {
       case 'clear':
       case 'emote':
-      case 'entryAnimation':
-      case 'exitAnimation':
+      case 'entry_animation':
+      case 'exit_animation':
       case 'line':
       case 'location':
       case 'set':

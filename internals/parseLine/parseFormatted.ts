@@ -24,11 +24,11 @@ export const parseFormatted = (
   let verbatim = ''
 
   let state:
-  | 'noSpecialCharacter'
+  | 'no_special_character'
   | 'backslash'
   | 'asterisk'
   | 'code'
-  | 'codeBackslash' = 'noSpecialCharacter'
+  | 'code_backslash' = 'no_special_character'
 
   let currentRunFromColumn = fromColumn
 
@@ -38,7 +38,7 @@ export const parseFormatted = (
     let insertBackslash = false
 
     switch (state) {
-      case 'noSpecialCharacter':
+      case 'no_special_character':
         if (characterIsBackslash(character)) {
           state = 'backslash'
           continue
@@ -57,7 +57,7 @@ export const parseFormatted = (
       case 'backslash':
         if (characterIsBackslash(character) || characterIsBacktick(character) || characterIsAsterisk(character)) {
           insertBackslash = true
-          state = 'noSpecialCharacter'
+          state = 'no_special_character'
         } else {
           parserState.errors.push({
             type: 'invalidEscapeSequence',
@@ -72,7 +72,7 @@ export const parseFormatted = (
         break
 
       case 'asterisk':
-        state = 'noSpecialCharacter'
+        state = 'no_special_character'
 
         if (characterIsAsterisk(character)) {
           if (boldFromColumn === -1) {
@@ -103,17 +103,17 @@ export const parseFormatted = (
 
       case 'code':
         if (characterIsBackslash(character)) {
-          state = 'codeBackslash'
+          state = 'code_backslash'
           continue
         } else if (characterIsBacktick(character)) {
           codeFromColumn = -1
           verbatim += '`'
-          state = 'noSpecialCharacter'
+          state = 'no_special_character'
           continue
         }
         break
 
-      case 'codeBackslash':
+      case 'code_backslash':
         if (characterIsBackslash(character) || characterIsBacktick(character)) {
           insertBackslash = true
           state = 'code'
@@ -167,7 +167,7 @@ export const parseFormatted = (
 
   switch (state) {
     case 'backslash':
-    case 'codeBackslash':
+    case 'code_backslash':
       parserState.errors.push({
         type: 'incompleteEscapeSequence',
         line: parserState.line,
@@ -197,7 +197,7 @@ export const parseFormatted = (
     return null
   } else if (italicFromColumn !== -1) {
     parserState.errors.push({
-      type: 'unterminatedItalic',
+      type: 'unterminated_italic',
       line: parserState.line,
       verbatim: parserState.lineAccumulator.slice(italicFromColumn, toColumn + 1),
       fromColumn: italicFromColumn + 1,

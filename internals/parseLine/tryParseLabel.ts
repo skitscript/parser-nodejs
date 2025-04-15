@@ -47,7 +47,7 @@ export const tryParseLabel = (parserState: ParserState): boolean => {
         previousInstruction.label.normalized === name.normalized
     ) {
       parserState.errors.push({
-        type: 'duplicateLabel',
+        type: 'duplicate_label',
         first: {
           line: previousInstruction.line,
           ...previousInstruction.label

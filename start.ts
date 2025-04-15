@@ -8,8 +8,8 @@ export const start = (): ParserState => ({
   identifiers: {
     character: {},
     emote: {},
-    entryAnimation: {},
-    exitAnimation: {},
+    entry_animation: {},
+    exit_animation: {},
     label: {},
     flag: {},
     location: {}

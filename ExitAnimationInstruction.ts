@@ -7,7 +7,7 @@ export interface ExitAnimationInstruction {
   /**
    * Identifies the type of instruction.
    */
-  readonly type: 'exitAnimation'
+  readonly type: 'exit_animation'
 
   /**
    * The line from which the instruction originates.

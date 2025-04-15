@@ -140,8 +140,8 @@ export const tryParseJump = (parserState: ParserState): boolean => {
   const newIdentifiers: { readonly [TIdentifierType in IdentifierType]: Record<string, LocalIdentifierInstance>; } = {
     character: {},
     emote: {},
-    entryAnimation: {},
-    exitAnimation: {},
+    entry_animation: {},
+    exit_animation: {},
     label: {},
     flag: {},
     location: {}
@@ -177,7 +177,7 @@ export const tryParseJump = (parserState: ParserState): boolean => {
       condition === null
     ) {
       parserState.warnings.push({
-        type: 'emptyLabel',
+        type: 'empty_label',
         line: previousInstruction.line,
         label: previousInstruction.label
       })
@@ -192,7 +192,7 @@ export const tryParseJump = (parserState: ParserState): boolean => {
     })
 
     if (condition === null) {
-      parserState.reachability = 'firstUnreachable'
+      parserState.reachability = 'first_unreachable'
     }
   }
 

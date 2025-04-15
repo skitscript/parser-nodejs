@@ -3,8 +3,8 @@
  */
 export type IdentifierType =
   | 'character'
-  | 'entryAnimation'
-  | 'exitAnimation'
+  | 'entry_animation'
+  | 'exit_animation'
   | 'emote'
   | 'location'
   | 'label'

@@ -22,8 +22,8 @@ export const checkReachable = (
       }
       return true
 
-    case 'willBecomeUnreachableAtEndOfCurrentMenu':
-    case 'firstUnreachable':
+    case 'will_become_unreachable_at_end_of_current_menu':
+    case 'first_unreachable':
       parserState.warnings.push({
         type: 'unreachable',
         line: parserState.line,

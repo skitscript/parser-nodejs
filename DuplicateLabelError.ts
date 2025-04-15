@@ -7,7 +7,7 @@ export interface DuplicateLabelError {
   /**
    * Identifies the type of error.
    */
-  readonly type: 'duplicateLabel'
+  readonly type: 'duplicate_label'
 
   /**
    * The first occurrence of the label.

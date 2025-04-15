@@ -7,7 +7,7 @@ export interface DuplicateIdentifierInListWarning {
   /**
    * Identifies the type of warning.
    */
-  readonly type: 'duplicateIdentifierInList'
+  readonly type: 'duplicate_identifier_in_list'
 
   /**
    * The line from which the warning originates.

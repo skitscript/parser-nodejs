@@ -139,8 +139,8 @@ export const tryParseExitAnimation = (parserState: ParserState): boolean => {
           const newIdentifiers: { readonly [TIdentifierType in IdentifierType]: Record<string, LocalIdentifierInstance>; } = {
             character: {},
             emote: {},
-            entryAnimation: {},
-            exitAnimation: {},
+            entry_animation: {},
+            exit_animation: {},
             label: {},
             flag: {},
             location: {}
@@ -157,7 +157,7 @@ export const tryParseExitAnimation = (parserState: ParserState): boolean => {
               return false
             }
 
-            const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn, 'exitAnimation', 'implicit_declaration', newIdentifierInstances, newWarnings, newIdentifiers)
+            const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn, 'exit_animation', 'implicit_declaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
             if (animation === null) {
               return false
@@ -173,7 +173,7 @@ export const tryParseExitAnimation = (parserState: ParserState): boolean => {
 
             if (checkReachable(parserState, newWarnings, newIdentifiers)) {
               parserState.instructions.push({
-                type: 'exitAnimation',
+                type: 'exit_animation',
                 line: parserState.line,
                 character,
                 animation
@@ -195,7 +195,7 @@ export const tryParseExitAnimation = (parserState: ParserState): boolean => {
               return false
             }
 
-            const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn, 'exitAnimation', 'implicit_declaration', newIdentifierInstances, newWarnings, newIdentifiers)
+            const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn, 'exit_animation', 'implicit_declaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
             if (animation === null) {
               return false
@@ -205,7 +205,7 @@ export const tryParseExitAnimation = (parserState: ParserState): boolean => {
 
             if (checkReachable(parserState, newWarnings, newIdentifiers)) {
               parserState.instructions.push({
-                type: 'exitAnimation',
+                type: 'exit_animation',
                 line: parserState.line,
                 character,
                 animation
@@ -262,8 +262,8 @@ export const tryParseExitAnimation = (parserState: ParserState): boolean => {
           const newIdentifiers: { readonly [TIdentifierType in IdentifierType]: Record<string, LocalIdentifierInstance>; } = {
             character: {},
             emote: {},
-            entryAnimation: {},
-            exitAnimation: {},
+            entry_animation: {},
+            exit_animation: {},
             label: {},
             flag: {},
             location: {}
@@ -280,7 +280,7 @@ export const tryParseExitAnimation = (parserState: ParserState): boolean => {
               return false
             }
 
-            const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn, 'exitAnimation', 'implicit_declaration', newIdentifierInstances, newWarnings, newIdentifiers)
+            const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn, 'exit_animation', 'implicit_declaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
             if (animation === null) {
               return false
@@ -297,7 +297,7 @@ export const tryParseExitAnimation = (parserState: ParserState): boolean => {
             if (checkReachable(parserState, newWarnings, newIdentifiers)) {
               for (const character of characters) {
                 parserState.instructions.push({
-                  type: 'exitAnimation',
+                  type: 'exit_animation',
                   line: parserState.line,
                   character,
                   animation
@@ -324,7 +324,7 @@ export const tryParseExitAnimation = (parserState: ParserState): boolean => {
               return false
             }
 
-            const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn, 'exitAnimation', 'implicit_declaration', newIdentifierInstances, newWarnings, newIdentifiers)
+            const animation = tryParseIdentifier(parserState, animationFromColumn, animationToColumn, 'exit_animation', 'implicit_declaration', newIdentifierInstances, newWarnings, newIdentifiers)
 
             if (animation === null) {
               return false
@@ -335,7 +335,7 @@ export const tryParseExitAnimation = (parserState: ParserState): boolean => {
             if (checkReachable(parserState, newWarnings, newIdentifiers)) {
               for (const character of characters) {
                 parserState.instructions.push({
-                  type: 'exitAnimation',
+                  type: 'exit_animation',
                   line: parserState.line,
                   character,
                   animation

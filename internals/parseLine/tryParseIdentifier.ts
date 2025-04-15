@@ -140,7 +140,7 @@ export const tryParseIdentifier = (
       existing.first.line !== parserState.line
     ) {
       newWarnings.push({
-        type: 'inconsistentIdentifier',
+        type: 'inconsistent_identifier',
         first: existing.first,
         second: identifierReference
       })

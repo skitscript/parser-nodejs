@@ -49,8 +49,8 @@ export const parseLine = (parserState: ParserState): void => {
       const newIdentifiers: { readonly [TIdentifierType in IdentifierType]: Record<string, LocalIdentifierInstance>; } = {
         character: {},
         emote: {},
-        entryAnimation: {},
-        exitAnimation: {},
+        entry_animation: {},
+        exit_animation: {},
         label: {},
         flag: {},
         location: {}

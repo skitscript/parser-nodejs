@@ -8,7 +8,7 @@ export interface EmptyLabelWarning {
   /**
    * Identifies the type of warning.
    */
-  readonly type: 'emptyLabel'
+  readonly type: 'empty_label'
 
   /**
    * The line from which the warning originates.

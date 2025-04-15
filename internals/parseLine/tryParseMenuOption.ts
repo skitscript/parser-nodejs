@@ -200,8 +200,8 @@ export const tryParseMenuOption = (parserState: ParserState): boolean => {
   const newIdentifiers: { readonly [TIdentifierType in IdentifierType]: Record<string, LocalIdentifierInstance>; } = {
     character: {},
     emote: {},
-    entryAnimation: {},
-    exitAnimation: {},
+    entry_animation: {},
+    exit_animation: {},
     label: {},
     flag: {},
     location: {}
@@ -257,7 +257,7 @@ export const tryParseMenuOption = (parserState: ParserState): boolean => {
     )
 
     if (condition === null) {
-      parserState.reachability = 'willBecomeUnreachableAtEndOfCurrentMenu'
+      parserState.reachability = 'will_become_unreachable_at_end_of_current_menu'
     }
   }
 

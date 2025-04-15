@@ -7,7 +7,7 @@ export interface EntryAnimationInstruction {
   /**
    * Identifies the type of instruction.
    */
-  readonly type: 'entryAnimation'
+  readonly type: 'entry_animation'
 
   /**
    * The line from which the instruction originates.

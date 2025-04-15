@@ -33,7 +33,7 @@ export const filterDuplicatesFromIdentifierList = (
     } else if (emitWarnings) {
       if (parserState.reachability === 'reachable') {
         newWarnings.push({
-          type: 'duplicateIdentifierInList',
+          type: 'duplicate_identifier_in_list',
           line: parserState.line,
           first,
           second
@@ -42,7 +42,7 @@ export const filterDuplicatesFromIdentifierList = (
         for (let index = 0; index < newWarnings.length;) {
           const warning = newWarnings[index] as Warning
 
-          if (warning.type === 'inconsistentIdentifier' && warning.second.fromColumn === second.fromColumn) {
+          if (warning.type === 'inconsistent_identifier' && warning.second.fromColumn === second.fromColumn) {
             newWarnings.splice(index, 1)
           } else {
             index++

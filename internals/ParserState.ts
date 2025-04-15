@@ -16,7 +16,7 @@ export interface ParserState {
   }
   line: number
   reachability: Reachability
-  state: 'normal' | 'followingCarriageReturn' | 'ended'
+  state: 'normal' | 'following_carriage_return' | 'ended'
   lineAccumulator: string
   indexOfFirstNonWhiteSpaceCharacter: number
   indexOfLastNonWhiteSpaceCharacter: number

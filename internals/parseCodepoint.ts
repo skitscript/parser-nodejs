@@ -6,11 +6,11 @@ export const parseCodepoint = (parserState: ParserState, codepoint: string): voi
   switch (codepoint) {
     case '\r':
       parseLine(parserState)
-      parserState.state = 'followingCarriageReturn'
+      parserState.state = 'following_carriage_return'
       break
 
     case '\n':
-      if (parserState.state === 'followingCarriageReturn') {
+      if (parserState.state === 'following_carriage_return') {
         parserState.state = 'normal'
       } else {
         parseLine(parserState)

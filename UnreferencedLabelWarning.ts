@@ -7,7 +7,7 @@ export interface UnreferencedLabelWarning {
   /**
    * Identifies the type of warning.
    */
-  readonly type: 'unreferencedLabel'
+  readonly type: 'unreferenced_label'
 
   /**
    * The line from which the warning originates.
