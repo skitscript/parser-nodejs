@@ -116,67 +116,67 @@ import { Document } from "@skitscript/parser-nodejs";
 
 #### Documents
 
-- [Document](./Document/index.ts)
-- [InvalidDocument](./InvalidDocument/index.ts)
-- [ValidDocument](./ValidDocument/index.ts)
+- [Document](./Document)
+- [InvalidDocument](./InvalidDocument)
+- [ValidDocument](./ValidDocument)
 
 #### Instructions
 
-- [ClearInstruction](./ClearInstruction/index.ts)
-- [EmoteInstruction](./EmoteInstruction/index.ts)
-- [EntryAnimationInstruction](./EntryAnimationInstruction/index.ts)
-- [ExitAnimationInstruction](./ExitAnimationInstruction/index.ts)
-- [Instruction](./Instruction/index.ts)
-- [JumpInstruction](./JumpInstruction/index.ts)
-- [LabelInstruction](./LabelInstruction/index.ts)
-- [LineInstruction](./LineInstruction/index.ts)
-- [LocationInstruction](./LocationInstruction/index.ts)
-- [MenuOptionInstruction](./MenuOptionInstruction/index.ts)
-- [SetInstruction](./SetInstruction/index.ts)
-- [SpeakerInstruction](./SpeakerInstruction/index.ts)
+- [ClearInstruction](./ClearInstruction)
+- [EmoteInstruction](./EmoteInstruction)
+- [EntryAnimationInstruction](./EntryAnimationInstruction)
+- [ExitAnimationInstruction](./ExitAnimationInstruction)
+- [Instruction](./Instruction)
+- [JumpInstruction](./JumpInstruction)
+- [LabelInstruction](./LabelInstruction)
+- [LineInstruction](./LineInstruction)
+- [LocationInstruction](./LocationInstruction)
+- [MenuOptionInstruction](./MenuOptionInstruction)
+- [SetInstruction](./SetInstruction)
+- [SpeakerInstruction](./SpeakerInstruction)
 
 ##### Formatting
 
-- [Formatted](./Formatted/index.ts)
-- [Run](./Run/index.ts)
+- [Formatted](./Formatted)
+- [Run](./Run)
 
 ##### Conditions
 
-- [Condition](./Condition/index.ts)
-- [EveryFlagClearCondition](./EveryFlagClearCondition/index.ts)
-- [EveryFlagSetCondition](./EveryFlagSetCondition/index.ts)
-- [FlagClearCondition](./FlagClearCondition/index.ts)
-- [FlagSetCondition](./FlagSetCondition/index.ts)
-- [SomeFlagsClearCondition](./SomeFlagsClearCondition/index.ts)
-- [SomeFlagsSetCondition](./SomeFlagsSetCondition/index.ts)
+- [Condition](./Condition)
+- [EveryFlagClearCondition](./EveryFlagClearCondition)
+- [EveryFlagSetCondition](./EveryFlagSetCondition)
+- [FlagClearCondition](./FlagClearCondition)
+- [FlagSetCondition](./FlagSetCondition)
+- [SomeFlagsClearCondition](./SomeFlagsClearCondition)
+- [SomeFlagsSetCondition](./SomeFlagsSetCondition)
 
 #### Identifiers
 
-- [Identifier](./Identifier/index.ts)
-- [IdentifierContext](./IdentifierContext/index.ts)
-- [IdentifierInstance](./IdentifierInstance/index.ts)
-- [IdentifierReference](./IdentifierReference/index.ts)
-- [IdentifierType](./IdentifierType/index.ts)
+- [Identifier](./Identifier)
+- [IdentifierContext](./IdentifierContext)
+- [IdentifierInstance](./IdentifierInstance)
+- [IdentifierReference](./IdentifierReference)
+- [IdentifierType](./IdentifierType)
 
 #### Warnings
 
-- [DuplicateIdentifierInListWarning](./DuplicateIdentifierInListWarning/index.ts)
-- [EmptyLabelWarning](./EmptyLabelWarning/index.ts)
-- [FlagNeverReferencedWarning](./FlagNeverReferencedWarning/index.ts)
-- [FlagNeverSetWarning](./FlagNeverSetWarning/index.ts)
-- [InconsistentIdentifierWarning](./InconsistentIdentifierWarning/index.ts)
-- [UnreachableWarning](./UnreachableWarning/index.ts)
-- [UnreferencedLabelWarning](./UnreferencedLabelWarning/index.ts)
-- [Warning](./Warning/index.ts)
+- [DuplicateIdentifierInListWarning](./DuplicateIdentifierInListWarning)
+- [EmptyLabelWarning](./EmptyLabelWarning)
+- [FlagNeverReferencedWarning](./FlagNeverReferencedWarning)
+- [FlagNeverSetWarning](./FlagNeverSetWarning)
+- [InconsistentIdentifierWarning](./InconsistentIdentifierWarning)
+- [UnreachableWarning](./UnreachableWarning)
+- [UnreferencedLabelWarning](./UnreferencedLabelWarning)
+- [Warning](./Warning)
 
 #### Errors
 
-- [DuplicateLabelError](./DuplicateLabelError/index.ts)
-- [Error](./Error/index.ts)
-- [IncompleteEscapeSequenceError](./IncompleteEscapeSequenceError/index.ts)
-- [InvalidEscapeSequenceError](./InvalidEscapeSequenceError/index.ts)
-- [UndefinedLabelError](./UndefinedLabelError/index.ts)
-- [UnparsableError](./UnparsableError/index.ts)
-- [UnterminatedBoldError](./UnterminatedBoldError/index.ts)
-- [UnterminatedCodeError](./UnterminatedCodeError/index.ts)
-- [UnterminatedItalicError](./UnterminatedItalicError/index.ts)
+- [DuplicateLabelError](./DuplicateLabelError)
+- [Error](./Error)
+- [IncompleteEscapeSequenceError](./IncompleteEscapeSequenceError)
+- [InvalidEscapeSequenceError](./InvalidEscapeSequenceError)
+- [UndefinedLabelError](./UndefinedLabelError)
+- [UnparsableError](./UnparsableError)
+- [UnterminatedBoldError](./UnterminatedBoldError)
+- [UnterminatedCodeError](./UnterminatedCodeError)
+- [UnterminatedItalicError](./UnterminatedItalicError)

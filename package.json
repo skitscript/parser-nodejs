@@ -40,8 +40,10 @@
     "test": "npm-run-all buildClean buildLintFix buildTypeScript buildC8"
   },
   "files": [
-    "**/index.js",
-    "**/index.d.ts"
+    "**/*.js",
+    "**/*.d.ts",
+    "!**/unit.js",
+    "!**/unit.d.ts"
   ],
   "types": "index.d.ts",
   "sideEffects": false,
