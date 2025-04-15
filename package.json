@@ -27,7 +27,7 @@
     "eslint-plugin-n": "^15.7.0",
     "eslint-plugin-promise": "^6.1.1",
     "jasmine": "^4.6.0",
-    "npm-run-all2": "^6.0.0",
+    "npm-run-all2": "^7.0.0",
     "typescript": "^5.4.5"
   },
   "scripts": {
