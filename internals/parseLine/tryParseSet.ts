@@ -1,10 +1,10 @@
 import type { IdentifierInstance } from '../../IdentifierInstance'
 import type { IdentifierType } from '../../IdentifierType'
 import type { Warning } from '../../Warning'
-import { characterIsE } from './characterIsE.js'
-import { characterIsS } from './characterIsS.js'
-import { characterIsT } from './characterIsT.js'
-import { characterIsWhitespace } from '../characterIsWhitespace.js'
+import { codepointIsE } from './codepointIsE.js'
+import { codepointIsS } from './codepointIsS.js'
+import { codepointIsT } from './codepointIsT.js'
+import { codepointIsWhitespace } from '../codepointIsWhitespace.js'
 import type { LocalIdentifierInstance } from '../LocalIdentifierInstance'
 import type { ParserState } from '../ParserState'
 import { tryParseAndIdentifierList } from './tryParseAndIdentifierList.js'
@@ -15,19 +15,19 @@ export const tryParseSet = (parserState: ParserState): boolean => {
     return false
   }
 
-  if (!characterIsS(parserState.lineAccumulator.charAt(0))) {
+  if (!codepointIsS(parserState.lineAccumulator.charAt(0))) {
     return false
   }
 
-  if (!characterIsE(parserState.lineAccumulator.charAt(1))) {
+  if (!codepointIsE(parserState.lineAccumulator.charAt(1))) {
     return false
   }
 
-  if (!characterIsT(parserState.lineAccumulator.charAt(2))) {
+  if (!codepointIsT(parserState.lineAccumulator.charAt(2))) {
     return false
   }
 
-  if (!characterIsWhitespace(parserState.lineAccumulator.charAt(3))) {
+  if (!codepointIsWhitespace(parserState.lineAccumulator.charAt(3))) {
     return false
   }
 

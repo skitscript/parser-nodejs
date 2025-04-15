@@ -1,5 +1,5 @@
-import { characterIsTilde } from './characterIsTilde.js'
-import { characterIsWhitespace } from '../characterIsWhitespace.js'
+import { codepointIsTilde } from './codepointIsTilde.js'
+import { codepointIsWhitespace } from '../codepointIsWhitespace.js'
 import type { ParserState } from '../ParserState'
 import { tryParseIdentifier } from './tryParseIdentifier.js'
 
@@ -11,17 +11,17 @@ export const tryParseLabel = (parserState: ParserState): boolean => {
     return false
   }
 
-  if (!characterIsTilde(parserState.lineAccumulator.charAt(0))) {
+  if (!codepointIsTilde(parserState.lineAccumulator.charAt(0))) {
     return false
   }
 
-  if (!characterIsTilde(parserState.lineAccumulator.charAt(parserState.indexOfLastNonWhiteSpaceCharacter))) {
+  if (!codepointIsTilde(parserState.lineAccumulator.charAt(parserState.indexOfLastNonWhiteSpaceCharacter))) {
     return false
   }
 
   let fromColumn = 1
 
-  while (characterIsWhitespace(parserState.lineAccumulator.charAt(fromColumn))) {
+  while (codepointIsWhitespace(parserState.lineAccumulator.charAt(fromColumn))) {
     fromColumn++
   }
 
@@ -31,7 +31,7 @@ export const tryParseLabel = (parserState: ParserState): boolean => {
 
   let toColumn = parserState.indexOfLastNonWhiteSpaceCharacter - 1
 
-  while (characterIsWhitespace(parserState.lineAccumulator.charAt(toColumn))) {
+  while (codepointIsWhitespace(parserState.lineAccumulator.charAt(toColumn))) {
     toColumn--
   }
 

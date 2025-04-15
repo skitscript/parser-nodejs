@@ -1,15 +1,15 @@
 import type { IdentifierInstance } from '../../IdentifierInstance'
 import type { IdentifierType } from '../../IdentifierType'
 import type { Warning } from '../../Warning'
-import { characterIsA } from './characterIsA.js'
-import { characterIsC } from './characterIsC.js'
-import { characterIsColon } from './characterIsColon.js'
-import { characterIsI } from './characterIsI.js'
-import { characterIsL } from './characterIsL.js'
-import { characterIsN } from './characterIsN.js'
-import { characterIsO } from './characterIsO.js'
-import { characterIsT } from './characterIsT.js'
-import { characterIsWhitespace } from '../characterIsWhitespace.js'
+import { codepointIsA } from './codepointIsA.js'
+import { codepointIsC } from './codepointIsC.js'
+import { codepointIsColon } from './codepointIsColon.js'
+import { codepointIsI } from './codepointIsI.js'
+import { codepointIsL } from './codepointIsL.js'
+import { codepointIsN } from './codepointIsN.js'
+import { codepointIsO } from './codepointIsO.js'
+import { codepointIsT } from './codepointIsT.js'
+import { codepointIsWhitespace } from '../codepointIsWhitespace.js'
 import type { LocalIdentifierInstance } from '../LocalIdentifierInstance'
 import type { ParserState } from '../ParserState'
 import { tryParseIdentifier } from './tryParseIdentifier.js'
@@ -20,35 +20,35 @@ export const tryParseLocation = (parserState: ParserState): boolean => {
     return false
   }
 
-  if (!characterIsL(parserState.lineAccumulator.charAt(0))) {
+  if (!codepointIsL(parserState.lineAccumulator.charAt(0))) {
     return false
   }
 
-  if (!characterIsO(parserState.lineAccumulator.charAt(1))) {
+  if (!codepointIsO(parserState.lineAccumulator.charAt(1))) {
     return false
   }
 
-  if (!characterIsC(parserState.lineAccumulator.charAt(2))) {
+  if (!codepointIsC(parserState.lineAccumulator.charAt(2))) {
     return false
   }
 
-  if (!characterIsA(parserState.lineAccumulator.charAt(3))) {
+  if (!codepointIsA(parserState.lineAccumulator.charAt(3))) {
     return false
   }
 
-  if (!characterIsT(parserState.lineAccumulator.charAt(4))) {
+  if (!codepointIsT(parserState.lineAccumulator.charAt(4))) {
     return false
   }
 
-  if (!characterIsI(parserState.lineAccumulator.charAt(5))) {
+  if (!codepointIsI(parserState.lineAccumulator.charAt(5))) {
     return false
   }
 
-  if (!characterIsO(parserState.lineAccumulator.charAt(6))) {
+  if (!codepointIsO(parserState.lineAccumulator.charAt(6))) {
     return false
   }
 
-  if (!characterIsN(parserState.lineAccumulator.charAt(7))) {
+  if (!codepointIsN(parserState.lineAccumulator.charAt(7))) {
     return false
   }
 
@@ -59,7 +59,7 @@ export const tryParseLocation = (parserState: ParserState): boolean => {
       return false
     }
 
-    if (characterIsColon(parserState.lineAccumulator.charAt(indexOfColon))) {
+    if (codepointIsColon(parserState.lineAccumulator.charAt(indexOfColon))) {
       break
     }
 
@@ -73,7 +73,7 @@ export const tryParseLocation = (parserState: ParserState): boolean => {
       return false
     }
 
-    if (!characterIsWhitespace(parserState.lineAccumulator.charAt(fromColumn))) {
+    if (!codepointIsWhitespace(parserState.lineAccumulator.charAt(fromColumn))) {
       break
     }
 
@@ -83,7 +83,7 @@ export const tryParseLocation = (parserState: ParserState): boolean => {
   let toColumn = parserState.indexOfLastNonWhiteSpaceCharacter - 1
 
   while (true) {
-    if (!characterIsWhitespace(parserState.lineAccumulator.charAt(toColumn))) {
+    if (!codepointIsWhitespace(parserState.lineAccumulator.charAt(toColumn))) {
       break
     }
 

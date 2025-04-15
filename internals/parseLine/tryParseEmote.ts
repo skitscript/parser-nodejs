@@ -1,14 +1,14 @@
 import type { IdentifierInstance } from '../../IdentifierInstance'
 import type { IdentifierType } from '../../IdentifierType'
 import type { Warning } from '../../Warning'
-import { characterIsA } from './characterIsA.js'
-import { characterIsD } from './characterIsD.js'
-import { characterIsE } from './characterIsE.js'
-import { characterIsI } from './characterIsI.js'
-import { characterIsN } from './characterIsN.js'
-import { characterIsR } from './characterIsR.js'
-import { characterIsS } from './characterIsS.js'
-import { characterIsWhitespace } from '../characterIsWhitespace.js'
+import { codepointIsA } from './codepointIsA.js'
+import { codepointIsD } from './codepointIsD.js'
+import { codepointIsE } from './codepointIsE.js'
+import { codepointIsI } from './codepointIsI.js'
+import { codepointIsN } from './codepointIsN.js'
+import { codepointIsR } from './codepointIsR.js'
+import { codepointIsS } from './codepointIsS.js'
+import { codepointIsWhitespace } from '../codepointIsWhitespace.js'
 import type { LocalIdentifierInstance } from '../LocalIdentifierInstance'
 import type { ParserState } from '../ParserState'
 import { tryParseAndIdentifierList } from './tryParseAndIdentifierList.js'
@@ -16,15 +16,15 @@ import { tryParseIdentifier } from './tryParseIdentifier.js'
 import { checkReachable } from './checkReachable.js'
 
 const isAre = (parserState: ParserState, separatorColumn: number, secondCharacter: string): boolean => {
-  if (!characterIsR(secondCharacter)) {
+  if (!codepointIsR(secondCharacter)) {
     return false
   }
 
-  if (!characterIsE(parserState.lineAccumulator.charAt(separatorColumn + 3))) {
+  if (!codepointIsE(parserState.lineAccumulator.charAt(separatorColumn + 3))) {
     return false
   }
 
-  if (!characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 4))) {
+  if (!codepointIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 4))) {
     return false
   }
 
@@ -32,15 +32,15 @@ const isAre = (parserState: ParserState, separatorColumn: number, secondCharacte
 }
 
 const isAnd = (parserState: ParserState, separatorColumn: number, secondCharacter: string): boolean => {
-  if (!characterIsN(secondCharacter)) {
+  if (!codepointIsN(secondCharacter)) {
     return false
   }
 
-  if (!characterIsD(parserState.lineAccumulator.charAt(separatorColumn + 3))) {
+  if (!codepointIsD(parserState.lineAccumulator.charAt(separatorColumn + 3))) {
     return false
   }
 
-  if (!characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 4))) {
+  if (!codepointIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 4))) {
     return false
   }
 
@@ -48,15 +48,15 @@ const isAnd = (parserState: ParserState, separatorColumn: number, secondCharacte
 }
 
 const isIs = (parserState: ParserState, separatorColumn: number, firstCharacter: string): boolean => {
-  if (!characterIsI(firstCharacter)) {
+  if (!codepointIsI(firstCharacter)) {
     return false
   }
 
-  if (!characterIsS(parserState.lineAccumulator.charAt(separatorColumn + 2))) {
+  if (!codepointIsS(parserState.lineAccumulator.charAt(separatorColumn + 2))) {
     return false
   }
 
-  if (!characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 3))) {
+  if (!codepointIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 3))) {
     return false
   }
 
@@ -74,10 +74,10 @@ export const tryParseEmote = (parserState: ParserState): boolean => {
   let characterToColumn: number = 0
 
   while (true) {
-    if (characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn))) {
+    if (codepointIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn))) {
       const firstCharacter = parserState.lineAccumulator.charAt(separatorColumn + 1)
 
-      if (characterIsA(firstCharacter)) {
+      if (codepointIsA(firstCharacter)) {
         if (separatorColumn <= parserState.indexOfLastNonWhiteSpaceCharacter - 6) {
           const secondCharacter = parserState.lineAccumulator.charAt(separatorColumn + 2)
 
@@ -93,7 +93,7 @@ export const tryParseEmote = (parserState: ParserState): boolean => {
                 return false
               }
 
-              if (!characterIsWhitespace(parserState.lineAccumulator.charAt(emoteFromColumn))) {
+              if (!codepointIsWhitespace(parserState.lineAccumulator.charAt(emoteFromColumn))) {
                 break
               }
 
@@ -103,7 +103,7 @@ export const tryParseEmote = (parserState: ParserState): boolean => {
             let emoteToColumn = emoteFromColumn
 
             for (let index = emoteFromColumn + 1; index < parserState.indexOfLastNonWhiteSpaceCharacter; index++) {
-              if (!characterIsWhitespace(parserState.lineAccumulator.charAt(index))) {
+              if (!codepointIsWhitespace(parserState.lineAccumulator.charAt(index))) {
                 emoteToColumn = index
               }
             }
@@ -166,7 +166,7 @@ export const tryParseEmote = (parserState: ParserState): boolean => {
             return false
           }
 
-          if (!characterIsWhitespace(parserState.lineAccumulator.charAt(emoteFromColumn))) {
+          if (!codepointIsWhitespace(parserState.lineAccumulator.charAt(emoteFromColumn))) {
             break
           }
 
@@ -194,7 +194,7 @@ export const tryParseEmote = (parserState: ParserState): boolean => {
         let emoteToColumn = emoteFromColumn
 
         for (let index = emoteFromColumn + 1; index < parserState.indexOfLastNonWhiteSpaceCharacter; index++) {
-          if (!characterIsWhitespace(parserState.lineAccumulator.charAt(index))) {
+          if (!codepointIsWhitespace(parserState.lineAccumulator.charAt(index))) {
             emoteToColumn = index
           }
         }

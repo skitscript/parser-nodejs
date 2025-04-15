@@ -3,8 +3,8 @@ import type { IdentifierContext } from '../../IdentifierContext'
 import type { IdentifierInstance } from '../../IdentifierInstance'
 import type { IdentifierType } from '../../IdentifierType'
 import type { Warning } from '../../Warning'
-import { characterIsComma } from './characterIsComma.js'
-import { characterIsWhitespace } from '../characterIsWhitespace.js'
+import { codepointIsComma } from './codepointIsComma.js'
+import { codepointIsWhitespace } from '../codepointIsWhitespace.js'
 import type { LocalIdentifierInstance } from '../LocalIdentifierInstance'
 import { filterDuplicatesFromIdentifierList } from './filterDuplicatesFromIdentifierList.js'
 import type { ParserState } from '../ParserState'
@@ -30,7 +30,7 @@ export const tryParseIdentifierList = (
   for (let index = fromColumn; index < separatorFromColumn; index++) {
     const character = parserState.lineAccumulator.charAt(index)
 
-    if (characterIsComma(character)) {
+    if (codepointIsComma(character)) {
       if (foundComma) {
         return null
       } else if (identifierFromColumn === -1) {
@@ -46,7 +46,7 @@ export const tryParseIdentifierList = (
           foundComma = true
         }
       }
-    } else if (!characterIsWhitespace(character)) {
+    } else if (!codepointIsWhitespace(character)) {
       foundComma = false
 
       if (identifierFromColumn === -1) {
@@ -75,7 +75,7 @@ export const tryParseIdentifierList = (
     identifierFromColumn = -1
 
     for (let index = separatorToColumn + 1; index <= toColumn; index++) {
-      if (!characterIsWhitespace(parserState.lineAccumulator.charAt(index))) {
+      if (!codepointIsWhitespace(parserState.lineAccumulator.charAt(index))) {
         if (identifierFromColumn === -1) {
           identifierFromColumn = index
         }

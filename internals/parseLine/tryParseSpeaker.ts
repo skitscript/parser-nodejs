@@ -1,8 +1,8 @@
 import type { Identifier } from '../../Identifier'
-import { characterIsClosingParenthesis } from './characterIsClosingParenthesis.js'
-import { characterIsColon } from './characterIsColon.js'
-import { characterIsOpeningParenthesis } from './characterIsOpeningParenthesis.js'
-import { characterIsWhitespace } from '../characterIsWhitespace.js'
+import { codepointIsClosingParenthesis } from './codepointIsClosingParenthesis.js'
+import { codepointIsColon } from './codepointIsColon.js'
+import { codepointIsOpeningParenthesis } from './codepointIsOpeningParenthesis.js'
+import { codepointIsWhitespace } from '../codepointIsWhitespace.js'
 import type { ParserState } from '../ParserState'
 import { tryParseAndIdentifierList } from './tryParseAndIdentifierList.js'
 import { tryParseIdentifier } from './tryParseIdentifier.js'
@@ -23,7 +23,7 @@ export const tryParseSpeaker = (parserState: ParserState): boolean => {
   for (let index = 0; index <= parserState.indexOfLastNonWhiteSpaceCharacter; index++) {
     const character = parserState.lineAccumulator.charAt(index)
 
-    if (characterIsOpeningParenthesis(character)) {
+    if (codepointIsOpeningParenthesis(character)) {
       if (charactersToColumn === -1) {
         return false
       }
@@ -37,7 +37,7 @@ export const tryParseSpeaker = (parserState: ParserState): boolean => {
       }
 
       foundOpeningParenthesis = true
-    } else if (characterIsClosingParenthesis(character)) {
+    } else if (codepointIsClosingParenthesis(character)) {
       if (emoteToColumn === -1) {
         return false
       }
@@ -47,7 +47,7 @@ export const tryParseSpeaker = (parserState: ParserState): boolean => {
       }
 
       foundClosingParenthesis = true
-    } else if (characterIsColon(character)) {
+    } else if (codepointIsColon(character)) {
       if (charactersToColumn === -1) {
         return false
       }
@@ -61,7 +61,7 @@ export const tryParseSpeaker = (parserState: ParserState): boolean => {
       }
 
       foundColon = true
-    } else if (!characterIsWhitespace(character)) {
+    } else if (!codepointIsWhitespace(character)) {
       if (foundColon) {
         return false
       }

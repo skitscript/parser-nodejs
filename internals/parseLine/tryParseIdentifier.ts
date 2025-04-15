@@ -3,8 +3,8 @@ import type { IdentifierContext } from '../../IdentifierContext'
 import type { IdentifierInstance } from '../../IdentifierInstance'
 import type { IdentifierType } from '../../IdentifierType'
 import type { Warning } from '../../Warning'
-import { characterIsExcludedFromIdentifiers } from './characterIsExcludedFromIdentifiers.js'
-import { characterIsInvalidInIdentifiers } from './characterIsInvalidInIdentifiers.js'
+import { codepointIsExcludedFromIdentifiers } from './codepointIsExcludedFromIdentifiers.js'
+import { codepointIsInvalidInIdentifiers } from './codepointIsInvalidInIdentifiers.js'
 import type { LocalIdentifierInstance } from './../LocalIdentifierInstance'
 import type { ParserState } from './../ParserState'
 import { transformCharacterToLowerCase } from './transformCharacterToLowerCase.js'
@@ -25,11 +25,11 @@ export const tryParseIdentifier = (
   while (true) {
     const character = parserState.lineAccumulator.charAt(includedFromColumn)
 
-    if (characterIsInvalidInIdentifiers(character)) {
+    if (codepointIsInvalidInIdentifiers(character)) {
       return null
     }
 
-    if (!characterIsExcludedFromIdentifiers(character)) {
+    if (!codepointIsExcludedFromIdentifiers(character)) {
       break
     }
 
@@ -45,11 +45,11 @@ export const tryParseIdentifier = (
   while (includedToColumn > includedFromColumn) {
     const character = parserState.lineAccumulator.charAt(includedToColumn)
 
-    if (characterIsInvalidInIdentifiers(character)) {
+    if (codepointIsInvalidInIdentifiers(character)) {
       return null
     }
 
-    if (!characterIsExcludedFromIdentifiers(character)) {
+    if (!codepointIsExcludedFromIdentifiers(character)) {
       break
     }
 
@@ -62,11 +62,11 @@ export const tryParseIdentifier = (
   for (let index = includedFromColumn; index <= includedToColumn; index++) {
     const character = parserState.lineAccumulator.charAt(index)
 
-    if (characterIsInvalidInIdentifiers(character)) {
+    if (codepointIsInvalidInIdentifiers(character)) {
       return null
     }
 
-    if (characterIsExcludedFromIdentifiers(character)) {
+    if (codepointIsExcludedFromIdentifiers(character)) {
       if (startOfCurrentWord !== -1) {
         const wordLength = index - startOfCurrentWord
 

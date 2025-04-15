@@ -1,4 +1,4 @@
-export const characterIsWhitespace = (character: string): boolean => {
+export const codepointIsWhitespace = (character: string): boolean => {
   switch (character) {
     case ' ':
     case '\t':

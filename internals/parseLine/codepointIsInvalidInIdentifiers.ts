@@ -1,4 +1,4 @@
-export const characterIsInvalidInIdentifiers = (character: string): boolean => {
+export const codepointIsInvalidInIdentifiers = (character: string): boolean => {
   switch (character) {
     case ':':
     case ',':

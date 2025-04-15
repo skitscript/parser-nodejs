@@ -2,17 +2,17 @@ import type { Condition } from '../../Condition'
 import type { IdentifierInstance } from '../../IdentifierInstance'
 import type { IdentifierType } from '../../IdentifierType'
 import type { Warning } from '../../Warning'
-import { characterIsE } from './characterIsE.js'
-import { characterIsH } from './characterIsH.js'
-import { characterIsJ } from './characterIsJ.js'
-import { characterIsM } from './characterIsM.js'
-import { characterIsN } from './characterIsN.js'
-import { characterIsO } from './characterIsO.js'
-import { characterIsP } from './characterIsP.js'
-import { characterIsT } from './characterIsT.js'
-import { characterIsU } from './characterIsU.js'
-import { characterIsW } from './characterIsW.js'
-import { characterIsWhitespace } from '../characterIsWhitespace.js'
+import { codepointIsE } from './codepointIsE.js'
+import { codepointIsH } from './codepointIsH.js'
+import { codepointIsJ } from './codepointIsJ.js'
+import { codepointIsM } from './codepointIsM.js'
+import { codepointIsN } from './codepointIsN.js'
+import { codepointIsO } from './codepointIsO.js'
+import { codepointIsP } from './codepointIsP.js'
+import { codepointIsT } from './codepointIsT.js'
+import { codepointIsU } from './codepointIsU.js'
+import { codepointIsW } from './codepointIsW.js'
+import { codepointIsWhitespace } from '../codepointIsWhitespace.js'
 import type { LocalIdentifierInstance } from '../LocalIdentifierInstance'
 import type { ParserState } from '../ParserState'
 import { tryParseIdentifier } from './tryParseIdentifier.js'
@@ -24,23 +24,23 @@ export const tryParseJump = (parserState: ParserState): boolean => {
     return false
   }
 
-  if (!characterIsJ(parserState.lineAccumulator.charAt(0))) {
+  if (!codepointIsJ(parserState.lineAccumulator.charAt(0))) {
     return false
   }
 
-  if (!characterIsU(parserState.lineAccumulator.charAt(1))) {
+  if (!codepointIsU(parserState.lineAccumulator.charAt(1))) {
     return false
   }
 
-  if (!characterIsM(parserState.lineAccumulator.charAt(2))) {
+  if (!codepointIsM(parserState.lineAccumulator.charAt(2))) {
     return false
   }
 
-  if (!characterIsP(parserState.lineAccumulator.charAt(3))) {
+  if (!codepointIsP(parserState.lineAccumulator.charAt(3))) {
     return false
   }
 
-  if (!characterIsWhitespace(parserState.lineAccumulator.charAt(4))) {
+  if (!codepointIsWhitespace(parserState.lineAccumulator.charAt(4))) {
     return false
   }
 
@@ -50,19 +50,19 @@ export const tryParseJump = (parserState: ParserState): boolean => {
   for (; index < parserState.indexOfLastNonWhiteSpaceCharacter - 2; index++) {
     const character = parserState.lineAccumulator.charAt(index)
 
-    if (characterIsWhitespace(character)) {
+    if (codepointIsWhitespace(character)) {
       continue
     }
 
-    if (!characterIsT(character)) {
+    if (!codepointIsT(character)) {
       return false
     }
 
-    if (!characterIsO(parserState.lineAccumulator.charAt(index + 1))) {
+    if (!codepointIsO(parserState.lineAccumulator.charAt(index + 1))) {
       return false
     }
 
-    if (!characterIsWhitespace(parserState.lineAccumulator.charAt(index + 2))) {
+    if (!codepointIsWhitespace(parserState.lineAccumulator.charAt(index + 2))) {
       return false
     }
 
@@ -83,13 +83,13 @@ export const tryParseJump = (parserState: ParserState): boolean => {
   for (; index < parserState.indexOfLastNonWhiteSpaceCharacter; index++) {
     const character = parserState.lineAccumulator.charAt(index)
 
-    if (characterIsWhitespace(character)) {
+    if (codepointIsWhitespace(character)) {
       if (index + 6 < parserState.indexOfLastNonWhiteSpaceCharacter) {
-        if (characterIsW(parserState.lineAccumulator.charAt(index + 1))) {
-          if (characterIsH(parserState.lineAccumulator.charAt(index + 2))) {
-            if (characterIsE(parserState.lineAccumulator.charAt(index + 3))) {
-              if (characterIsN(parserState.lineAccumulator.charAt(index + 4))) {
-                if (characterIsWhitespace(parserState.lineAccumulator.charAt(index + 5))) {
+        if (codepointIsW(parserState.lineAccumulator.charAt(index + 1))) {
+          if (codepointIsH(parserState.lineAccumulator.charAt(index + 2))) {
+            if (codepointIsE(parserState.lineAccumulator.charAt(index + 3))) {
+              if (codepointIsN(parserState.lineAccumulator.charAt(index + 4))) {
+                if (codepointIsWhitespace(parserState.lineAccumulator.charAt(index + 5))) {
                   index += 6
                   foundWhen = true
                   break
@@ -123,7 +123,7 @@ export const tryParseJump = (parserState: ParserState): boolean => {
   let conditionFromColumn = -1
 
   for (; index < parserState.indexOfLastNonWhiteSpaceCharacter; index++) {
-    if (characterIsWhitespace(parserState.lineAccumulator.charAt(index))) {
+    if (codepointIsWhitespace(parserState.lineAccumulator.charAt(index))) {
       continue
     }
 

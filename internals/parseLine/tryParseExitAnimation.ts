@@ -1,16 +1,16 @@
 import type { IdentifierInstance } from '../../IdentifierInstance'
 import type { IdentifierType } from '../../IdentifierType'
 import type { Warning } from '../../Warning'
-import { characterIsA } from './characterIsA.js'
-import { characterIsComma } from './characterIsComma.js'
-import { characterIsD } from './characterIsD.js'
-import { characterIsE } from './characterIsE.js'
-import { characterIsI } from './characterIsI.js'
-import { characterIsN } from './characterIsN.js'
-import { characterIsS } from './characterIsS.js'
-import { characterIsT } from './characterIsT.js'
-import { characterIsWhitespace } from '../characterIsWhitespace.js'
-import { characterIsX } from './characterIsX.js'
+import { codepointIsA } from './codepointIsA.js'
+import { codepointIsComma } from './codepointIsComma.js'
+import { codepointIsD } from './codepointIsD.js'
+import { codepointIsE } from './codepointIsE.js'
+import { codepointIsI } from './codepointIsI.js'
+import { codepointIsN } from './codepointIsN.js'
+import { codepointIsS } from './codepointIsS.js'
+import { codepointIsT } from './codepointIsT.js'
+import { codepointIsWhitespace } from '../codepointIsWhitespace.js'
+import { codepointIsX } from './codepointIsX.js'
 import type { LocalIdentifierInstance } from '../LocalIdentifierInstance'
 import type { ParserState } from '../ParserState'
 import { tryParseAndIdentifierList } from './tryParseAndIdentifierList.js'
@@ -18,19 +18,19 @@ import { tryParseIdentifier } from './tryParseIdentifier.js'
 import { checkReachable } from './checkReachable.js'
 
 const isAnd = (parserState: ParserState, separatorColumn: number, firstCharacter: string): boolean => {
-  if (!characterIsA(firstCharacter)) {
+  if (!codepointIsA(firstCharacter)) {
     return false
   }
 
-  if (!characterIsN(parserState.lineAccumulator.charAt(separatorColumn + 2))) {
+  if (!codepointIsN(parserState.lineAccumulator.charAt(separatorColumn + 2))) {
     return false
   }
 
-  if (!characterIsD(parserState.lineAccumulator.charAt(separatorColumn + 3))) {
+  if (!codepointIsD(parserState.lineAccumulator.charAt(separatorColumn + 3))) {
     return false
   }
 
-  if (!characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 4))) {
+  if (!codepointIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 4))) {
     return false
   }
 
@@ -38,10 +38,10 @@ const isAnd = (parserState: ParserState, separatorColumn: number, firstCharacter
 }
 
 const isExit = (parserState: ParserState, separatorColumn: number, firstCharacter: string): boolean => {
-  if (characterIsE(firstCharacter)) {
-    if (characterIsX(parserState.lineAccumulator.charAt(separatorColumn + 2))) {
-      if (characterIsI(parserState.lineAccumulator.charAt(separatorColumn + 3))) {
-        if (characterIsT(parserState.lineAccumulator.charAt(separatorColumn + 4))) {
+  if (codepointIsE(firstCharacter)) {
+    if (codepointIsX(parserState.lineAccumulator.charAt(separatorColumn + 2))) {
+      if (codepointIsI(parserState.lineAccumulator.charAt(separatorColumn + 3))) {
+        if (codepointIsT(parserState.lineAccumulator.charAt(separatorColumn + 4))) {
           return true
         } else {
           return false
@@ -59,8 +59,8 @@ const isExit = (parserState: ParserState, separatorColumn: number, firstCharacte
 
 const isExits = (parserState: ParserState, separatorColumn: number): boolean => {
   if (separatorColumn < parserState.indexOfLastNonWhiteSpaceCharacter - 7) {
-    if (characterIsS(parserState.lineAccumulator.charAt(separatorColumn + 5))) {
-      if (characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 6))) {
+    if (codepointIsS(parserState.lineAccumulator.charAt(separatorColumn + 5))) {
+      if (codepointIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 6))) {
         return true
       } else {
         return false
@@ -85,7 +85,7 @@ export const tryParseExitAnimation = (parserState: ParserState): boolean => {
   let characterToColumn: number = 0
 
   while (true) {
-    if (characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn))) {
+    if (codepointIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn))) {
       const firstCharacter = parserState.lineAccumulator.charAt(separatorColumn + 1)
 
       if (isAnd(parserState, separatorColumn, firstCharacter)) {
@@ -105,11 +105,11 @@ export const tryParseExitAnimation = (parserState: ParserState): boolean => {
           for (let index = separatorColumn + 7; index < parserState.indexOfLastNonWhiteSpaceCharacter; index++) {
             const character = parserState.lineAccumulator.charAt(index)
 
-            if (characterIsWhitespace(character)) {
+            if (codepointIsWhitespace(character)) {
               continue
             }
 
-            if (characterIsComma(character)) {
+            if (codepointIsComma(character)) {
               if (foundComma) {
                 return false
               }
@@ -214,7 +214,7 @@ export const tryParseExitAnimation = (parserState: ParserState): boolean => {
           }
 
           return true
-        } else if (characterIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 5))) {
+        } else if (codepointIsWhitespace(parserState.lineAccumulator.charAt(separatorColumn + 5))) {
           if (!foundAnd) {
             return false
           }
@@ -228,11 +228,11 @@ export const tryParseExitAnimation = (parserState: ParserState): boolean => {
           for (let index = separatorColumn + 6; index < parserState.indexOfLastNonWhiteSpaceCharacter; index++) {
             const character = parserState.lineAccumulator.charAt(index)
 
-            if (characterIsWhitespace(character)) {
+            if (codepointIsWhitespace(character)) {
               continue
             }
 
-            if (characterIsComma(character)) {
+            if (codepointIsComma(character)) {
               if (foundComma) {
                 return false
               }

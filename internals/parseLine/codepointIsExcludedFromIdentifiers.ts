@@ -1,5 +1,5 @@
 
-export const characterIsExcludedFromIdentifiers = (character: string): boolean => {
+export const codepointIsExcludedFromIdentifiers = (character: string): boolean => {
   switch (character) {
     case '!':
     case '?':

@@ -1,12 +1,12 @@
 import type { IdentifierInstance } from '../../IdentifierInstance'
 import type { IdentifierType } from '../../IdentifierType'
 import type { Warning } from '../../Warning'
-import { characterIsA } from './characterIsA.js'
-import { characterIsC } from './characterIsC.js'
-import { characterIsE } from './characterIsE.js'
-import { characterIsL } from './characterIsL.js'
-import { characterIsR } from './characterIsR.js'
-import { characterIsWhitespace } from '../characterIsWhitespace.js'
+import { codepointIsA } from './codepointIsA.js'
+import { codepointIsC } from './codepointIsC.js'
+import { codepointIsE } from './codepointIsE.js'
+import { codepointIsL } from './codepointIsL.js'
+import { codepointIsR } from './codepointIsR.js'
+import { codepointIsWhitespace } from '../codepointIsWhitespace.js'
 import type { LocalIdentifierInstance } from '../LocalIdentifierInstance'
 import type { ParserState } from '../ParserState'
 import { tryParseAndIdentifierList } from './tryParseAndIdentifierList.js'
@@ -18,28 +18,28 @@ export const tryParseClear = (parserState: ParserState): boolean => {
   }
 
   if (
-    !characterIsC(parserState.lineAccumulator.charAt(0))
+    !codepointIsC(parserState.lineAccumulator.charAt(0))
   ) {
     return false
   }
 
-  if (!characterIsL(parserState.lineAccumulator.charAt(1))) {
+  if (!codepointIsL(parserState.lineAccumulator.charAt(1))) {
     return false
   }
 
-  if (!characterIsE(parserState.lineAccumulator.charAt(2))) {
+  if (!codepointIsE(parserState.lineAccumulator.charAt(2))) {
     return false
   }
 
-  if (!characterIsA(parserState.lineAccumulator.charAt(3))) {
+  if (!codepointIsA(parserState.lineAccumulator.charAt(3))) {
     return false
   }
 
-  if (!characterIsR(parserState.lineAccumulator.charAt(4))) {
+  if (!codepointIsR(parserState.lineAccumulator.charAt(4))) {
     return false
   }
 
-  if (!characterIsWhitespace(parserState.lineAccumulator.charAt(5))) {
+  if (!codepointIsWhitespace(parserState.lineAccumulator.charAt(5))) {
     return false
   }
 

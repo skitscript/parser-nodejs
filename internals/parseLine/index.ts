@@ -11,7 +11,7 @@ import { tryParseEntryAnimation } from './tryParseEntryAnimation.js'
 import { tryParseExitAnimation } from './tryParseExitAnimation.js'
 import { parseFormatted } from './parseFormatted.js'
 import { checkReachable } from './checkReachable.js'
-import { characterIsPeriod } from './characterIsPeriod.js'
+import { codepointIsPeriod } from './codepointIsPeriod.js'
 import type { Warning } from '../../Warning'
 import type { IdentifierType } from '../../IdentifierType'
 import type { LocalIdentifierInstance } from '../LocalIdentifierInstance'
@@ -24,7 +24,7 @@ export const parseLine = (parserState: ParserState): void => {
       if (!tryParseLabel(parserState) &&
         !tryParseSpeaker(parserState) &&
         (
-          !characterIsPeriod(parserState.lineAccumulator.charAt(parserState.indexOfLastNonWhiteSpaceCharacter)) ||
+          !codepointIsPeriod(parserState.lineAccumulator.charAt(parserState.indexOfLastNonWhiteSpaceCharacter)) ||
           (
             !tryParseClear(parserState) &&
             !tryParseJump(parserState) &&

@@ -1,21 +1,21 @@
-import { characterIsA } from './characterIsA.js'
-import { characterIsC } from './characterIsC.js'
-import { characterIsD } from './characterIsD.js'
-import { characterIsE } from './characterIsE.js'
-import { characterIsH } from './characterIsH.js'
-import { characterIsI } from './characterIsI.js'
-import { characterIsJ } from './characterIsJ.js'
-import { characterIsL } from './characterIsL.js'
-import { characterIsM } from './characterIsM.js'
-import { characterIsN } from './characterIsN.js'
-import { characterIsO } from './characterIsO.js'
-import { characterIsP } from './characterIsP.js'
-import { characterIsR } from './characterIsR.js'
-import { characterIsS } from './characterIsS.js'
-import { characterIsT } from './characterIsT.js'
-import { characterIsU } from './characterIsU.js'
-import { characterIsW } from './characterIsW.js'
-import { characterIsX } from './characterIsX.js'
+import { codepointIsA } from './codepointIsA.js'
+import { codepointIsC } from './codepointIsC.js'
+import { codepointIsD } from './codepointIsD.js'
+import { codepointIsE } from './codepointIsE.js'
+import { codepointIsH } from './codepointIsH.js'
+import { codepointIsI } from './codepointIsI.js'
+import { codepointIsJ } from './codepointIsJ.js'
+import { codepointIsL } from './codepointIsL.js'
+import { codepointIsM } from './codepointIsM.js'
+import { codepointIsN } from './codepointIsN.js'
+import { codepointIsO } from './codepointIsO.js'
+import { codepointIsP } from './codepointIsP.js'
+import { codepointIsR } from './codepointIsR.js'
+import { codepointIsS } from './codepointIsS.js'
+import { codepointIsT } from './codepointIsT.js'
+import { codepointIsU } from './codepointIsU.js'
+import { codepointIsW } from './codepointIsW.js'
+import { codepointIsX } from './codepointIsX.js'
 import type { ParserState } from '../ParserState'
 
 export const wordIsInvalidInIdentifiers = (parserState: ParserState, fromColumn: number, length: number): boolean => {
@@ -24,20 +24,20 @@ export const wordIsInvalidInIdentifiers = (parserState: ParserState, fromColumn:
     {
       const firstCharacter = parserState.lineAccumulator.charAt(fromColumn)
 
-      if (characterIsI(firstCharacter)) {
-        if (characterIsS(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+      if (codepointIsI(firstCharacter)) {
+        if (codepointIsS(parserState.lineAccumulator.charAt(fromColumn + 1))) {
           return true
         } else {
           return false
         }
-      } else if (characterIsO(firstCharacter)) {
-        if (characterIsR(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+      } else if (codepointIsO(firstCharacter)) {
+        if (codepointIsR(parserState.lineAccumulator.charAt(fromColumn + 1))) {
           return true
         } else {
           return false
         }
-      } else if (characterIsT(firstCharacter)) {
-        if (characterIsO(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+      } else if (codepointIsT(firstCharacter)) {
+        if (codepointIsO(parserState.lineAccumulator.charAt(fromColumn + 1))) {
           return true
         } else {
           return false
@@ -51,17 +51,17 @@ export const wordIsInvalidInIdentifiers = (parserState: ParserState, fromColumn:
     {
       const firstCharacter = parserState.lineAccumulator.charAt(fromColumn)
 
-      if (characterIsA(firstCharacter)) {
+      if (codepointIsA(firstCharacter)) {
         const secondCharacter = parserState.lineAccumulator.charAt(fromColumn + 1)
 
-        if (characterIsN(secondCharacter)) {
-          if (characterIsD(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+        if (codepointIsN(secondCharacter)) {
+          if (codepointIsD(parserState.lineAccumulator.charAt(fromColumn + 2))) {
             return true
           } else {
             return false
           }
-        } else if (characterIsR(secondCharacter)) {
-          if (characterIsE(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+        } else if (codepointIsR(secondCharacter)) {
+          if (codepointIsE(parserState.lineAccumulator.charAt(fromColumn + 2))) {
             return true
           } else {
             return false
@@ -69,9 +69,9 @@ export const wordIsInvalidInIdentifiers = (parserState: ParserState, fromColumn:
         }
 
         return false
-      } else if (characterIsN(firstCharacter)) {
-        if (characterIsO(parserState.lineAccumulator.charAt(fromColumn + 1))) {
-          if (characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+      } else if (codepointIsN(firstCharacter)) {
+        if (codepointIsO(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          if (codepointIsT(parserState.lineAccumulator.charAt(fromColumn + 2))) {
             return true
           } else {
             return false
@@ -80,9 +80,9 @@ export const wordIsInvalidInIdentifiers = (parserState: ParserState, fromColumn:
           return false
         }
       } else {
-        if (characterIsS(firstCharacter)) {
-          if (characterIsE(parserState.lineAccumulator.charAt(fromColumn + 1))) {
-            if (characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+        if (codepointIsS(firstCharacter)) {
+          if (codepointIsE(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+            if (codepointIsT(parserState.lineAccumulator.charAt(fromColumn + 2))) {
               return true
             } else {
               return false
@@ -99,10 +99,10 @@ export const wordIsInvalidInIdentifiers = (parserState: ParserState, fromColumn:
     case 4: {
       const firstCharacter = parserState.lineAccumulator.charAt(fromColumn)
 
-      if (characterIsE(firstCharacter)) {
-        if (characterIsX(parserState.lineAccumulator.charAt(fromColumn + 1))) {
-          if (characterIsI(parserState.lineAccumulator.charAt(fromColumn + 2))) {
-            if (characterIsT(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+      if (codepointIsE(firstCharacter)) {
+        if (codepointIsX(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          if (codepointIsI(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+            if (codepointIsT(parserState.lineAccumulator.charAt(fromColumn + 3))) {
               return true
             } else {
               return false
@@ -113,10 +113,10 @@ export const wordIsInvalidInIdentifiers = (parserState: ParserState, fromColumn:
         } else {
           return false
         }
-      } else if (characterIsJ(firstCharacter)) {
-        if (characterIsU(parserState.lineAccumulator.charAt(fromColumn + 1))) {
-          if (characterIsM(parserState.lineAccumulator.charAt(fromColumn + 2))) {
-            if (characterIsP(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+      } else if (codepointIsJ(firstCharacter)) {
+        if (codepointIsU(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          if (codepointIsM(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+            if (codepointIsP(parserState.lineAccumulator.charAt(fromColumn + 3))) {
               return true
             } else {
               return false
@@ -128,10 +128,10 @@ export const wordIsInvalidInIdentifiers = (parserState: ParserState, fromColumn:
           return false
         }
       } else {
-        if (characterIsW(firstCharacter)) {
-          if (characterIsH(parserState.lineAccumulator.charAt(fromColumn + 1))) {
-            if (characterIsE(parserState.lineAccumulator.charAt(fromColumn + 2))) {
-              if (characterIsN(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+        if (codepointIsW(firstCharacter)) {
+          if (codepointIsH(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+            if (codepointIsE(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+              if (codepointIsN(parserState.lineAccumulator.charAt(fromColumn + 3))) {
                 return true
               } else {
                 return false
@@ -151,11 +151,11 @@ export const wordIsInvalidInIdentifiers = (parserState: ParserState, fromColumn:
     case 5: {
       const firstCharacter = parserState.lineAccumulator.charAt(fromColumn)
 
-      if (characterIsC(firstCharacter)) {
-        if (characterIsL(parserState.lineAccumulator.charAt(fromColumn + 1))) {
-          if (characterIsE(parserState.lineAccumulator.charAt(fromColumn + 2))) {
-            if (characterIsA(parserState.lineAccumulator.charAt(fromColumn + 3))) {
-              if (characterIsR(parserState.lineAccumulator.charAt(fromColumn + 4))) {
+      if (codepointIsC(firstCharacter)) {
+        if (codepointIsL(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          if (codepointIsE(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+            if (codepointIsA(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+              if (codepointIsR(parserState.lineAccumulator.charAt(fromColumn + 4))) {
                 return true
               } else {
                 return false
@@ -169,13 +169,13 @@ export const wordIsInvalidInIdentifiers = (parserState: ParserState, fromColumn:
         } else {
           return false
         }
-      } else if (characterIsE(firstCharacter)) {
+      } else if (codepointIsE(firstCharacter)) {
         const secondCharacter = parserState.lineAccumulator.charAt(fromColumn + 1)
 
-        if (characterIsN(secondCharacter)) {
-          if (characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2))) {
-            if (characterIsE(parserState.lineAccumulator.charAt(fromColumn + 3))) {
-              if (characterIsR(parserState.lineAccumulator.charAt(fromColumn + 4))) {
+        if (codepointIsN(secondCharacter)) {
+          if (codepointIsT(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+            if (codepointIsE(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+              if (codepointIsR(parserState.lineAccumulator.charAt(fromColumn + 4))) {
                 return true
               } else {
                 return false
@@ -186,10 +186,10 @@ export const wordIsInvalidInIdentifiers = (parserState: ParserState, fromColumn:
           } else {
             return false
           }
-        } else if (characterIsX(secondCharacter)) {
-          if (characterIsI(parserState.lineAccumulator.charAt(fromColumn + 2))) {
-            if (characterIsT(parserState.lineAccumulator.charAt(fromColumn + 3))) {
-              if (characterIsS(parserState.lineAccumulator.charAt(fromColumn + 4))) {
+        } else if (codepointIsX(secondCharacter)) {
+          if (codepointIsI(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+            if (codepointIsT(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+              if (codepointIsS(parserState.lineAccumulator.charAt(fromColumn + 4))) {
                 return true
               } else {
                 return false
@@ -203,11 +203,11 @@ export const wordIsInvalidInIdentifiers = (parserState: ParserState, fromColumn:
         } else {
           return false
         }
-      } else if (characterIsL(firstCharacter)) {
-        if (characterIsE(parserState.lineAccumulator.charAt(fromColumn + 1))) {
-          if (characterIsA(parserState.lineAccumulator.charAt(fromColumn + 2))) {
-            if (characterIsD(parserState.lineAccumulator.charAt(fromColumn + 3))) {
-              if (characterIsS(parserState.lineAccumulator.charAt(fromColumn + 4))) {
+      } else if (codepointIsL(firstCharacter)) {
+        if (codepointIsE(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          if (codepointIsA(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+            if (codepointIsD(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+              if (codepointIsS(parserState.lineAccumulator.charAt(fromColumn + 4))) {
                 return true
               } else {
                 return false
@@ -227,12 +227,12 @@ export const wordIsInvalidInIdentifiers = (parserState: ParserState, fromColumn:
     }
 
     case 6:
-      if (characterIsE(parserState.lineAccumulator.charAt(fromColumn))) {
-        if (characterIsN(parserState.lineAccumulator.charAt(fromColumn + 1))) {
-          if (characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2))) {
-            if (characterIsE(parserState.lineAccumulator.charAt(fromColumn + 3))) {
-              if (characterIsR(parserState.lineAccumulator.charAt(fromColumn + 4))) {
-                if (characterIsS(parserState.lineAccumulator.charAt(fromColumn + 5))) {
+      if (codepointIsE(parserState.lineAccumulator.charAt(fromColumn))) {
+        if (codepointIsN(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          if (codepointIsT(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+            if (codepointIsE(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+              if (codepointIsR(parserState.lineAccumulator.charAt(fromColumn + 4))) {
+                if (codepointIsS(parserState.lineAccumulator.charAt(fromColumn + 5))) {
                   return true
                 } else {
                   return false

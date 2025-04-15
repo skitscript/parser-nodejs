@@ -3,21 +3,21 @@ import type { IdentifierContext } from '../../IdentifierContext'
 import type { IdentifierInstance } from '../../IdentifierInstance'
 import type { IdentifierType } from '../../IdentifierType'
 import type { Warning } from '../../Warning'
-import { characterIsA } from './characterIsA.js'
-import { characterIsD } from './characterIsD.js'
-import { characterIsN } from './characterIsN.js'
-import { characterIsWhitespace } from '../characterIsWhitespace.js'
+import { codepointIsA } from './codepointIsA.js'
+import { codepointIsD } from './codepointIsD.js'
+import { codepointIsN } from './codepointIsN.js'
+import { codepointIsWhitespace } from '../codepointIsWhitespace.js'
 import type { LocalIdentifierInstance } from '../LocalIdentifierInstance'
 import type { ParserState } from '../ParserState'
 import { tryParseIdentifier } from './tryParseIdentifier.js'
 import { tryParseIdentifierList } from './tryParseIdentifierList.js'
 
 const isAnd = (parserState: ParserState, index: number): boolean => {
-  if (characterIsWhitespace(parserState.lineAccumulator.charAt(index))) {
-    if (characterIsA(parserState.lineAccumulator.charAt(index + 1))) {
-      if (characterIsN(parserState.lineAccumulator.charAt(index + 2))) {
-        if (characterIsD(parserState.lineAccumulator.charAt(index + 3))) {
-          if (characterIsWhitespace(parserState.lineAccumulator.charAt(index + 4))) {
+  if (codepointIsWhitespace(parserState.lineAccumulator.charAt(index))) {
+    if (codepointIsA(parserState.lineAccumulator.charAt(index + 1))) {
+      if (codepointIsN(parserState.lineAccumulator.charAt(index + 2))) {
+        if (codepointIsD(parserState.lineAccumulator.charAt(index + 3))) {
+          if (codepointIsWhitespace(parserState.lineAccumulator.charAt(index + 4))) {
             return true
           } else {
             return false
@@ -68,14 +68,14 @@ export const tryParseAndIdentifierList = (
   while (true) {
     if (fromColumn === parserState.indexOfLastNonWhiteSpaceCharacter) {
       return null
-    } else if (characterIsWhitespace(parserState.lineAccumulator.charAt(fromColumn))) {
+    } else if (codepointIsWhitespace(parserState.lineAccumulator.charAt(fromColumn))) {
       fromColumn++
     } else {
       break
     }
   }
 
-  while (characterIsWhitespace(parserState.lineAccumulator.charAt(toColumn))) {
+  while (codepointIsWhitespace(parserState.lineAccumulator.charAt(toColumn))) {
     toColumn--
   }
 

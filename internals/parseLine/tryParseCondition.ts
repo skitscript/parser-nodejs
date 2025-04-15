@@ -3,22 +3,22 @@ import type { Identifier } from '../../Identifier'
 import type { IdentifierInstance } from '../../IdentifierInstance'
 import type { IdentifierType } from '../../IdentifierType'
 import type { Warning } from '../../Warning'
-import { characterIsA } from './characterIsA.js'
-import { characterIsD } from './characterIsD.js'
-import { characterIsN } from './characterIsN.js'
-import { characterIsO } from './characterIsO.js'
-import { characterIsR } from './characterIsR.js'
-import { characterIsT } from './characterIsT.js'
-import { characterIsWhitespace } from '../characterIsWhitespace.js'
+import { codepointIsA } from './codepointIsA.js'
+import { codepointIsD } from './codepointIsD.js'
+import { codepointIsN } from './codepointIsN.js'
+import { codepointIsO } from './codepointIsO.js'
+import { codepointIsR } from './codepointIsR.js'
+import { codepointIsT } from './codepointIsT.js'
+import { codepointIsWhitespace } from '../codepointIsWhitespace.js'
 import type { LocalIdentifierInstance } from '../LocalIdentifierInstance'
 import type { ParserState } from '../ParserState'
 import { tryParseIdentifier } from './tryParseIdentifier.js'
 import { tryParseIdentifierList } from './tryParseIdentifierList.js'
 
 const isOr = (parserState: ParserState, index: number): boolean => {
-  if (characterIsO(parserState.lineAccumulator.charAt(index + 1))) {
-    if (characterIsR(parserState.lineAccumulator.charAt(index + 2))) {
-      if (characterIsWhitespace(parserState.lineAccumulator.charAt(index + 3))) {
+  if (codepointIsO(parserState.lineAccumulator.charAt(index + 1))) {
+    if (codepointIsR(parserState.lineAccumulator.charAt(index + 2))) {
+      if (codepointIsWhitespace(parserState.lineAccumulator.charAt(index + 3))) {
         return true
       } else {
         return false
@@ -32,10 +32,10 @@ const isOr = (parserState: ParserState, index: number): boolean => {
 }
 
 const isNot = (parserState: ParserState, index: number): boolean => {
-  if (characterIsN(parserState.lineAccumulator.charAt(index))) {
-    if (characterIsO(parserState.lineAccumulator.charAt(index + 1))) {
-      if (characterIsT(parserState.lineAccumulator.charAt(index + 2))) {
-        if (characterIsWhitespace(parserState.lineAccumulator.charAt(index + 3))) {
+  if (codepointIsN(parserState.lineAccumulator.charAt(index))) {
+    if (codepointIsO(parserState.lineAccumulator.charAt(index + 1))) {
+      if (codepointIsT(parserState.lineAccumulator.charAt(index + 2))) {
+        if (codepointIsWhitespace(parserState.lineAccumulator.charAt(index + 3))) {
           return true
         } else {
           return false
@@ -52,10 +52,10 @@ const isNot = (parserState: ParserState, index: number): boolean => {
 }
 
 const isAnd = (parserState: ParserState, index: number): boolean => {
-  if (characterIsA(parserState.lineAccumulator.charAt(index + 1))) {
-    if (characterIsN(parserState.lineAccumulator.charAt(index + 2))) {
-      if (characterIsD(parserState.lineAccumulator.charAt(index + 3))) {
-        if (characterIsWhitespace(parserState.lineAccumulator.charAt(index + 4))) {
+  if (codepointIsA(parserState.lineAccumulator.charAt(index + 1))) {
+    if (codepointIsN(parserState.lineAccumulator.charAt(index + 2))) {
+      if (codepointIsD(parserState.lineAccumulator.charAt(index + 3))) {
+        if (codepointIsWhitespace(parserState.lineAccumulator.charAt(index + 4))) {
           return true
         } else {
           return false
@@ -86,7 +86,7 @@ export const tryParseCondition = (
     while (true) {
       if (fromColumn === parserState.indexOfLastNonWhiteSpaceCharacter) {
         return null
-      } else if (characterIsWhitespace(parserState.lineAccumulator.charAt(fromColumn))) {
+      } else if (codepointIsWhitespace(parserState.lineAccumulator.charAt(fromColumn))) {
         fromColumn++
       } else {
         break
@@ -96,14 +96,14 @@ export const tryParseCondition = (
 
   let toColumn = parserState.indexOfLastNonWhiteSpaceCharacter - 1
 
-  while (characterIsWhitespace(parserState.lineAccumulator.charAt(toColumn))) {
+  while (codepointIsWhitespace(parserState.lineAccumulator.charAt(toColumn))) {
     toColumn--
   }
 
   const quitLoopAt = toColumn - 3
 
   for (let index = fromColumn; index < quitLoopAt; index++) {
-    if (characterIsWhitespace(parserState.lineAccumulator.charAt(index))) {
+    if (codepointIsWhitespace(parserState.lineAccumulator.charAt(index))) {
       if (isOr(parserState, index)) {
         const flags = tryParseIdentifierList(
           parserState,

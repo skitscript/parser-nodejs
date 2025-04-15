@@ -1,4 +1,4 @@
-export const characterIsT = (character: string): boolean => {
+export const codepointIsT = (character: string): boolean => {
   switch (character) {
     case 't':
     case 'T':

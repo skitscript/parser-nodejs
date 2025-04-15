@@ -1,8 +1,8 @@
 import type { Formatted } from '../../Formatted'
 import type { Run } from '../../Run'
-import { characterIsAsterisk } from './characterIsAsterisk.js'
-import { characterIsBackslash } from './characterIsBackslash.js'
-import { characterIsBacktick } from './characterIsBacktick.js'
+import { codepointIsAsterisk } from './codepointIsAsterisk.js'
+import { codepointIsBackslash } from './codepointIsBackslash.js'
+import { codepointIsBacktick } from './codepointIsBacktick.js'
 import type { ParserState } from '../ParserState'
 
 export const parseFormatted = (
@@ -39,15 +39,15 @@ export const parseFormatted = (
 
     switch (state) {
       case 'no_special_character':
-        if (characterIsBackslash(character)) {
+        if (codepointIsBackslash(character)) {
           state = 'backslash'
           continue
-        } else if (characterIsBacktick(character)) {
+        } else if (codepointIsBacktick(character)) {
           verbatim += '`'
           state = 'code'
           codeFromColumn = index
           continue
-        } else if (characterIsAsterisk(character)) {
+        } else if (codepointIsAsterisk(character)) {
           verbatim += '*'
           state = 'asterisk'
           continue
@@ -55,7 +55,7 @@ export const parseFormatted = (
         break
 
       case 'backslash':
-        if (characterIsBackslash(character) || characterIsBacktick(character) || characterIsAsterisk(character)) {
+        if (codepointIsBackslash(character) || codepointIsBacktick(character) || codepointIsAsterisk(character)) {
           insertBackslash = true
           state = 'no_special_character'
         } else {
@@ -74,7 +74,7 @@ export const parseFormatted = (
       case 'asterisk':
         state = 'no_special_character'
 
-        if (characterIsAsterisk(character)) {
+        if (codepointIsAsterisk(character)) {
           if (boldFromColumn === -1) {
             boldFromColumn = index - 1
           } else {
@@ -89,10 +89,10 @@ export const parseFormatted = (
             italicFromColumn = -1
           }
 
-          if (characterIsBackslash(character)) {
+          if (codepointIsBackslash(character)) {
             state = 'backslash'
             continue
-          } else if (characterIsBacktick(character)) {
+          } else if (codepointIsBacktick(character)) {
             verbatim += '`'
             state = 'code'
             codeFromColumn = index
@@ -102,10 +102,10 @@ export const parseFormatted = (
         break
 
       case 'code':
-        if (characterIsBackslash(character)) {
+        if (codepointIsBackslash(character)) {
           state = 'code_backslash'
           continue
-        } else if (characterIsBacktick(character)) {
+        } else if (codepointIsBacktick(character)) {
           codeFromColumn = -1
           verbatim += '`'
           state = 'no_special_character'
@@ -114,7 +114,7 @@ export const parseFormatted = (
         break
 
       case 'code_backslash':
-        if (characterIsBackslash(character) || characterIsBacktick(character)) {
+        if (codepointIsBackslash(character) || codepointIsBacktick(character)) {
           insertBackslash = true
           state = 'code'
         } else {
