@@ -5,7 +5,7 @@ export interface UnterminatedCodeError {
   /**
    * Identifies the type of error.
    */
-  readonly type: 'unterminatedCode'
+  readonly type: 'unterminated_code'
 
   /**
    * The line from which the error originates.

@@ -7,7 +7,7 @@ export interface FlagNeverReferencedWarning {
   /**
    * Identifies the type of warning.
    */
-  readonly type: 'flagNeverReferenced'
+  readonly type: 'flag_never_referenced'
 
   /**
    * The line from which the warning originates.

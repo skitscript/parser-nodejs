@@ -7,7 +7,7 @@ export interface FlagNeverSetWarning {
   /**
    * Identifies the type of warning.
    */
-  readonly type: 'flagNeverSet'
+  readonly type: 'flag_never_set'
 
   /**
    * The line from which the warning originates.

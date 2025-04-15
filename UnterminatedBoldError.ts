@@ -6,7 +6,7 @@ export interface UnterminatedBoldError {
   /**
    * Identifies the type of error.
    */
-  readonly type: 'unterminatedBold'
+  readonly type: 'unterminated_bold'
 
   /**
    * The line from which the error originates.

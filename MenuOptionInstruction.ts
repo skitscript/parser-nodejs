@@ -9,7 +9,7 @@ export interface MenuOptionInstruction {
   /**
    * Identifies the type of instruction.
    */
-  readonly type: 'menuOption'
+  readonly type: 'menu_option'
 
   /**
    * The line from which the instruction originates.

@@ -60,7 +60,7 @@ export const parseFormatted = (
           state = 'no_special_character'
         } else {
           parserState.errors.push({
-            type: 'invalidEscapeSequence',
+            type: 'invalid_escape_sequence',
             line: parserState.line,
             verbatim: `\\${character}`,
             fromColumn: index,
@@ -119,7 +119,7 @@ export const parseFormatted = (
           state = 'code'
         } else {
           parserState.errors.push({
-            type: 'invalidEscapeSequence',
+            type: 'invalid_escape_sequence',
             line: parserState.line,
             verbatim: `\\${character}`,
             fromColumn: index,
@@ -169,7 +169,7 @@ export const parseFormatted = (
     case 'backslash':
     case 'code_backslash':
       parserState.errors.push({
-        type: 'incompleteEscapeSequence',
+        type: 'incomplete_escape_sequence',
         line: parserState.line,
         column: toColumn + 1
       })
@@ -187,7 +187,7 @@ export const parseFormatted = (
 
   if (boldFromColumn !== -1) {
     parserState.errors.push({
-      type: 'unterminatedBold',
+      type: 'unterminated_bold',
       line: parserState.line,
       verbatim: parserState.lineAccumulator.slice(boldFromColumn, toColumn + 1),
       fromColumn: boldFromColumn + 1,
@@ -207,7 +207,7 @@ export const parseFormatted = (
     return null
   } else if (codeFromColumn !== -1) {
     parserState.errors.push({
-      type: 'unterminatedCode',
+      type: 'unterminated_code',
       line: parserState.line,
       verbatim: parserState.lineAccumulator.slice(codeFromColumn, toColumn + 1),
       fromColumn: codeFromColumn + 1,

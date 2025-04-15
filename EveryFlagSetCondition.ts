@@ -7,7 +7,7 @@ export interface EveryFlagSetCondition {
   /**
    * Indicates the type of condition.
    */
-  readonly type: 'everyFlagSet'
+  readonly type: 'every_flag_set'
 
   /**
    * The names of the flags which must be set for the condition to pass.

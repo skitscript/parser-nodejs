@@ -7,7 +7,7 @@ export interface FlagSetCondition {
   /**
    * Indicates the type of condition.
    */
-  readonly type: 'flagSet'
+  readonly type: 'flag_set'
 
   /**
    * The name of the flag which must be set for the condition to pass.

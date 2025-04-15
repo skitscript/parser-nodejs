@@ -122,12 +122,12 @@ export const tryParseCondition = (
           return null
         } else if (flags.length === 1) {
           return {
-            type: not ? 'flagClear' : 'flagSet',
+            type: not ? 'flag_clear' : 'flag_set',
             flag: flags[0] as Identifier
           }
         } else {
           return {
-            type: not ? 'everyFlagClear' : 'someFlagsSet',
+            type: not ? 'every_flag_clear' : 'some_flags_set',
             flags
           }
         }
@@ -151,12 +151,12 @@ export const tryParseCondition = (
               return null
             } else if (flags.length === 1) {
               return {
-                type: not ? 'flagClear' : 'flagSet',
+                type: not ? 'flag_clear' : 'flag_set',
                 flag: flags[0] as Identifier
               }
             } else {
               return {
-                type: not ? 'someFlagsClear' : 'everyFlagSet',
+                type: not ? 'some_flags_clear' : 'every_flag_set',
                 flags
               }
             }
@@ -181,7 +181,7 @@ export const tryParseCondition = (
     return null
   } else {
     return {
-      type: not ? 'flagClear' : 'flagSet',
+      type: not ? 'flag_clear' : 'flag_set',
       flag
     }
   }

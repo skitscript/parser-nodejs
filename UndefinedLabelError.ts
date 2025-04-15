@@ -7,7 +7,7 @@ export interface UndefinedLabelError {
   /**
    * Identifies the type of error.
    */
-  readonly type: 'undefinedLabel'
+  readonly type: 'undefined_label'
 
   /**
    * The line from which the error originates.

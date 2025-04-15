@@ -6,7 +6,7 @@ export interface IncompleteEscapeSequenceError {
   /**
    * Identifies the type of error.
    */
-  readonly type: 'incompleteEscapeSequence'
+  readonly type: 'incomplete_escape_sequence'
 
   /**
    * The line from which the error originates.

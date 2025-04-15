@@ -31,7 +31,7 @@ export const end = (parserState: ParserState): Document => {
 
         const referencedByAMenuOption = parserState.instructions.some(
           (menuOptionInstruction) =>
-            menuOptionInstruction.type === 'menuOption' &&
+            menuOptionInstruction.type === 'menu_option' &&
             menuOptionInstruction.label.normalized ===
               statement.label.normalized
         )
@@ -48,7 +48,7 @@ export const end = (parserState: ParserState): Document => {
       }
 
       case 'jump':
-      case 'menuOption':
+      case 'menu_option':
         if (
           !parserState.instructions.some(
             (labelInstruction) =>
@@ -57,7 +57,7 @@ export const end = (parserState: ParserState): Document => {
           )
         ) {
           parserState.errors.push({
-            type: 'undefinedLabel',
+            type: 'undefined_label',
             line: statement.line,
             label: statement.label
           })
@@ -76,7 +76,7 @@ export const end = (parserState: ParserState): Document => {
       const flag = parserState.identifiers.flag[normalizedFlag] as LocalIdentifierInstance
 
       parserState.warnings.push({
-        type: 'flagNeverSet',
+        type: 'flag_never_set',
         line: flag.first.line,
         flag: unwrapIdentifier(flag.first)
       })
@@ -85,10 +85,10 @@ export const end = (parserState: ParserState): Document => {
     if (
       !parserState.instructions.some(
         (instruction) =>
-          (instruction.type === 'jump' || instruction.type === 'menuOption') &&
+          (instruction.type === 'jump' || instruction.type === 'menu_option') &&
           instruction.condition !== null &&
-          (instruction.condition.type === 'flagClear' ||
-          instruction.condition.type === 'flagSet'
+          (instruction.condition.type === 'flag_clear' ||
+          instruction.condition.type === 'flag_set'
             ? instruction.condition.flag.normalized === normalizedFlag
             : instruction.condition.flags.some(
               (flag) => flag.normalized === normalizedFlag
@@ -98,7 +98,7 @@ export const end = (parserState: ParserState): Document => {
       const flag = parserState.identifiers.flag[normalizedFlag] as LocalIdentifierInstance
 
       parserState.warnings.push({
-        type: 'flagNeverReferenced',
+        type: 'flag_never_referenced',
         line: flag.first.line,
         flag: unwrapIdentifier(flag.first)
       })

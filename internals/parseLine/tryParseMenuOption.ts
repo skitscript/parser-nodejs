@@ -247,7 +247,7 @@ export const tryParseMenuOption = (parserState: ParserState): boolean => {
 
     parserState.instructions.push(
       {
-        type: 'menuOption',
+        type: 'menu_option',
         line: parserState.line,
         content,
         label,

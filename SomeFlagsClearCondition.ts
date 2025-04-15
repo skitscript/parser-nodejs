@@ -7,7 +7,7 @@ export interface SomeFlagsClearCondition {
   /**
    * Indicates the type of condition.
    */
-  readonly type: 'someFlagsClear'
+  readonly type: 'some_flags_clear'
 
   /**
    * The names of the flags of which at least one must be clear for the condition to pass.
