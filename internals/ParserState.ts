@@ -16,7 +16,9 @@ export interface ParserState {
   }
   line: number
   reachability: Reachability
-  state: 'normal' | 'following_carriage_return' | 'ended'
+  state: 'normal' | 'following_carriage_return' | 'ended' | 'invalid_codepoint'
+  codepointState: 'initial' | 'two_byte_two' | 'three_byte_two' | 'three_byte_three' | 'four_byte_two' | 'four_byte_three' | 'four_byte_four'
+  codepointAccumulator: number
   lineAccumulator: string
   indexOfFirstNonWhiteSpaceCharacter: number
   indexOfLastNonWhiteSpaceCharacter: number

@@ -10,7 +10,9 @@ export const end = (parserState: ParserState): Document => {
     throw new Error('Unable to end the same parser more than once.')
   }
 
-  parseLine(parserState)
+  if (parserState.state !== 'invalid_codepoint') {
+    parseLine(parserState)
+  }
 
   parserState.state = 'ended'
 

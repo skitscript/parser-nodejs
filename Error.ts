@@ -6,6 +6,7 @@ import type { UnparsableError } from './UnparsableError'
 import type { UnterminatedBoldError } from './UnterminatedBoldError'
 import type { UnterminatedCodeError } from './UnterminatedCodeError'
 import type { UnterminatedItalicError } from './UnterminatedItalicError'
+import type { InvalidCodepointError } from './InvalidCodepointError'
 
 /**
  * An error generated while parsing a document.
@@ -19,5 +20,6 @@ export type Error =
   | UnterminatedBoldError
   | UnterminatedItalicError
   | UnterminatedCodeError
+  | InvalidCodepointError
 
 /* c8 ignore next */

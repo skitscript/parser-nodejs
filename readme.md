@@ -58,18 +58,18 @@ false
 
 ### Parsing documents
 
-Import the `start`, `append` and `end` functions and feed the parser one
-character at a time:
+Import the `start`, `append` and `end` functions and feed the parser one byte at
+a time:
 
 ```typescript
 import { start, append, end } from "@skitscript/parser-nodejs";
 
 const parser = start();
-append(parser, 'h');
-append(parser, 'e');
-append(parser, 'l');
-append(parser, 'l');
-append(parser, 'o');
+append(parser, 104);
+append(parser, 101);
+append(parser, 108);
+append(parser, 108);
+append(parser, 111);
 const parsed = end(parser);
 
 console.log(parsed);
