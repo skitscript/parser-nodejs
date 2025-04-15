@@ -4,7 +4,7 @@ export const start = (): ParserState => ({
   instructions: [],
   errors: [],
   warnings: [],
-  identifierInstances: [],
+  identifier_instances: [],
   identifiers: {
     character: {},
     emote: {},

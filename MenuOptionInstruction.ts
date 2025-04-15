@@ -29,7 +29,7 @@ export interface MenuOptionInstruction {
   /**
    * The instruction index to which to jump when the menu option is selected.
    */
-  readonly instructionIndex: number
+  readonly instruction_index: number
 
   /**
    * The condition which must be met for the menu option to be shown; when null,

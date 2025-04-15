@@ -27,8 +27,8 @@ export const checkReachable = (
       parserState.warnings.push({
         type: 'unreachable',
         line: parserState.line,
-        fromColumn: parserState.indexOfFirstNonWhiteSpaceCharacter + 1,
-        toColumn: parserState.indexOfLastNonWhiteSpaceCharacter + 1
+        from_column: parserState.indexOfFirstNonWhiteSpaceCharacter + 1,
+        to_column: parserState.indexOfLastNonWhiteSpaceCharacter + 1
       })
       parserState.reachability = 'unreachable'
       return false

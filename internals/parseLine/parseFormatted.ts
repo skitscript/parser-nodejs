@@ -63,8 +63,8 @@ export const parseFormatted = (
             type: 'invalid_escape_sequence',
             line: parserState.line,
             verbatim: `\\${character}`,
-            fromColumn: index,
-            toColumn: index + 1
+            from_column: index,
+            to_column: index + 1
           })
 
           return null
@@ -122,8 +122,8 @@ export const parseFormatted = (
             type: 'invalid_escape_sequence',
             line: parserState.line,
             verbatim: `\\${character}`,
-            fromColumn: index,
-            toColumn: index + 1
+            from_column: index,
+            to_column: index + 1
           })
 
           return null
@@ -142,9 +142,9 @@ export const parseFormatted = (
         italic: previousItalic,
         code: previousCode,
         verbatim,
-        plainText,
-        fromColumn: currentRunFromColumn + 1,
-        toColumn: index - (insertBackslash ? 1 : 0)
+        plain_text: plainText,
+        from_column: currentRunFromColumn + 1,
+        to_column: index - (insertBackslash ? 1 : 0)
       })
 
       plainText = ''
@@ -190,8 +190,8 @@ export const parseFormatted = (
       type: 'unterminated_bold',
       line: parserState.line,
       verbatim: parserState.lineAccumulator.slice(boldFromColumn, toColumn + 1),
-      fromColumn: boldFromColumn + 1,
-      toColumn: toColumn + 1
+      from_column: boldFromColumn + 1,
+      to_column: toColumn + 1
     })
 
     return null
@@ -200,8 +200,8 @@ export const parseFormatted = (
       type: 'unterminated_italic',
       line: parserState.line,
       verbatim: parserState.lineAccumulator.slice(italicFromColumn, toColumn + 1),
-      fromColumn: italicFromColumn + 1,
-      toColumn: toColumn + 1
+      from_column: italicFromColumn + 1,
+      to_column: toColumn + 1
     })
 
     return null
@@ -210,8 +210,8 @@ export const parseFormatted = (
       type: 'unterminated_code',
       line: parserState.line,
       verbatim: parserState.lineAccumulator.slice(codeFromColumn, toColumn + 1),
-      fromColumn: codeFromColumn + 1,
-      toColumn: toColumn + 1
+      from_column: codeFromColumn + 1,
+      to_column: toColumn + 1
     })
 
     return null
@@ -221,9 +221,9 @@ export const parseFormatted = (
       italic: previousItalic,
       code: previousCode,
       verbatim,
-      plainText,
-      fromColumn: currentRunFromColumn + 1,
-      toColumn: toColumn + 1
+      plain_text: plainText,
+      from_column: currentRunFromColumn + 1,
+      to_column: toColumn + 1
     })
 
     return output

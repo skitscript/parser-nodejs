@@ -21,13 +21,13 @@ export interface UnterminatedCodeError {
    * The column on which the unterminated code started in the original
    * document.
    */
-  readonly fromColumn: number
+  readonly from_column: number
 
   /**
    * The column on which the unterminated code ended in the original
    * document.
    */
-  readonly toColumn: number
+  readonly to_column: number
 }
 
 /* c8 ignore next */

@@ -106,7 +106,7 @@ export const end = (parserState: ParserState): Document => {
   }
 
   if (parserState.errors.length > 0) {
-    return { type: 'invalid', errors: parserState.errors, warnings: parserState.warnings, identifierInstances: parserState.identifierInstances }
+    return { type: 'invalid', errors: parserState.errors, warnings: parserState.warnings, identifier_instances: parserState.identifier_instances }
   }
 
   if (parserState.instructions.length > 0) {
@@ -159,7 +159,7 @@ export const end = (parserState: ParserState): Document => {
       case 'jump':
         return {
           ...instruction,
-          instructionIndex: labelInstructionIndices[
+          instruction_index: labelInstructionIndices[
             instruction.label.normalized
           ] as number
         }
@@ -167,7 +167,7 @@ export const end = (parserState: ParserState): Document => {
       default:
         return {
           ...instruction,
-          instructionIndex: labelInstructionIndices[
+          instruction_index: labelInstructionIndices[
             instruction.label.normalized
           ] as number
         }
@@ -178,6 +178,6 @@ export const end = (parserState: ParserState): Document => {
     type: 'valid',
     instructions: mappedInstructions,
     warnings: parserState.warnings,
-    identifierInstances: parserState.identifierInstances
+    identifier_instances: parserState.identifier_instances
   }
 }

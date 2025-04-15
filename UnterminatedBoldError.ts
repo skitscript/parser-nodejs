@@ -22,13 +22,13 @@ export interface UnterminatedBoldError {
    * The column on which the unterminated bold text started in the original
    * document.
    */
-  readonly fromColumn: number
+  readonly from_column: number
 
   /**
    * The column on which the unterminated bold text ended in the original
    * document.
    */
-  readonly toColumn: number
+  readonly to_column: number
 }
 
 /* c8 ignore next */

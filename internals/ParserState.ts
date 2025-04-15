@@ -10,7 +10,7 @@ export interface ParserState {
   readonly instructions: Instruction[]
   readonly errors: Error[]
   readonly warnings: Warning[]
-  readonly identifierInstances: IdentifierInstance[]
+  readonly identifier_instances: IdentifierInstance[]
   readonly identifiers: {
     readonly [TIdentifierType in IdentifierType]: Record<string, LocalIdentifierInstance>;
   }

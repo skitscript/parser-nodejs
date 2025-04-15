@@ -38,8 +38,8 @@ export const parseLine = (parserState: ParserState): void => {
         parserState.errors.push({
           type: 'unparsable',
           line: parserState.line,
-          fromColumn: 1,
-          toColumn: parserState.indexOfLastNonWhiteSpaceCharacter + 1
+          from_column: 1,
+          to_column: parserState.indexOfLastNonWhiteSpaceCharacter + 1
         })
       }
     } else {

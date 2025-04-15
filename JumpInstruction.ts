@@ -23,7 +23,7 @@ export interface JumpInstruction {
   /**
    * The instruction index to which to jump.
    */
-  readonly instructionIndex: number
+  readonly instruction_index: number
 
   /**
    * The condition which must be met for the jump to occur; when null, the jump

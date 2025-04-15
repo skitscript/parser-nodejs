@@ -28,17 +28,17 @@ export interface Run {
   /**
    * The run's plain text content as parsed from the document.
    */
-  readonly plainText: string
+  readonly plain_text: string
 
   /**
    * The column on which the run started in the original document.
    */
-  readonly fromColumn: number
+  readonly from_column: number
 
   /**
    * The column on which the run ended in the original document.
    */
-  readonly toColumn: number
+  readonly to_column: number
 }
 
 /* c8 ignore next */

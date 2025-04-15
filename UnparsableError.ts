@@ -15,12 +15,12 @@ export interface UnparsableError {
   /**
    * The column on which the error started in the original document.
    */
-  readonly fromColumn: number
+  readonly from_column: number
 
   /**
    * The column on which the error ended in the original document.
    */
-  readonly toColumn: number
+  readonly to_column: number
 }
 
 /* c8 ignore next */

@@ -35,7 +35,7 @@ export const tryParseLabel = (parserState: ParserState): boolean => {
     toColumn--
   }
 
-  const name = tryParseIdentifier(parserState, fromColumn, toColumn, 'label', 'declaration', parserState.identifierInstances, parserState.warnings, parserState.identifiers)
+  const name = tryParseIdentifier(parserState, fromColumn, toColumn, 'label', 'declaration', parserState.identifier_instances, parserState.warnings, parserState.identifiers)
 
   if (name === null) {
     return false

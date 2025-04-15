@@ -102,8 +102,8 @@ export const tryParseIdentifier = (
   const identifier: Identifier = {
     verbatim: parserState.lineAccumulator.slice(fromColumn, toColumn + 1),
     normalized,
-    fromColumn: fromColumn + 1,
-    toColumn: toColumn + 1
+    from_column: fromColumn + 1,
+    to_column: toColumn + 1
   }
 
   const identifiersByType = parserState.identifiers[type]

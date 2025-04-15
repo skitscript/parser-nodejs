@@ -49,7 +49,7 @@ export const tryParseSet = (parserState: ParserState): boolean => {
     return false
   }
 
-  parserState.identifierInstances.push(...newIdentifierInstances)
+  parserState.identifier_instances.push(...newIdentifierInstances)
 
   if (checkReachable(parserState, newWarnings, newIdentifiers)) {
     for (const flag of flags) {

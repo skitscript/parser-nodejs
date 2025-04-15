@@ -84,7 +84,7 @@ console.log(parsed);
   "warnings": [
     ...
   ],
-  "identifierInstances": [
+  "identifier_instances": [
     ...
   ]
 }
@@ -99,7 +99,7 @@ console.log(parsed);
   "warnings": [
     ...
   ],
-  "identifierInstances": [
+  "identifier_instances": [
     ...
   ]
 }

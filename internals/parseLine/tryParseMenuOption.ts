@@ -231,7 +231,7 @@ export const tryParseMenuOption = (parserState: ParserState): boolean => {
     return true
   }
 
-  parserState.identifierInstances.push(...newIdentifierInstances)
+  parserState.identifier_instances.push(...newIdentifierInstances)
 
   if (parserState.reachability !== 'unreachable') {
     parserState.warnings.push(...newWarnings)
@@ -251,7 +251,7 @@ export const tryParseMenuOption = (parserState: ParserState): boolean => {
         line: parserState.line,
         content,
         label,
-        instructionIndex: -1,
+        instruction_index: -1,
         condition
       }
     )

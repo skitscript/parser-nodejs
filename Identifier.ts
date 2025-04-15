@@ -15,12 +15,12 @@ export interface Identifier {
   /**
    * The column on which the identifier started in the original document.
    */
-  readonly fromColumn: number
+  readonly from_column: number
 
   /**
    * The column on which the identifier ended in the original document.
    */
-  readonly toColumn: number
+  readonly to_column: number
 }
 
 /* c8 ignore next */

@@ -15,12 +15,12 @@ export interface UnreachableWarning {
   /**
    * The column on which the warning started in the original document.
    */
-  readonly fromColumn: number
+  readonly from_column: number
 
   /**
    * The column on which the warning ended in the original document.
    */
-  readonly toColumn: number
+  readonly to_column: number
 }
 
 /* c8 ignore next */

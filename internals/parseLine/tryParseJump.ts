@@ -163,7 +163,7 @@ export const tryParseJump = (parserState: ParserState): boolean => {
     }
   }
 
-  parserState.identifierInstances.push(...newIdentifierInstances)
+  parserState.identifier_instances.push(...newIdentifierInstances)
 
   if (checkReachable(parserState, newWarnings, newIdentifiers)) {
     const previousInstruction =
@@ -187,7 +187,7 @@ export const tryParseJump = (parserState: ParserState): boolean => {
       type: 'jump',
       line: parserState.line,
       label,
-      instructionIndex: -1,
+      instruction_index: -1,
       condition
     })
 

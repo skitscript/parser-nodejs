@@ -22,13 +22,13 @@ export interface UnterminatedItalicError {
    * The column on which the unterminated italic text started in the original
    * document.
    */
-  readonly fromColumn: number
+  readonly from_column: number
 
   /**
    * The column on which the unterminated italic text ended in the original
    * document.
    */
-  readonly toColumn: number
+  readonly to_column: number
 }
 
 /* c8 ignore next */

@@ -24,7 +24,7 @@ export interface InvalidDocument {
   /**
    * Every instance of an identifier parsed from the document.
    */
-  readonly identifierInstances: readonly IdentifierInstance[]
+  readonly identifier_instances: readonly IdentifierInstance[]
 }
 
 /* c8 ignore next */
