@@ -12,11 +12,12 @@ export const start = (): ParserState => ({
     exitAnimation: {},
     label: {},
     flag: {},
-    background: {}
+    location: {}
   },
   line: 0,
   reachability: 'reachable',
   state: 'normal',
-  mixedCaseLineAccumulator: '',
-  lowerCaseLineAccumulator: ''
+  lineAccumulator: '',
+  indexOfFirstNonWhiteSpaceCharacter: -1,
+  indexOfLastNonWhiteSpaceCharacter: -1
 })

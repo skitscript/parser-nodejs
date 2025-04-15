@@ -15,9 +15,9 @@ export interface LocationInstruction {
   readonly line: number
 
   /**
-   * The name of the background to display.
+   * The name of the location to display.
    */
-  readonly background: Identifier
+  readonly location: Identifier
 }
 
 /* c8 ignore next */

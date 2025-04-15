@@ -1,115 +1,139 @@
-import { checkIdentifierConsistency } from '../../checkIdentifierConsistency/index.js'
-import { normalizeIdentifier } from '../../normalizeIdentifier/index.js'
-import { normalizeIdentifierList } from '../../normalizeIdentifierList/index.js'
+import type { Identifier } from '../../../Identifier'
+import { characterIsClosingParenthesis } from '../../characterIsClosingParenthesis/index.js'
+import { characterIsColon } from '../../characterIsColon/index.js'
+import { characterIsOpeningParenthesis } from '../../characterIsOpeningParenthesis/index.js'
+import { characterIsWhitespace } from '../../characterIsWhitespace/index.js'
 import type { ParserState } from '../../ParserState'
+import { tryParseAndIdentifierList } from '../../tryParseAndIdentifierList/index.js'
+import { tryParseIdentifier } from '../../tryParseIdentifier/index.js'
 import { checkReachable } from '../checkReachable/index.js'
-
-const identifierFilteredCharacterRegexFragment = '!?\'"{}@*/\\\\&#%`+<=>|$.-'
-
-const identifierDisallowedWords = [
-  'and',
-  'or',
-  'when',
-  'not',
-  'is',
-  'are',
-  'enters',
-  'enter',
-  'exits',
-  'exit',
-  'leads',
-  'to',
-  'set',
-  'clear',
-  'jump'
-]
-
-const identifierDisallowedCharacters = [',', '(', ')', '\\s', ':', '~']
-
-export const identifierRegexFragment = `(?=.*[^${identifierFilteredCharacterRegexFragment}\\s].*)(?:(?!(?:${identifierDisallowedWords.join(
-  '|'
-)})\\b)[^${identifierDisallowedCharacters.join(
-  ''
-)}]+)(?:\\s+(?!(?:${identifierDisallowedWords.join(
-  '|'
-)})\\b)[^${identifierDisallowedCharacters.join('')}]+)*`
-
-const identifierListRegexFragmentFactory = (
-  binaryOperators: readonly string[]
-): string =>
-  `(?:(${identifierRegexFragment}(?:\\s*,\\s*${identifierRegexFragment})*)(\\s+)(${binaryOperators.join(
-    '|'
-  )})(\\s+))?(${identifierRegexFragment})`
-
-const speakerRegex = new RegExp(
-  `^${identifierListRegexFragmentFactory([
-    'and'
-  ])}(?:(\\s*\\(\\s*)(${identifierRegexFragment})\\s*\\))?\\s*\\:\\s*$`,
-  'i'
-)
+import type { IdentifierInstance } from '../../../IdentifierInstance'
+import type { Warning } from '../../../Warning'
+import type { IdentifierType } from '../../../IdentifierType'
+import type { LocalIdentifierInstance } from '../../LocalIdentifierInstance'
 
 export const tryParseSpeaker = (parserState: ParserState): boolean => {
-  const speakerMatch = speakerRegex.exec(parserState.mixedCaseLineAccumulator)
+  let charactersToColumn = -1
+  let foundOpeningParenthesis = false
+  let emoteFromColumn = -1
+  let emoteToColumn = -1
+  let foundClosingParenthesis = false
+  let foundColon = false
 
-  if (speakerMatch !== null) {
-    const isReachable = checkReachable(parserState)
+  for (let index = 0; index <= parserState.indexOfLastNonWhiteSpaceCharacter; index++) {
+    const character = parserState.lineAccumulator.charAt(index)
 
-    const [characters, characterInstructions, characterWarnings] =
-    normalizeIdentifierList(parserState, parserState.line, 'character', 1, speakerMatch, 1)
+    if (characterIsOpeningParenthesis(character)) {
+      if (charactersToColumn === -1) {
+        return false
+      }
 
-    if (isReachable) {
-      parserState.instructions.push({
-        type: 'speaker',
-        line: parserState.line,
-        characters
-      })
-    }
+      if (foundOpeningParenthesis) {
+        return false
+      }
 
-    const emotePrefix = speakerMatch[6]
+      if (foundColon) {
+        return false
+      }
 
-    if (emotePrefix !== undefined) {
-      const emoteName = speakerMatch[7] as string
+      foundOpeningParenthesis = true
+    } else if (characterIsClosingParenthesis(character)) {
+      if (emoteToColumn === -1) {
+        return false
+      }
 
-      const emote = normalizeIdentifier(
-        parserState,
-        parserState.line,
-        'emote',
-        'implicitDeclaration',
-        1 +
-          (speakerMatch[1] ?? '').length +
-          (speakerMatch[2] ?? '').length +
-          (speakerMatch[3] ?? '').length +
-          (speakerMatch[4] ?? '').length +
-          (speakerMatch[5] as string).length +
-          emotePrefix.length,
-        emoteName
-      )
+      if (foundClosingParenthesis) {
+        return false
+      }
 
-      if (isReachable) {
-        for (const character of characters) {
-          parserState.instructions.push({
-            type: 'emote',
-            line: parserState.line,
-            character,
-            emote
-          })
+      foundClosingParenthesis = true
+    } else if (characterIsColon(character)) {
+      if (charactersToColumn === -1) {
+        return false
+      }
+
+      if (foundColon) {
+        return false
+      }
+
+      if (foundOpeningParenthesis && !foundClosingParenthesis) {
+        return false
+      }
+
+      foundColon = true
+    } else if (!characterIsWhitespace(character)) {
+      if (foundColon) {
+        return false
+      }
+
+      if (foundOpeningParenthesis) {
+        if (foundClosingParenthesis) {
+          return false
+        } else {
+          if (emoteFromColumn === -1) {
+            emoteFromColumn = index
+          }
+
+          emoteToColumn = index
         }
-
-        checkIdentifierConsistency(parserState, 'emote', parserState.line, emote)
+      } else {
+        charactersToColumn = index
       }
     }
+  }
 
-    if (isReachable) {
-      parserState.instructions.push(...characterInstructions)
-      parserState.warnings.push(...characterWarnings)
-
-      for (const character of characters) {
-        checkIdentifierConsistency(parserState, 'character', parserState.line, character)
-      }
-    }
-
-    return true
-  } else {
+  if (!foundColon) {
     return false
   }
+
+  const newIdentifierInstances: IdentifierInstance[] = []
+  const newWarnings: Warning[] = []
+  const newIdentifiers: { readonly [TIdentifierType in IdentifierType]: Record<string, LocalIdentifierInstance>; } = {
+    character: {},
+    emote: {},
+    entryAnimation: {},
+    exitAnimation: {},
+    label: {},
+    flag: {},
+    location: {}
+  }
+
+  const characters = tryParseAndIdentifierList(parserState, 0, charactersToColumn, 'character', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
+
+  if (characters === null) {
+    return false
+  }
+
+  let emote: null | Identifier = null
+
+  if (foundOpeningParenthesis) {
+    emote = tryParseIdentifier(parserState, emoteFromColumn, emoteToColumn, 'emote', 'implicitDeclaration', newIdentifierInstances, newWarnings, newIdentifiers)
+
+    if (emote === null) {
+      return false
+    }
+  }
+
+  parserState.identifierInstances.push(...newIdentifierInstances)
+
+  if (checkReachable(parserState, newWarnings, newIdentifiers)) {
+    parserState.instructions.push({
+      type: 'speaker',
+      line: parserState.line,
+      characters
+    })
+
+    if (emote !== null) {
+      for (const character of characters) {
+        parserState.instructions.push({
+          type: 'emote',
+          line: parserState.line,
+          character,
+          emote
+        })
+      }
+    }
+  }
+
+  return true
 }

@@ -1,3 +1,4 @@
+import { characterIsWhitespace } from '../internals/characterIsWhitespace/index.js'
 import { parseLine } from '../internals/parseLine/index.js'
 import type { ParserState } from '../internals/ParserState'
 
@@ -22,8 +23,16 @@ export const append = (parserState: ParserState, character: string): void => {
 
     default:
       parserState.state = 'normal'
-      parserState.mixedCaseLineAccumulator += character
-      parserState.lowerCaseLineAccumulator += character.toLowerCase()
+
+      if (!characterIsWhitespace(character)) {
+        if (parserState.indexOfFirstNonWhiteSpaceCharacter === -1) {
+          parserState.indexOfFirstNonWhiteSpaceCharacter = parserState.lineAccumulator.length
+        }
+
+        parserState.indexOfLastNonWhiteSpaceCharacter = parserState.lineAccumulator.length
+      }
+
+      parserState.lineAccumulator += character
       break
   }
 }

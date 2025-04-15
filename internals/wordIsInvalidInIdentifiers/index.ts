@@ -1,85 +1,257 @@
-export const wordIsInvalidInIdentifiers = (lowerCase: string, fromColumn: number, toColumn: number): boolean => {
-  switch (toColumn - fromColumn) {
-    case 1:
-      switch (lowerCase.charAt(fromColumn)) {
-        case 'i':
-          return lowerCase.charAt(toColumn) === 's'
+import { characterIsA } from '../characterIsA/index.js'
+import { characterIsC } from '../characterIsC/index.js'
+import { characterIsD } from '../characterIsD/index.js'
+import { characterIsE } from '../characterIsE/index.js'
+import { characterIsH } from '../characterIsH/index.js'
+import { characterIsI } from '../characterIsI/index.js'
+import { characterIsJ } from '../characterIsJ/index.js'
+import { characterIsL } from '../characterIsL/index.js'
+import { characterIsM } from '../characterIsM/index.js'
+import { characterIsN } from '../characterIsN/index.js'
+import { characterIsO } from '../characterIsO/index.js'
+import { characterIsP } from '../characterIsP/index.js'
+import { characterIsR } from '../characterIsR/index.js'
+import { characterIsS } from '../characterIsS/index.js'
+import { characterIsT } from '../characterIsT/index.js'
+import { characterIsU } from '../characterIsU/index.js'
+import { characterIsW } from '../characterIsW/index.js'
+import { characterIsX } from '../characterIsX/index.js'
+import type { ParserState } from '../ParserState'
 
-        case 'o':
-          return lowerCase.charAt(toColumn) === 'r'
-
-        case 't':
-          return lowerCase.charAt(toColumn) === 'o'
-
-        default:
-          return false
-      }
-
+export const wordIsInvalidInIdentifiers = (parserState: ParserState, fromColumn: number, length: number): boolean => {
+  switch (length) {
     case 2:
-      switch (lowerCase.charAt(fromColumn)) {
-        case 'a':
-          switch (lowerCase.charAt(fromColumn + 1)) {
-            case 'n':
-              return lowerCase.charAt(toColumn) === 'd'
+    {
+      const firstCharacter = parserState.lineAccumulator.charAt(fromColumn)
 
-            case 'r':
-              return lowerCase.charAt(toColumn) === 'e'
-
-            default:
-              return false
-          }
-
-        case 'n':
-          return lowerCase.charAt(fromColumn + 1) === 'o' && lowerCase.charAt(toColumn) === 't'
-
-        case 's':
-          return lowerCase.charAt(fromColumn + 1) === 'e' && lowerCase.charAt(toColumn) === 't'
-
-        default:
+      if (characterIsI(firstCharacter)) {
+        if (characterIsS(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          return true
+        } else {
           return false
+        }
+      } else if (characterIsO(firstCharacter)) {
+        if (characterIsR(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          return true
+        } else {
+          return false
+        }
+      } else if (characterIsT(firstCharacter)) {
+        if (characterIsO(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          return true
+        } else {
+          return false
+        }
+      } else {
+        return false
       }
+    }
 
     case 3:
-      switch (lowerCase.charAt(fromColumn)) {
-        case 'e':
-          return lowerCase.charAt(fromColumn + 1) === 'x' && lowerCase.charAt(fromColumn + 2) === 'i' && lowerCase.charAt(toColumn) === 't'
+    {
+      const firstCharacter = parserState.lineAccumulator.charAt(fromColumn)
 
-        case 'j':
-          return lowerCase.charAt(fromColumn + 1) === 'u' && lowerCase.charAt(fromColumn + 2) === 'm' && lowerCase.charAt(toColumn) === 'p'
+      if (characterIsA(firstCharacter)) {
+        const secondCharacter = parserState.lineAccumulator.charAt(fromColumn + 1)
 
-        case 'w':
-          return lowerCase.charAt(fromColumn + 1) === 'h' && lowerCase.charAt(fromColumn + 2) === 'e' && lowerCase.charAt(toColumn) === 'n'
-
-        default:
-          return false
-      }
-
-    case 4:
-      switch (lowerCase.charAt(fromColumn)) {
-        case 'c':
-          return lowerCase.charAt(fromColumn + 1) === 'l' && lowerCase.charAt(fromColumn + 2) === 'e' && lowerCase.charAt(fromColumn + 3) === 'a' && lowerCase.charAt(toColumn) === 'r'
-
-        case 'e':
-          switch (lowerCase.charAt(fromColumn + 1)) {
-            case 'n':
-              return lowerCase.charAt(fromColumn + 2) === 't' && lowerCase.charAt(fromColumn + 3) === 'e' && lowerCase.charAt(toColumn) === 'r'
-
-            case 'x':
-              return lowerCase.charAt(fromColumn + 2) === 'i' && lowerCase.charAt(fromColumn + 3) === 't' && lowerCase.charAt(toColumn) === 's'
-
-            default:
-              return false
+        if (characterIsN(secondCharacter)) {
+          if (characterIsD(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+            return true
+          } else {
+            return false
           }
+        } else if (characterIsR(secondCharacter)) {
+          if (characterIsE(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+            return true
+          } else {
+            return false
+          }
+        }
 
-        case 'l':
-          return lowerCase.charAt(fromColumn + 1) === 'e' && lowerCase.charAt(fromColumn + 2) === 'a' && lowerCase.charAt(fromColumn + 3) === 'd' && lowerCase.charAt(toColumn) === 's'
-
-        default:
+        return false
+      } else if (characterIsN(firstCharacter)) {
+        if (characterIsO(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          if (characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+            return true
+          } else {
+            return false
+          }
+        } else {
           return false
+        }
+      } else {
+        if (characterIsS(firstCharacter)) {
+          if (characterIsE(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+            if (characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+              return true
+            } else {
+              return false
+            }
+          } else {
+            return false
+          }
+        } else {
+          return false
+        }
       }
+    }
 
-    case 5:
-      return lowerCase.charAt(fromColumn) === 'e' && lowerCase.charAt(fromColumn + 1) === 'n' && lowerCase.charAt(fromColumn + 2) === 't' && lowerCase.charAt(fromColumn + 3) === 'e' && lowerCase.charAt(fromColumn + 4) === 'r' && lowerCase.charAt(toColumn) === 's'
+    case 4: {
+      const firstCharacter = parserState.lineAccumulator.charAt(fromColumn)
+
+      if (characterIsE(firstCharacter)) {
+        if (characterIsX(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          if (characterIsI(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+            if (characterIsT(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+              return true
+            } else {
+              return false
+            }
+          } else {
+            return false
+          }
+        } else {
+          return false
+        }
+      } else if (characterIsJ(firstCharacter)) {
+        if (characterIsU(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          if (characterIsM(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+            if (characterIsP(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+              return true
+            } else {
+              return false
+            }
+          } else {
+            return false
+          }
+        } else {
+          return false
+        }
+      } else {
+        if (characterIsW(firstCharacter)) {
+          if (characterIsH(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+            if (characterIsE(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+              if (characterIsN(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+                return true
+              } else {
+                return false
+              }
+            } else {
+              return false
+            }
+          } else {
+            return false
+          }
+        } else {
+          return false
+        }
+      }
+    }
+
+    case 5: {
+      const firstCharacter = parserState.lineAccumulator.charAt(fromColumn)
+
+      if (characterIsC(firstCharacter)) {
+        if (characterIsL(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          if (characterIsE(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+            if (characterIsA(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+              if (characterIsR(parserState.lineAccumulator.charAt(fromColumn + 4))) {
+                return true
+              } else {
+                return false
+              }
+            } else {
+              return false
+            }
+          } else {
+            return false
+          }
+        } else {
+          return false
+        }
+      } else if (characterIsE(firstCharacter)) {
+        const secondCharacter = parserState.lineAccumulator.charAt(fromColumn + 1)
+
+        if (characterIsN(secondCharacter)) {
+          if (characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+            if (characterIsE(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+              if (characterIsR(parserState.lineAccumulator.charAt(fromColumn + 4))) {
+                return true
+              } else {
+                return false
+              }
+            } else {
+              return false
+            }
+          } else {
+            return false
+          }
+        } else if (characterIsX(secondCharacter)) {
+          if (characterIsI(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+            if (characterIsT(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+              if (characterIsS(parserState.lineAccumulator.charAt(fromColumn + 4))) {
+                return true
+              } else {
+                return false
+              }
+            } else {
+              return false
+            }
+          } else {
+            return false
+          }
+        } else {
+          return false
+        }
+      } else if (characterIsL(firstCharacter)) {
+        if (characterIsE(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          if (characterIsA(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+            if (characterIsD(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+              if (characterIsS(parserState.lineAccumulator.charAt(fromColumn + 4))) {
+                return true
+              } else {
+                return false
+              }
+            } else {
+              return false
+            }
+          } else {
+            return false
+          }
+        } else {
+          return false
+        }
+      } else {
+        return false
+      }
+    }
+
+    case 6:
+      if (characterIsE(parserState.lineAccumulator.charAt(fromColumn))) {
+        if (characterIsN(parserState.lineAccumulator.charAt(fromColumn + 1))) {
+          if (characterIsT(parserState.lineAccumulator.charAt(fromColumn + 2))) {
+            if (characterIsE(parserState.lineAccumulator.charAt(fromColumn + 3))) {
+              if (characterIsR(parserState.lineAccumulator.charAt(fromColumn + 4))) {
+                if (characterIsS(parserState.lineAccumulator.charAt(fromColumn + 5))) {
+                  return true
+                } else {
+                  return false
+                }
+              } else {
+                return false
+              }
+            } else {
+              return false
+            }
+          } else {
+            return false
+          }
+        } else {
+          return false
+        }
+      } else {
+        return false
+      }
 
     default:
       return false

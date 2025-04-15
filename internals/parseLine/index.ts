@@ -2,7 +2,6 @@ import type { ParserState } from '../ParserState'
 import { tryParseClear } from './tryParseClear/index.js'
 import { tryParseJump } from './tryParseJump/index.js'
 import { tryParseLabel } from './tryParseLabel/index.js'
-import { tryParseLine } from './tryParseLine/index.js'
 import { tryParseLocation } from './tryParseLocation/index.js'
 import { tryParseMenuOption } from './tryParseMenuOption/index.js'
 import { tryParseSet } from './tryParseSet/index.js'
@@ -10,103 +9,64 @@ import { tryParseSpeaker } from './tryParseSpeaker/index.js'
 import { tryParseEmote } from './tryParseEmote/index.js'
 import { tryParseEntryAnimation } from './tryParseEntryAnimation/index.js'
 import { tryParseExitAnimation } from './tryParseExitAnimation/index.js'
-import { characterIsWhitespace } from '../characterIsWhitespace/index.js'
+import { parseFormatted } from '../parseFormatted/index.js'
+import { checkReachable } from './checkReachable/index.js'
+import { characterIsPeriod } from '../characterIsPeriod/index.js'
+import type { Warning } from '../../Warning'
+import type { IdentifierType } from '../../IdentifierType'
+import type { LocalIdentifierInstance } from '../LocalIdentifierInstance'
 
 export const parseLine = (parserState: ParserState): void => {
   parserState.line++
 
-  if (parserState.lowerCaseLineAccumulator.length > 0) {
-    let fromColumn = 0
-
-    while (fromColumn < parserState.lowerCaseLineAccumulator.length && characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(fromColumn))) {
-      fromColumn++
-    }
-
-    switch (fromColumn) {
-      case 0: {
-        if (tryParseLabel(parserState)) {
-          break
-        }
-
-        if (tryParseSpeaker(parserState)) {
-          break
-        }
-
-        if (parserState.lowerCaseLineAccumulator.charAt(parserState.lowerCaseLineAccumulator.length - 1) === '.') {
-          if (tryParseClear(parserState)) {
-            break
-          }
-
-          if (tryParseJump(parserState)) {
-            break
-          }
-
-          if (tryParseLocation(parserState)) {
-            break
-          }
-
-          if (tryParseMenuOption(parserState)) {
-            break
-          }
-
-          if (tryParseSet(parserState)) {
-            break
-          }
-
-          if (tryParseEmote(parserState)) {
-            break
-          }
-
-          if (tryParseEntryAnimation(parserState)) {
-            break
-          }
-
-          if (tryParseExitAnimation(parserState)) {
-            break
-          }
-        }
-
-        let toColumn = parserState.lowerCaseLineAccumulator.length - 1
-
-        while (toColumn >= fromColumn && characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(toColumn))) {
-          toColumn--
-        }
-
+  if (parserState.indexOfFirstNonWhiteSpaceCharacter !== -1) {
+    if (parserState.indexOfFirstNonWhiteSpaceCharacter === 0) {
+      if (!tryParseLabel(parserState) &&
+        !tryParseSpeaker(parserState) &&
+        (
+          !characterIsPeriod(parserState.lineAccumulator.charAt(parserState.indexOfLastNonWhiteSpaceCharacter)) ||
+          (
+            !tryParseClear(parserState) &&
+            !tryParseJump(parserState) &&
+            !tryParseLocation(parserState) &&
+            !tryParseMenuOption(parserState) &&
+            !tryParseSet(parserState) &&
+            !tryParseEmote(parserState) &&
+            !tryParseEntryAnimation(parserState) &&
+            !tryParseExitAnimation(parserState)
+          ))) {
         parserState.errors.push({
           type: 'unparsable',
           line: parserState.line,
-          fromColumn: fromColumn + 1,
-          toColumn: toColumn + 1
+          fromColumn: 1,
+          toColumn: parserState.indexOfLastNonWhiteSpaceCharacter + 1
         })
       }
-        break
+    } else {
+      const content = parseFormatted(parserState, parserState.indexOfFirstNonWhiteSpaceCharacter, parserState.indexOfLastNonWhiteSpaceCharacter)
 
-      case parserState.lowerCaseLineAccumulator.length:
-        break
+      const newWarnings: Warning[] = []
+      const newIdentifiers: { readonly [TIdentifierType in IdentifierType]: Record<string, LocalIdentifierInstance>; } = {
+        character: {},
+        emote: {},
+        entryAnimation: {},
+        exitAnimation: {},
+        label: {},
+        flag: {},
+        location: {}
+      }
 
-      default: {
-        // TODO: Optimize, we already know where to start parsing from.
-        if (tryParseLine(parserState)) {
-          break
-        }
-
-        let toColumn = parserState.lowerCaseLineAccumulator.length - 1
-
-        while (toColumn >= fromColumn && characterIsWhitespace(parserState.lowerCaseLineAccumulator.charAt(toColumn))) {
-          toColumn--
-        }
-
-        parserState.errors.push({
-          type: 'unparsable',
+      if (content !== null && checkReachable(parserState, newWarnings, newIdentifiers)) {
+        parserState.instructions.push({
+          type: 'line',
           line: parserState.line,
-          fromColumn: fromColumn + 1,
-          toColumn: toColumn + 1
+          content
         })
       }
-        break
     }
   }
 
-  parserState.mixedCaseLineAccumulator = ''
-  parserState.lowerCaseLineAccumulator = ''
+  parserState.lineAccumulator = ''
+  parserState.indexOfFirstNonWhiteSpaceCharacter = -1
+  parserState.indexOfLastNonWhiteSpaceCharacter = -1
 }
