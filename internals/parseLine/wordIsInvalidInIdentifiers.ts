@@ -16,7 +16,7 @@ import { characterIsT } from './characterIsT.js'
 import { characterIsU } from './characterIsU.js'
 import { characterIsW } from './characterIsW.js'
 import { characterIsX } from './characterIsX.js'
-import type { ParserState } from './ParserState'
+import type { ParserState } from '../ParserState'
 
 export const wordIsInvalidInIdentifiers = (parserState: ParserState, fromColumn: number, length: number): boolean => {
   switch (length) {

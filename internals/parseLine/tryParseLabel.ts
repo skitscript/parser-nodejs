@@ -1,7 +1,7 @@
-import { characterIsTilde } from '../characterIsTilde.js'
+import { characterIsTilde } from './characterIsTilde.js'
 import { characterIsWhitespace } from '../characterIsWhitespace.js'
 import type { ParserState } from '../ParserState'
-import { tryParseIdentifier } from '../tryParseIdentifier.js'
+import { tryParseIdentifier } from './tryParseIdentifier.js'
 
 // TODO: Warning for immediately overwritten emote
 // TODO: Warning for immediately overwritten speaker

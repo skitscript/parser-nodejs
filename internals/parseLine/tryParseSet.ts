@@ -1,13 +1,13 @@
 import type { IdentifierInstance } from '../../IdentifierInstance'
 import type { IdentifierType } from '../../IdentifierType'
 import type { Warning } from '../../Warning'
-import { characterIsE } from '../characterIsE.js'
-import { characterIsS } from '../characterIsS.js'
-import { characterIsT } from '../characterIsT.js'
+import { characterIsE } from './characterIsE.js'
+import { characterIsS } from './characterIsS.js'
+import { characterIsT } from './characterIsT.js'
 import { characterIsWhitespace } from '../characterIsWhitespace.js'
 import type { LocalIdentifierInstance } from '../LocalIdentifierInstance'
 import type { ParserState } from '../ParserState'
-import { tryParseAndIdentifierList } from '../tryParseAndIdentifierList.js'
+import { tryParseAndIdentifierList } from './tryParseAndIdentifierList.js'
 import { checkReachable } from './checkReachable.js'
 
 export const tryParseSet = (parserState: ParserState): boolean => {

@@ -1,9 +1,9 @@
-import type { Formatted } from '../Formatted'
-import type { Run } from '../Run'
+import type { Formatted } from '../../Formatted'
+import type { Run } from '../../Run'
 import { characterIsAsterisk } from './characterIsAsterisk.js'
 import { characterIsBackslash } from './characterIsBackslash.js'
 import { characterIsBacktick } from './characterIsBacktick.js'
-import type { ParserState } from './ParserState'
+import type { ParserState } from '../ParserState'
 
 export const parseFormatted = (
   parserState: ParserState,
