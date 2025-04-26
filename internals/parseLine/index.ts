@@ -15,6 +15,7 @@ import { codepointIsPeriod } from './codepointIsPeriod.js'
 import type { Warning } from '../../Warning'
 import type { IdentifierType } from '../../IdentifierType'
 import type { LocalIdentifierInstance } from '../LocalIdentifierInstance'
+import { calculateColumn } from './calculateColumn.js'
 
 export const parseLine = (parserState: ParserState): void => {
   parserState.line++
@@ -38,8 +39,8 @@ export const parseLine = (parserState: ParserState): void => {
         parserState.errors.push({
           type: 'unparsable',
           line: parserState.line,
-          from_column: 1,
-          to_column: parserState.indexOfLastNonWhiteSpaceCharacter + 1
+          from_column: calculateColumn(parserState, 0),
+          to_column: calculateColumn(parserState, parserState.indexOfLastNonWhiteSpaceCharacter)
         })
       }
     } else {

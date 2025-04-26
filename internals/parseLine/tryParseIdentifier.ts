@@ -9,6 +9,7 @@ import type { LocalIdentifierInstance } from './../LocalIdentifierInstance'
 import type { ParserState } from './../ParserState'
 import { transformCharacterToLowerCase } from './transformCharacterToLowerCase.js'
 import { wordIsInvalidInIdentifiers } from './wordIsInvalidInIdentifiers.js'
+import { calculateColumn } from './calculateColumn.js'
 
 export const tryParseIdentifier = (
   parserState: ParserState,
@@ -102,8 +103,8 @@ export const tryParseIdentifier = (
   const identifier: Identifier = {
     verbatim: parserState.lineAccumulator.slice(fromColumn, toColumn + 1),
     normalized,
-    from_column: fromColumn + 1,
-    to_column: toColumn + 1
+    from_column: calculateColumn(parserState, fromColumn),
+    to_column: calculateColumn(parserState, toColumn)
   }
 
   const identifiersByType = parserState.identifiers[type]

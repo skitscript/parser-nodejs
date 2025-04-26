@@ -4,6 +4,7 @@ import { codepointIsAsterisk } from './codepointIsAsterisk.js'
 import { codepointIsBackslash } from './codepointIsBackslash.js'
 import { codepointIsBacktick } from './codepointIsBacktick.js'
 import type { ParserState } from '../ParserState'
+import { calculateColumn } from './calculateColumn.js'
 
 export const parseFormatted = (
   parserState: ParserState,
@@ -63,8 +64,8 @@ export const parseFormatted = (
             type: 'invalid_escape_sequence',
             line: parserState.line,
             verbatim: `\\${character}`,
-            from_column: index,
-            to_column: index + 1
+            from_column: calculateColumn(parserState, index - 1),
+            to_column: calculateColumn(parserState, index)
           })
 
           return null
@@ -122,8 +123,8 @@ export const parseFormatted = (
             type: 'invalid_escape_sequence',
             line: parserState.line,
             verbatim: `\\${character}`,
-            from_column: index,
-            to_column: index + 1
+            from_column: calculateColumn(parserState, index - 1),
+            to_column: calculateColumn(parserState, index)
           })
 
           return null
@@ -143,8 +144,8 @@ export const parseFormatted = (
         code: previousCode,
         verbatim,
         plain_text: plainText,
-        from_column: currentRunFromColumn + 1,
-        to_column: index - (insertBackslash ? 1 : 0)
+        from_column: calculateColumn(parserState, currentRunFromColumn),
+        to_column: calculateColumn(parserState, index - (insertBackslash ? 2 : 1))
       })
 
       plainText = ''
@@ -190,8 +191,8 @@ export const parseFormatted = (
       type: 'unterminated_bold',
       line: parserState.line,
       verbatim: parserState.lineAccumulator.slice(boldFromColumn, toColumn + 1),
-      from_column: boldFromColumn + 1,
-      to_column: toColumn + 1
+      from_column: calculateColumn(parserState, boldFromColumn),
+      to_column: calculateColumn(parserState, toColumn)
     })
 
     return null
@@ -200,8 +201,8 @@ export const parseFormatted = (
       type: 'unterminated_italic',
       line: parserState.line,
       verbatim: parserState.lineAccumulator.slice(italicFromColumn, toColumn + 1),
-      from_column: italicFromColumn + 1,
-      to_column: toColumn + 1
+      from_column: calculateColumn(parserState, italicFromColumn),
+      to_column: calculateColumn(parserState, toColumn)
     })
 
     return null
@@ -210,8 +211,8 @@ export const parseFormatted = (
       type: 'unterminated_code',
       line: parserState.line,
       verbatim: parserState.lineAccumulator.slice(codeFromColumn, toColumn + 1),
-      from_column: codeFromColumn + 1,
-      to_column: toColumn + 1
+      from_column: calculateColumn(parserState, codeFromColumn),
+      to_column: calculateColumn(parserState, toColumn)
     })
 
     return null
@@ -222,8 +223,8 @@ export const parseFormatted = (
       code: previousCode,
       verbatim,
       plain_text: plainText,
-      from_column: currentRunFromColumn + 1,
-      to_column: toColumn + 1
+      from_column: calculateColumn(parserState, currentRunFromColumn),
+      to_column: calculateColumn(parserState, toColumn)
     })
 
     return output

@@ -2,6 +2,7 @@ import type { IdentifierType } from '../../IdentifierType'
 import type { Warning } from '../../Warning'
 import type { LocalIdentifierInstance } from '../LocalIdentifierInstance'
 import type { ParserState } from '../ParserState'
+import { calculateColumn } from './calculateColumn.js'
 
 export const checkReachable = (
   parserState: ParserState,
@@ -27,8 +28,8 @@ export const checkReachable = (
       parserState.warnings.push({
         type: 'unreachable',
         line: parserState.line,
-        from_column: parserState.indexOfFirstNonWhiteSpaceCharacter + 1,
-        to_column: parserState.indexOfLastNonWhiteSpaceCharacter + 1
+        from_column: calculateColumn(parserState, parserState.indexOfFirstNonWhiteSpaceCharacter),
+        to_column: calculateColumn(parserState, parserState.indexOfLastNonWhiteSpaceCharacter)
       })
       parserState.reachability = 'unreachable'
       return false
