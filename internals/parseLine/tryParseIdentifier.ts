@@ -9,7 +9,7 @@ import type { LocalIdentifierInstance } from './../LocalIdentifierInstance'
 import type { ParserState } from './../ParserState'
 import { transformCharacterToLowerCase } from './transformCharacterToLowerCase.js'
 import { wordIsInvalidInIdentifiers } from './wordIsInvalidInIdentifiers.js'
-import { calculateColumn } from './calculateColumn.js'
+import { calculateColumn } from '../calculateColumn.js'
 
 export const tryParseIdentifier = (
   parserState: ParserState,

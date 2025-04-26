@@ -1,3 +1,4 @@
+import { calculateColumn } from './internals/calculateColumn.js'
 import { parseCodepoint } from './internals/parseCodepoint.js'
 import type { ParserState } from './internals/ParserState'
 
@@ -32,8 +33,7 @@ export const append = (parserState: ParserState, byte: number): void => {
         parserState.errors.push({
           type: 'invalid_codepoint',
           line: parserState.line + 1,
-          // TODO: WRONG!
-          column: parserState.lineAccumulator.length + 1
+          column: calculateColumn(parserState, parserState.lineAccumulator.length)
         })
       }
       break
@@ -47,8 +47,7 @@ export const append = (parserState: ParserState, byte: number): void => {
         parserState.errors.push({
           type: 'invalid_codepoint',
           line: parserState.line + 1,
-          // TODO: WRONG!
-          column: parserState.lineAccumulator.length + 1
+          column: calculateColumn(parserState, parserState.lineAccumulator.length)
         })
       }
       break
@@ -62,8 +61,7 @@ export const append = (parserState: ParserState, byte: number): void => {
         parserState.errors.push({
           type: 'invalid_codepoint',
           line: parserState.line + 1,
-          // TODO: WRONG!
-          column: parserState.lineAccumulator.length + 1
+          column: calculateColumn(parserState, parserState.lineAccumulator.length)
         })
       }
       break
@@ -77,8 +75,7 @@ export const append = (parserState: ParserState, byte: number): void => {
         parserState.errors.push({
           type: 'invalid_codepoint',
           line: parserState.line + 1,
-          // TODO: WRONG!
-          column: parserState.lineAccumulator.length + 1
+          column: calculateColumn(parserState, parserState.lineAccumulator.length)
         })
       }
       break
@@ -92,8 +89,7 @@ export const append = (parserState: ParserState, byte: number): void => {
         parserState.errors.push({
           type: 'invalid_codepoint',
           line: parserState.line + 1,
-          // TODO: WRONG!
-          column: parserState.lineAccumulator.length + 1
+          column: calculateColumn(parserState, parserState.lineAccumulator.length)
         })
       }
       break
@@ -107,8 +103,7 @@ export const append = (parserState: ParserState, byte: number): void => {
         parserState.errors.push({
           type: 'invalid_codepoint',
           line: parserState.line + 1,
-          // TODO: WRONG!
-          column: parserState.lineAccumulator.length + 1
+          column: calculateColumn(parserState, parserState.lineAccumulator.length)
         })
       }
       break
@@ -122,8 +117,7 @@ export const append = (parserState: ParserState, byte: number): void => {
         parserState.errors.push({
           type: 'invalid_codepoint',
           line: parserState.line + 1,
-          // TODO: WRONG!
-          column: parserState.lineAccumulator.length + 1
+          column: calculateColumn(parserState, parserState.lineAccumulator.length)
         })
       }
       break

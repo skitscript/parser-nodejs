@@ -2,7 +2,7 @@ import type { IdentifierType } from '../../IdentifierType'
 import type { Warning } from '../../Warning'
 import type { LocalIdentifierInstance } from '../LocalIdentifierInstance'
 import type { ParserState } from '../ParserState'
-import { calculateColumn } from './calculateColumn.js'
+import { calculateColumn } from '../calculateColumn.js'
 
 export const checkReachable = (
   parserState: ParserState,

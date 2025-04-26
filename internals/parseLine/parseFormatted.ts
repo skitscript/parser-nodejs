@@ -4,7 +4,7 @@ import { codepointIsAsterisk } from './codepointIsAsterisk.js'
 import { codepointIsBackslash } from './codepointIsBackslash.js'
 import { codepointIsBacktick } from './codepointIsBacktick.js'
 import type { ParserState } from '../ParserState'
-import { calculateColumn } from './calculateColumn.js'
+import { calculateColumn } from '../calculateColumn.js'
 
 export const parseFormatted = (
   parserState: ParserState,
@@ -172,7 +172,7 @@ export const parseFormatted = (
       parserState.errors.push({
         type: 'incomplete_escape_sequence',
         line: parserState.line,
-        column: toColumn + 1
+        column: calculateColumn(parserState, toColumn)
       })
 
       return null

@@ -15,7 +15,7 @@ import { codepointIsPeriod } from './codepointIsPeriod.js'
 import type { Warning } from '../../Warning'
 import type { IdentifierType } from '../../IdentifierType'
 import type { LocalIdentifierInstance } from '../LocalIdentifierInstance'
-import { calculateColumn } from './calculateColumn.js'
+import { calculateColumn } from '../calculateColumn.js'
 
 export const parseLine = (parserState: ParserState): void => {
   parserState.line++
